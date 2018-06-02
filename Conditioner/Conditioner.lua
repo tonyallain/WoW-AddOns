@@ -1,6 +1,6 @@
 --==============================================CONDITIONER 2.0==============================================--
 --By Tony Allain
---version 2.3.2
+--version 2.3.3
 --===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
 ConditionerAddOn.EventHandler = {}
@@ -1879,9 +1879,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         finalDebuffMask = finalDebuffMask + ((debuffDispelTypes["Poison"]) and 4 or 0)
         finalDebuffMask = finalDebuffMask + ((debuffDispelTypes["Disease"]) and 8 or 0)
         local result = 0
-        if (buffBool and not debuffBool) then
+        if (Conditions.buffBool and not Conditions.debuffBool) then
             result = bit.band(targetMaskSum, finalBuffMask)
-        elseif (debuffBool and not buffBool) then
+        elseif (Conditions.debuffBool and not Conditions.buffBool) then
             result = bit.band(targetMaskSum, finalDebuffMask)
         else
             result = math.max(bit.band(targetMaskSum, finalBuffMask), bit.band(targetMaskSum, finalDebuffMask))
