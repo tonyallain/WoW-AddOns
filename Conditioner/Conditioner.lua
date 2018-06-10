@@ -1,6 +1,6 @@
 --==============================================CONDITIONER 2.0==============================================--
 --By Tony Allain
---version 2.3.3
+--version 2.3.4
 --===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
 ConditionerAddOn.EventHandler = {}
@@ -729,9 +729,10 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Background:SetWidth(mainTrackedFrame:GetWidth() - ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:GetWidth())
 
                 if (ConditionerAddOn.ShowCastBar) then
+                    local convertedTime = ConditionerAddOn:ConvertTime(timeLeft/1000 - GetTime())
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:ClearAllPoints()
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:SetPoint("CENTER", mainTrackedFrame, "CENTER")
-                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:SetText(string.format("%.1f", timeLeft/1000 - GetTime()))
+                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:SetText(convertedTime)
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(mainTrackedFrame:GetHeight()/3), "OUTLINE, NORMAL")
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:SetTextColor(mult, 1-mult, 0)
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:Show()
@@ -1637,13 +1638,12 @@ function ConditionerAddOn:GetCooldownList()
         end
     end
 
-    local myHasteMult = 1/(1+(GetHaste()/100))
-    ConditionerAddOn:MergeSort(validSpells, myHasteMult)
+    ConditionerAddOn:MergeSort(validSpells)
 
     return validSpells
 end
 
-function ConditionerAddOn:MergeSort(list, hasteMult)
+function ConditionerAddOn:MergeSort(list)
     if (#list > 1) then
         local middle = math.ceil(#list/2)
         local leftHalf, rightHalf = {}, {}
@@ -1653,14 +1653,15 @@ function ConditionerAddOn:MergeSort(list, hasteMult)
         for i=middle+1,#list do
             table.insert(rightHalf, list[i])
         end
-        ConditionerAddOn:MergeSort(leftHalf, hasteMult)
-        ConditionerAddOn:MergeSort(rightHalf, hasteMult)
-        ConditionerAddOn:Merge(list, leftHalf, rightHalf, hasteMult)
+        ConditionerAddOn:MergeSort(leftHalf)
+        ConditionerAddOn:MergeSort(rightHalf)
+        ConditionerAddOn:Merge(list, leftHalf, rightHalf)
     end
 end
 
-function ConditionerAddOn:Merge(list, left, right, hasteMult)
+function ConditionerAddOn:Merge(list, left, right)
     local i, j, k = 1, 1, 1
+    local hasteMult = 1/(1+(GetHaste()/100))
     while ((i <= #left) and (j <= #right)) do
         local a, b = left[i], right[j]
         if (a.priority < b.priority) then
