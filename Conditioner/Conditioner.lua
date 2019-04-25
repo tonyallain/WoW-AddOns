@@ -633,7 +633,9 @@ function ConditionerAddOn:RollTheBones()
         "Broadsides",
         "Jolly Roger",
         "Buried Treasure",
-        "Grand Melee"
+        "Grand Melee",
+        "Skull and Crossbones",
+        "Ruthless Precision"
     }
     local results = {}
     for k,v in ipairs(RollTheBonesBuffs) do
