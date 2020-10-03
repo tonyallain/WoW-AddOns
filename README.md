@@ -4,6 +4,8 @@
 
 ## [Download from CurseForge](https://www.curseforge.com/wow/addons/conditioner)
 
+[![Youtube Demo](https://img.youtube.com/vi/2LnQBS0cnBE/0.jpg)](https://www.youtube.com/watch?v=2LnQBS0cnBE 'Click to watch demo on youtube')
+
 <p><span style="text-decoration: underline; color: #FFFFFF; font-size: 18px;"><b>The single best feature of Conditioner:</b></span></p>
 <ul>
 <li><span style="color: #00ccff;"><b>Tired of thinking? Conditioner automatically re-arranges icons on your screen to let you know what button you should push next!</b></span></li>
@@ -29,4 +31,3 @@
 <li>Especially useful for learning new classes, specs, or rotations.</li>
 <li>More features will be added throughout the development process based on feedback and iteration. Post comments, tell me how bad it is and how much better it NEEDS to be. I AM HERE FOR YOU! &lt;3</li>
 </ul>
-![Demo](http://img.youtube.com/vi/2LnQBS0cnBE/0.jpg)
