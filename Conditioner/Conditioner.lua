@@ -1,6 +1,7 @@
 --==============================================CONDITIONER 2.0==============================================--
 --By Tony Allain
---version 2.3.4
+--version 2.4.2
+--Shadowlands ready
 --===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
 ConditionerAddOn.EventHandler = {}
@@ -382,15 +383,17 @@ function ConditionerAddOn:EncodeToMask(results, toSingle)
 end
 
 function ConditionerAddOn:AddBorder(frame, alternative)
-    frame.Border = frame.Border or CreateFrame("Frame", nil, frame)
+    frame.Border = frame.Border or CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
     if (alternative) then
         frame.Border:SetBackdrop({edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Gold-Border", edgeSize = alternative})
         frame.Border:SetPoint("TOPRIGHT", frame, "TOPRIGHT", alternative/8, alternative/6)
         frame.Border:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -alternative/8, -alternative/6)
+        frame.Border:ApplyBackdrop()
     else
         frame.Border:SetBackdrop({edgeFile = "Interface\\GLUES\\COMMON\\Glue-Tooltip-Border", edgeSize = 16})
         frame.Border:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 4, 4)
         frame.Border:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -8, -8)
+        frame.Border:ApplyBackdrop()
     end
 end
 
@@ -633,9 +636,7 @@ function ConditionerAddOn:RollTheBones()
         "Broadsides",
         "Jolly Roger",
         "Buried Treasure",
-        "Grand Melee",
-        "Skull and Crossbones",
-        "Ruthless Precision"
+        "Grand Melee"
     }
     local results = {}
     for k,v in ipairs(RollTheBonesBuffs) do
@@ -877,7 +878,8 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
             ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(0.6*h), "OUTLINE, NORMAL")
             ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(0.6*h), "OUTLINE, NORMAL")
             if (MH) then
-                local _, _, _, _, _, _, _, textureId = C_Transmog.GetSlotInfo(INVSLOT_MAINHAND or 16, LE_TRANSMOG_TYPE_APPEARANCE)
+                local transmogSlot = TransmogUtil.GetTransmogLocation("MAINHANDSLOT", Enum.TransmogType.Appearance, Enum.TransmogModification.None)
+                local _, _, _, _, _, _, _, textureId = C_Transmog.GetSlotInfo(transmogSlot)
                 textureId = textureId or GetInventoryItemTexture("player", INVSLOT_MAINHAND or 16)
                 local progress = w*elapsed/MH
                 local newWidth = ConditionerAddOn.TrackedFrameDragAnchor.MainHand:GetWidth() + progress
@@ -891,7 +893,8 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
             end
 
             if (OH) then
-                local _, _, _, _, _, _, _, textureIdOH = C_Transmog.GetSlotInfo(INVSLOT_OFFHAND or 17, LE_TRANSMOG_TYPE_APPEARANCE)
+                local transmogSlotOH = TransmogUtil.GetTransmogLocation("SECONDARYHANDSLOT", Enum.TransmogType.Appearance, Enum.TransmogModification.None)
+                local _, _, _, _, _, _, _, textureIdOH = C_Transmog.GetSlotInfo(transmogSlotOH)
                 textureIdOH = textureIdOH or GetInventoryItemTexture("player", INVSLOT_OFFHAND or 17)
                 local progressOH = w*elapsed/OH
                 local newWidthOH = ConditionerAddOn.TrackedFrameDragAnchor.OffHand:GetWidth() + progressOH
@@ -2369,10 +2372,11 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
     o.icon:SetAllPoints(o)
     o.icon:SetTexture("Interface\\FrameGeneral\\UI-Background-Marble")
     o.icon:SetDrawLayer("BACKGROUND")
-    o.Border = CreateFrame("Frame", nil, o)
+    o.Border = CreateFrame("Frame", nil, o, BackdropTemplateMixin and "BackdropTemplate")
     o.Border:SetBackdrop({edgeFile = "Interface\\GLUES\\COMMON\\Glue-Tooltip-Border", edgeSize = 16})
     o.Border:SetPoint("TOPRIGHT", o, "TOPRIGHT", 4, 4)
     o.Border:SetPoint("BOTTOMLEFT", o, "BOTTOMLEFT", -8, -8)
+    o.Border:ApplyBackdrop()
     o.texture = o:CreateTexture()
     o.texture:Hide()
     o.texture:SetAllPoints(o)
