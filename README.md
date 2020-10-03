@@ -29,4 +29,4 @@
 <li>Especially useful for learning new classes, specs, or rotations.</li>
 <li>More features will be added throughout the development process based on feedback and iteration. Post comments, tell me how bad it is and how much better it NEEDS to be. I AM HERE FOR YOU! &lt;3</li>
 </ul>
-<p>[![Demo](https://img.youtube.com/vi/2LnQBS0cnBE/0.jpg)](https://youtu.be/2LnQBS0cnBE)</p>
+[![Demo](https://img.youtube.com/vi/2LnQBS0cnBE/0.jpg)](https://youtu.be/2LnQBS0cnBE)
