@@ -1,0 +1,28 @@
+{
+  "name": "conditioner",
+  "version": "2.4.1",
+  "description": "Combat rotation tracking AddOn for World of Warcraft",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonyallain/WoW-AddOns.git"
+  },
+  "keywords": [
+    "World",
+    "of",
+    "Warcraft",
+    "WoW",
+    "Lua",
+    "Combat",
+    "Rotation",
+    "WeakAuras"
+  ],
+  "author": "Tony Allain",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/tonyallain/WoW-AddOns/issues"
+  },
+  "homepage": "https://github.com/tonyallain/WoW-AddOns#readme"
+}
