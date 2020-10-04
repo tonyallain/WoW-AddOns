@@ -2,8 +2,9 @@
   "name": "conditioner",
   "version": "2.4.1",
   "description": "Combat rotation tracking AddOn for World of Warcraft",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node index"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,10 @@
   "bugs": {
     "url": "https://github.com/tonyallain/WoW-AddOns/issues"
   },
-  "homepage": "https://github.com/tonyallain/WoW-AddOns#readme"
+  "homepage": "https://github.com/tonyallain/WoW-AddOns#readme",
+  "dependencies": {
+    "archiver": "^5.0.2",
+    "config": "^3.3.2",
+    "supertest": "^5.0.0"
+  }
 }
