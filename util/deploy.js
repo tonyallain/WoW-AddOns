@@ -3,9 +3,11 @@ const request = require('supertest');
 
 const { host, apiKey } = config.get('curseforge');
 
+// https://www.curseforge.com/wow/addons/conditioner/files/3071222
+
 const auth = () =>
   request(host)
-    .get('/api/game/versions')
+    .get('/game/versions')
     .query({ token: apiKey })
     .then(res => console.log(res.body));
 
