@@ -4,7 +4,7 @@
   "description": "Combat rotation tracking AddOn for World of Warcraft",
   "main": "index.js",
   "scripts": {
-    "start": "node index"
+    "build": "node index"
   },
   "repository": {
     "type": "git",
