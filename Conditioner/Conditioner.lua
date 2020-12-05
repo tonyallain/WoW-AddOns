@@ -2028,11 +2028,10 @@ end
 
 function ConditionerAddOn:Merge(list, left, right)
     local i, j, k = 1, 1, 1
-    local hasteMult = 1 / (1 + (GetHaste() / 100))
     while ((i <= #left) and (j <= #right)) do
         local a, b = left[i], right[j]
         if (a.priority < b.priority) then
-            if (a.time < (b.time + b.gcd * hasteMult)) then
+            if (a.time <= b.time) then
                 list[k] = a
                 i = i + 1
             else
@@ -2040,7 +2039,7 @@ function ConditionerAddOn:Merge(list, left, right)
                 j = j + 1
             end
         else
-            if (b.time < (a.time + a.gcd * hasteMult)) then
+            if (b.time <= a.time) then
                 list[k] = b
                 j = j + 1
             else
