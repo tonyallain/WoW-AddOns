@@ -1736,6 +1736,7 @@ function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, m
             ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
                 ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
             ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
+            ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
             ConditionerAddOn_SavedVariables.Options[key] = o:GetValue()
             self.text:SetText(
                 string.format("%s (%s%s)", sliderText, o:GetValue(), (key == "NumTrackedFrames") and "" or "%")
@@ -1753,6 +1754,7 @@ function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, m
             ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
                 ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
             ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
+            ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
             o:SetValue(ConditionerAddOn_SavedVariables.Options[key])
             self.text:SetText(
                 string.format("%s (%s%s)", sliderText, o:GetValue(), (key == "NumTrackedFrames") and "" or "%")
@@ -2027,11 +2029,13 @@ function ConditionerAddOn:MergeSort(list)
 end
 
 function ConditionerAddOn:Merge(list, left, right)
+    local gcdClipAmount = (ConditionerAddOn_SavedVariables.Options.ClipGCD or 0) / 100
+    local hasteMult = 1 / (1 + (GetHaste() / 100))
     local i, j, k = 1, 1, 1
     while ((i <= #left) and (j <= #right)) do
         local a, b = left[i], right[j]
         if (a.priority < b.priority) then
-            if (a.time <= b.time) then
+            if (a.time <= b.time + hasteMult * b.gcd * gcdClipAmount) then
                 list[k] = a
                 i = i + 1
             else
@@ -2039,7 +2043,7 @@ function ConditionerAddOn:Merge(list, left, right)
                 j = j + 1
             end
         else
-            if (b.time <= a.time) then
+            if (b.time <= a.time + hasteMult * a.gcd * gcdClipAmount) then
                 list[k] = b
                 j = j + 1
             else
@@ -5457,6 +5461,21 @@ function ConditionerAddOn:Init()
     )
     ConditionerAddOn.LoadoutFrame.Opacity:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.TaperSize, "BOTTOM", 0, -25)
 
+    --GCD CLIPPING
+    ConditionerAddOn.LoadoutFrame.ClipGCD =
+        ConditionerAddOn:NewSlider(
+        ConditionerAddOn.LoadoutFrame,
+        "ConditionerClipping",
+        "0%",
+        "99%",
+        0,
+        99,
+        "GCD Clipping",
+        0,
+        "ClipGCD"
+    )
+    ConditionerAddOn.LoadoutFrame.ClipGCD:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.Opacity, "BOTTOM", 0, -25)
+
     --ONLY IN COMBAT
     ConditionerAddOn.LoadoutFrame.AlwaysShow =
         CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame, "UICheckButtonTemplate")
@@ -5634,7 +5653,7 @@ function ConditionerAddOn:Init()
     )
     ConditionerAddOn.LoadoutFrame.BackgroundFrame:SetPoint(
         "BOTTOM",
-        ConditionerAddOn.LoadoutFrame.Opacity,
+        ConditionerAddOn.LoadoutFrame.ClipGCD,
         "BOTTOM",
         0,
         -20
