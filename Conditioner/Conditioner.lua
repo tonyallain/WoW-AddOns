@@ -2,6 +2,7 @@
 --By Tony Allain
 --===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
+local closeResultsBox = false
 ConditionerAddOn.EventHandler = {}
 ConditionerAddOn.DecodePattern = "%[(........................)(_.-_.-_.-_.-_.-])"
 ConditionerAddOn.Size = 24
@@ -3624,6 +3625,17 @@ function ConditionerAddOn:Init()
     --aura name
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3] =
         ConditionerAddOn:NewInputBox(ConditionerAddOn.SharedConditionerFrame, "activeAuraString")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:HookScript("OnEscapePressed", function()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+    end)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:HookScript("OnHide", function()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+    end)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetScript("OnEditFocusLost", function()
+        closeResultsBox = true
+    end)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetPoint(
         "LEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[5],
@@ -3758,11 +3770,15 @@ function ConditionerAddOn:Init()
         end
 
         EmptyPool:SetScript(
-            "OnMouseUp",
+            "OnMouseDown",
             function(self, button)
                 ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetText(EmptyPool:GetText())
                 ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:ClearFocus()
                 ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+
+                local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:GetText():gsub("_", " ")
+                ConditionerAddOn:SetCurrentCondition('activeAuraString', strippedString)
             end
         )
         EmptyPool:SetText(s)
@@ -5937,5 +5953,19 @@ ConditionerAddOn:SetScript(
         ConditionerAddOn:OnUpdate(elapsed)
         ConditionerAddOn:UpdateSwingTimers(elapsed)
         ConditionerAddOn:UpdateCastBar(elapsed)
+
+        if (closeResultsBox and ConditionerAddOn.SharedConditionerFrame.ResultsBox) then
+            if (ConditionerAddOn.SharedConditionerFrame.ResultsBox:IsShown()) then
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+            end
+            
+            if (ConditionerAddOn.SharedConditionerFrame.EditBoxes and ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]) then
+                local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:GetText():gsub("_", " ")
+                ConditionerAddOn:SetCurrentCondition('activeAuraString', strippedString)
+            end
+            
+            closeResultsBox = false
+        end
     end
 )
