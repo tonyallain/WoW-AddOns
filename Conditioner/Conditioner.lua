@@ -2672,6 +2672,7 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
     local o = CreateFrame("Frame", name, parent, "ConditionerUIDropDownMenuTemplate")
     if (title) then
         o.text = o:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+        o.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
         o.text:SetPoint("BOTTOM", o, "TOP", 0, -12)
         o.text:SetText(title)
         o.text:SetJustifyH("CENTER")
@@ -3639,6 +3640,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3],
@@ -3812,6 +3814,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4],
@@ -3867,6 +3870,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[7],
@@ -3927,6 +3931,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[8],
@@ -3989,6 +3994,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetPoint(
         "LEFT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[7],
@@ -4494,6 +4500,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetPoint(
         "TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining,
