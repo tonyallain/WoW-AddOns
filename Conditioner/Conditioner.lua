@@ -3744,6 +3744,7 @@ function ConditionerAddOn:Init()
         function EmptyPool:SetText(s)
             if (not EmptyPool.text) then
                 EmptyPool.text = EmptyPool:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+                EmptyPool.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
                 EmptyPool.text:SetTextColor(1, 0.95, 0.15, 1)
                 EmptyPool.text:SetPoint("LEFT", EmptyPool, "LEFT", 4, 0)
                 EmptyPool.text:SetJustifyH("LEFT")
