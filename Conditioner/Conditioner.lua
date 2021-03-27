@@ -2,6 +2,7 @@
 --By Tony Allain
 --===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
+local closeResultsBox = false
 ConditionerAddOn.EventHandler = {}
 ConditionerAddOn.DecodePattern = "%[(........................)(_.-_.-_.-_.-_.-])"
 ConditionerAddOn.Size = 24
@@ -2672,6 +2673,7 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
     local o = CreateFrame("Frame", name, parent, "ConditionerUIDropDownMenuTemplate")
     if (title) then
         o.text = o:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+        o.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
         o.text:SetPoint("BOTTOM", o, "TOP", 0, -12)
         o.text:SetText(title)
         o.text:SetJustifyH("CENTER")
@@ -3623,6 +3625,17 @@ function ConditionerAddOn:Init()
     --aura name
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3] =
         ConditionerAddOn:NewInputBox(ConditionerAddOn.SharedConditionerFrame, "activeAuraString")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:HookScript("OnEscapePressed", function()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+    end)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:HookScript("OnHide", function()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+    end)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetScript("OnEditFocusLost", function()
+        closeResultsBox = true
+    end)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetPoint(
         "LEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[5],
@@ -3639,6 +3652,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3],
@@ -3742,6 +3756,7 @@ function ConditionerAddOn:Init()
         function EmptyPool:SetText(s)
             if (not EmptyPool.text) then
                 EmptyPool.text = EmptyPool:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+                EmptyPool.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
                 EmptyPool.text:SetTextColor(1, 0.95, 0.15, 1)
                 EmptyPool.text:SetPoint("LEFT", EmptyPool, "LEFT", 4, 0)
                 EmptyPool.text:SetJustifyH("LEFT")
@@ -3755,11 +3770,15 @@ function ConditionerAddOn:Init()
         end
 
         EmptyPool:SetScript(
-            "OnMouseUp",
+            "OnMouseDown",
             function(self, button)
                 ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetText(EmptyPool:GetText())
                 ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:ClearFocus()
                 ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+
+                local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:GetText():gsub("_", " ")
+                ConditionerAddOn:SetCurrentCondition('activeAuraString', strippedString)
             end
         )
         EmptyPool:SetText(s)
@@ -3812,6 +3831,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4],
@@ -3867,6 +3887,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[7],
@@ -3927,6 +3948,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetPoint(
         "BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[8],
@@ -3989,6 +4011,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetPoint(
         "LEFT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[7],
@@ -4494,6 +4517,7 @@ function ConditionerAddOn:Init()
         "OVERLAY",
         "SystemFont_NamePlateCastBar"
     )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetPoint(
         "TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining,
@@ -5929,5 +5953,19 @@ ConditionerAddOn:SetScript(
         ConditionerAddOn:OnUpdate(elapsed)
         ConditionerAddOn:UpdateSwingTimers(elapsed)
         ConditionerAddOn:UpdateCastBar(elapsed)
+
+        if (closeResultsBox and ConditionerAddOn.SharedConditionerFrame.ResultsBox) then
+            if (ConditionerAddOn.SharedConditionerFrame.ResultsBox:IsShown()) then
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
+            end
+            
+            if (ConditionerAddOn.SharedConditionerFrame.EditBoxes and ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]) then
+                local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:GetText():gsub("_", " ")
+                ConditionerAddOn:SetCurrentCondition('activeAuraString', strippedString)
+            end
+            
+            closeResultsBox = false
+        end
     end
 )
