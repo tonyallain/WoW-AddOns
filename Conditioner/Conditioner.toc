@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 90100
 ## Title: Conditioner
 ## Notes: A spell rotation tracking AddOn
 ## Author: Tony Allain
