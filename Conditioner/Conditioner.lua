@@ -560,7 +560,7 @@ function ConditionerAddOn.DebuffExists(unitToken, auraString, filter)
             _,
             _,
             _,
-            auraTimeMod = UnitDebuff(unitToken, i, nil, filter)
+            auraTimeMod = UnitDebuff(unitToken, i, filter)
         if (auraName) and (auraName:lower() == auraString:lower()) then
             return auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _, _, _, _, auraTimeMod
         end
@@ -584,7 +584,7 @@ function ConditionerAddOn.BuffExists(unitToken, auraString, filter)
             _,
             _,
             _,
-            auraTimeMod = UnitBuff(unitToken, i, nil, filter)
+            auraTimeMod = UnitBuff(unitToken, i, filter)
         if (auraName) and (auraName:lower() == auraString:lower()) then
             return auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _, _, _, _, auraTimeMod
         end
@@ -814,7 +814,8 @@ function ConditionerAddOn:CreateSwingFrame(text, parent, r, g, b)
     o.Texture = o:CreateTexture()
     o.Texture:SetAllPoints(o)
     o.Texture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-BarFill")
-    o.Texture:SetGradient("HORIZONTAL", r * 0.25, g * 0.25, b * 0.25, r, g, b)
+    -- o.Texture:SetGradient("HORIZONTAL", CreateColor(r * 0.25, g * 0.25, b * 0.25), CreateColor(r, g, b))
+    o.Texture:SetColorTexture(r, g, b)
     o.Text = o:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
     o.Text:SetPoint("LEFT", o, "LEFT")
     o.Text:SetText(text)
@@ -833,7 +834,7 @@ function ConditionerAddOn:CreateSwingFrame(text, parent, r, g, b)
     o.Background.Texture = o.Background:CreateTexture()
     o.Background.Texture:SetAllPoints(o.Background)
     o.Background.Texture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-BarFill")
-    o.Background.Texture:SetGradientAlpha("HORIZONTAL", 0, 0, 0, 0.25, r * 0.5, g * 0.5, b * 0.4, 0.4)
+    -- o.Background.Texture:SetGradientAlpha("HORIZONTAL", 0, 0, 0, 0.25, r * 0.5, g * 0.5, b * 0.4, 0.4)
     return o
 end
 
@@ -876,25 +877,15 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
                 )
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Text:SetText(castName)
                 if (greyBar) then
-                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Texture:SetGradient(
-                        "HORIZONTAL",
-                        0.75,
-                        0.75,
-                        0.75,
-                        1,
-                        1,
-                        1
-                    )
+                --     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Texture:SetGradient(
+                --         "HORIZONTAL", CreateColor(0.75, 0.75, 0.75), CreateColor(1, 1, 1)
+                --     )
+                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Texture:SetColorTexture(0.75, 0.75, 0.75)
                 else
-                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Texture:SetGradient(
-                        "HORIZONTAL",
-                        0.5,
-                        0.5,
-                        0,
-                        1,
-                        1,
-                        0
-                    )
+                --     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Texture:SetGradient(
+                --         "HORIZONTAL", CreateColor(0.5, 0.5, 0), CreateColor(1, 1, 0)
+                --     )
+                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Texture:SetColorTexture(1, 1, 0)
                 end
                 local mult = (timeLeft - GetTime() * 1000) / (timeLeft - startTime)
                 if (castSpellName) then
@@ -1144,7 +1135,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                     TransmogUtil.GetTransmogLocation(
                     "MAINHANDSLOT",
                     Enum.TransmogType.Appearance,
-                    Enum.TransmogModification.None
+                    Enum.TransmogModification.Main
                 )
                 local _, _, _, _, _, _, _, textureId = C_Transmog.GetSlotInfo(transmogSlot)
                 textureId = textureId or GetInventoryItemTexture("player", INVSLOT_MAINHAND or 16)
@@ -1166,7 +1157,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                     TransmogUtil.GetTransmogLocation(
                     "SECONDARYHANDSLOT",
                     Enum.TransmogType.Appearance,
-                    Enum.TransmogModification.None
+                    Enum.TransmogModification.Secondary
                 )
                 local _, _, _, _, _, _, _, textureIdOH = C_Transmog.GetSlotInfo(transmogSlotOH)
                 textureIdOH = textureIdOH or GetInventoryItemTexture("player", INVSLOT_OFFHAND or 17)
@@ -2361,6 +2352,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local timeRemaining = math.max((auraExpireTimestamp or 0) - GetTime(), 0)
         if (timeRemaining > rightValue) or ((auraDuration) and (auraDuration == 0)) then
             --print("FAILED - TOO LONG")
+            return false
+        elseif (rightValue > 0) and (timeRemaining == 0) then
+            -- if rightValue is greater than 0, our timeRemaining must be non-zero too
             return false
         end
     end
@@ -5741,7 +5735,7 @@ function ConditionerAddOn:Init()
                             10,
                         0
                     )
-                    ConditionerAddOn.LoadoutFrame.DancingMan:SetAlpha(percentFade)
+                    ConditionerAddOn.LoadoutFrame.DancingMan:SetAlpha(math.min(1, percentFade))
                 end
                 if (ConditionerAddOn.LoadoutFrame.DancingMan.Wounds <= 0) then
                     ConditionerAddOn.LoadoutFrame.DancingMan.Hitbox:EnableMouse(true)
