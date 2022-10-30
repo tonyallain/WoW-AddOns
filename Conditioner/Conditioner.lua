@@ -5485,9 +5485,9 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.LoadoutFrame,
         "ConditionerClipping",
         "0%",
-        "99%",
+        "100%",
         0,
-        99,
+        100,
         "GCD Clipping",
         0,
         "ClipGCD"
