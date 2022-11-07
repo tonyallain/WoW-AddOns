@@ -1157,7 +1157,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                     TransmogUtil.GetTransmogLocation(
                     "SECONDARYHANDSLOT",
                     Enum.TransmogType.Appearance,
-                    Enum.TransmogModification.Secondary
+                    Enum.TransmogModification.Main
                 )
                 local _, _, _, _, _, _, _, textureIdOH = C_Transmog.GetSlotInfo(transmogSlotOH)
                 textureIdOH = textureIdOH or GetInventoryItemTexture("player", INVSLOT_OFFHAND or 17)
