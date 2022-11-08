@@ -947,9 +947,9 @@ function ConditionerAddOn:OnUpdate(elapsed)
         return
     end
     local sortedList = ConditionerAddOn:GetCooldownList()
+    ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
+    ConditionerAddOn_SavedVariables.Options.NumTrackedFrames = ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
     for k, v in ipairs(sortedList) do
-        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-            ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
         if (k <= ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
             local newTrackerFrame = ConditionerAddOn:GetAvailableTrackingFrame()
             if (k == 1) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
@@ -1084,6 +1084,7 @@ function ConditionerAddOn:OnUpdate(elapsed)
             newTrackerFrame.Icon:SetTexture(prioTexture)
             local cropAmount = 0.075
             newTrackerFrame.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
+            newTrackerFrame.Icon:SetAlpha(ConditionerAddOn_SavedVariables.Options.Opacity / 100)
             newTrackerFrame.Keybind:SetText(keybind)
             if (not v.range) or (v.range == 1) then
                 newTrackerFrame.Icon:SetDesaturated(false)
