@@ -439,21 +439,12 @@ function ConditionerAddOn:EncodeToMask(results, toSingle)
     end
 end
 
-function ConditionerAddOn:AddBorder(frame, alternative)
+function ConditionerAddOn:AddBorder(frame)
     frame.Border = frame.Border or CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
-    if (alternative) then
-        frame.Border:SetBackdrop(
-            {edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Gold-Border", edgeSize = alternative}
-        )
-        frame.Border:SetPoint("TOPRIGHT", frame, "TOPRIGHT", alternative / 8, alternative / 6)
-        frame.Border:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -alternative / 8, -alternative / 6)
-        frame.Border:ApplyBackdrop()
-    else
-        frame.Border:SetBackdrop({edgeFile = "Interface\\GLUES\\COMMON\\Glue-Tooltip-Border", edgeSize = 16})
-        frame.Border:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 4, 4)
-        frame.Border:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -8, -8)
-        frame.Border:ApplyBackdrop()
-    end
+    frame.Border:SetBackdrop({edgeFile = "Interface\\GLUES\\COMMON\\Glue-Tooltip-Border", edgeSize = 16})
+    frame.Border:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 4, 4)
+    frame.Border:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -8, -8)
+    frame.Border:ApplyBackdrop()
 end
 
 function ConditionerAddOn:GetNextPriorityButton()
@@ -834,6 +825,7 @@ function ConditionerAddOn:CreateSwingFrame(text, parent, r, g, b)
     o.Background.Texture = o.Background:CreateTexture()
     o.Background.Texture:SetAllPoints(o.Background)
     o.Background.Texture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-BarFill")
+    o.Background.Texture:SetColorTexture(0, 0, 0, 0.5)
     -- o.Background.Texture:SetGradientAlpha("HORIZONTAL", 0, 0, 0, 0.25, r * 0.5, g * 0.5, b * 0.4, 0.4)
     return o
 end
@@ -1090,6 +1082,8 @@ function ConditionerAddOn:OnUpdate(elapsed)
                 end
             end
             newTrackerFrame.Icon:SetTexture(prioTexture)
+            local cropAmount = 0.075
+            newTrackerFrame.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
             newTrackerFrame.Keybind:SetText(keybind)
             if (not v.range) or (v.range == 1) then
                 newTrackerFrame.Icon:SetDesaturated(false)
@@ -1947,8 +1941,7 @@ function ConditionerAddOn:ResizeTrackers()
             v.Keybind:SetPoint("BOTTOMLEFT", v, "BOTTOMLEFT", myNewSize * 0.08, myNewSize * 0.0325)
         end
         v.Icon:SetAlpha(ConditionerAddOn_SavedVariables.Options.Opacity / 100)
-        local borderMult = myNewSize / 3
-        ConditionerAddOn:AddBorder(v, borderMult)
+        ConditionerAddOn:AddBorder(v)
         v.Keybind:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(0.26 * myNewSize), "OUTLINE, THICK")
         v.Countdown.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(0.24 * myNewSize), "OUTLINE, THICK")
     end
@@ -2514,7 +2507,6 @@ function ConditionerAddOn:GetAvailableTrackingFrame()
         ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * mult,
         ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * mult
     )
-    local borderMult = (ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * mult) / 3
     trackingFrame.Keybind:SetPoint(
         "BOTTOMLEFT",
         trackingFrame,
@@ -2522,7 +2514,7 @@ function ConditionerAddOn:GetAvailableTrackingFrame()
         ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * mult * 0.08,
         ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * mult * 0.0325
     )
-    ConditionerAddOn:AddBorder(trackingFrame, borderMult)
+    ConditionerAddOn:AddBorder(trackingFrame)
     trackingFrame.Keybind:SetFont(
         "Fonts\\FRIZQT__.TTF",
         math.ceil(0.26 * ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * mult),
