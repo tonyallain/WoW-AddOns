@@ -1177,7 +1177,7 @@ end
 
 function ConditionerAddOn:HandleSwingTimerRanged(...)
     --local autoShotSpellID = 75
-    if (select(1, ...) == "player") and (select(5, ...) == 75) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
+    if (select(1, ...) == "player") and (select(3, ...) == 75) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetWidth(0)
     end
 end
