@@ -1470,7 +1470,7 @@ function ConditionerAddOn:GetConditions(frame)
             frame.Conditions.onlyInRange,
             frame.Conditions.onlyDuringCC,
             false, --4
-            frame.Conditions.inStealth, --5
+            frame.Conditions.hideWhileCasting, --5
             frame.Conditions.canCast
         },
         true
@@ -1595,7 +1595,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
         destFrame.Conditions.onlyInRange = decoded_boolStringShort[2]
         destFrame.Conditions.onlyDuringCC = decoded_boolStringShort[3]
         destFrame.Conditions.onlyWhileMoving = decoded_boolStringShort[4]
-        destFrame.Conditions.inStealth = decoded_boolStringShort[5]
+        destFrame.Conditions.hideWhileCasting = decoded_boolStringShort[5]
         destFrame.Conditions.canCast = decoded_boolStringShort[6]
         destFrame.Conditions.cooldownRemainingEnum = ConditionerAddOn:ConvertFromMask(cdR)
     else
@@ -1624,7 +1624,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
             onlyInRange = false,
             onlyDuringCC = false,
             canCast = false,
-            inStealth = false,
+            hideWhileCasting = false,
             onlyWhileMoving = false,
             --enums
             resourceTypeEnum = 0,
@@ -2078,12 +2078,6 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         return false
     end
 
-    --am I casting the spell already?
-    local _, _, _, _, _, _, _, _, myCastSpellID = UnitCastingInfo("player")
-    if (spellID == myCastSpellID) then
-        return false
-    end
-
     --moving
     if (Conditions.onlyWhileMoving) and (not IsPlayerMoving()) then
         return false
@@ -2176,12 +2170,27 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         end
     end
 
-    --inStealth
-    if (Conditions.inStealth) then
-        local inStealth = IsStealthed() or ConditionerAddOn.BuffExists("player", "Subterfuge")
-        inStealth = inStealth or ConditionerAddOn.BuffExists("player", "Shadow Dance")
-        if (not inStealth) then
-            --print("FAILED - STEALTH")
+    --end up with 0 charges, no way it can be next
+    local _, _, _, _, _, _, _, _, myCastSpellID = UnitCastingInfo("player")
+    local _, _, _, _, _, _, _, myChannelSpellID = UnitChannelInfo("player")
+    if (spellID == myCastSpellID) or (spellID == myChannelSpellID) then
+        local remainingCharges = GetSpellCharges(spellID)
+        if  (remainingCharges and remainingCharges <= 1) then
+            return false
+        end
+
+        --if the spell being cast has a cooldown greater than 0 you can't chain cast it
+        local cooldownToTrigger = GetSpellBaseCooldown(spellID)
+        if (cooldownToTrigger > 0) then
+            return false
+        end
+    end
+
+    --hideWhileCasting
+    -- repurposed inStealth for casters
+    if (Conditions.hideWhileCasting) then
+        --am I casting the spell already?
+        if (spellID == myCastSpellID) or (spellID == myChannelSpellID) then
             return false
         end
     end
@@ -2904,7 +2913,7 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             onlyInRange = false,
             onlyDuringCC = false,
             canCast = false,
-            inStealth = false,
+            hideWhileCasting = false,
             onlyWhileMoving = false,
             --enums
             resourceTypeEnum = 0,
@@ -4591,7 +4600,7 @@ function ConditionerAddOn:Init()
 
     --Stealth
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16] =
-        ConditionerAddOn:NewCheckBox(ConditionerAddOn.SharedConditionerFrame, "Only While Stealthed", "inStealth")
+        ConditionerAddOn:NewCheckBox(ConditionerAddOn.SharedConditionerFrame, "Hide While Casting", "hideWhileCasting")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16]:SetPoint(
         "TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[14],
@@ -4602,9 +4611,9 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16],
         "RIGHT"
     )
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16].title = "Only During Stealth"
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16].title = "Hide While Casting"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16].tooltip =
-        "Enable this option if you only want to see this spell during Stealth/Shadowdance/Subterfuge."
+        "Enable this option if you want to hide the spell if it is actively being cast."
 
     --only while moving
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17] =
