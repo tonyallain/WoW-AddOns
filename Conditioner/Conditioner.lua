@@ -2078,6 +2078,12 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         return false
     end
 
+    --am I casting the spell already?
+    local _, _, _, _, _, _, _, _, myCastSpellID = UnitCastingInfo("player")
+    if (spellID == myCastSpellID) then
+        return false
+    end
+
     --moving
     if (Conditions.onlyWhileMoving) and (not IsPlayerMoving()) then
         return false
