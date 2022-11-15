@@ -5496,7 +5496,7 @@ function ConditionerAddOn:Init()
         "100%",
         0,
         100,
-        "GCD Clipping",
+        "GCD Factor",
         0,
         "ClipGCD"
     )
