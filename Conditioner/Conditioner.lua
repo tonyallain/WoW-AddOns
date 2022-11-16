@@ -76,6 +76,10 @@ ConditionerAddOn.BitMap = {
     ["!"] = 63
 }
 ConditionerAddOn.DefaultLoadouts = {
+    --DEVASTATION EVOKER WIP
+    [1467] = "",
+    --PRESERVATION EVOKER WIP
+    [1468] = "",
     --PROT WARRIOR
     [73] = [=[[02+m0___23920_0_0]
                 [02+m0___6552_0_0]
@@ -487,52 +491,8 @@ function ConditionerAddOn:FixupSavedVariables()
             local newValue = newIndexMap[v]
             ConditionerAddOn_SavedVariables.CurrentLoadouts[k] = newValue
         end
-        if (ConditionerAddOn_SavedVariables.TalentsPerLoadout) then
-            local newTalentMap = {}
-            for k, v in pairs(ConditionerAddOn_SavedVariables.TalentsPerLoadout) do
-                if (v) then
-                    local newValue = newIndexMap[k]
-                    newTalentMap[newValue] = v
-                end
-            end
-            ConditionerAddOn_SavedVariables.TalentsPerLoadout = {}
-            for k, v in pairs(newTalentMap) do
-                ConditionerAddOn_SavedVariables.TalentsPerLoadout[k] = v
-            end
-        end
         ConditionerAddOn_SavedVariables.Loadouts = nil
     end
-end
-
-function ConditionerAddOn:GetTalents()
-    local talentString = ""
-    for row = 1, 7 do
-        local selectedIndex = 0
-        for col = 1, 3 do
-            local _, _, _, selected = GetTalentInfo(row, col, 1)
-            selectedIndex = (selected) and col or selectedIndex
-        end
-        talentString = string.format("%s%s", talentString, selectedIndex)
-    end
-    return talentString
-end
-
-function ConditionerAddOn:IsTalentsDirty()
-    local currentSpecID = GetSpecialization()
-    if (currentSpecID) then
-        local currentSpec = GetSpecializationInfo(currentSpecID)
-        local currentTalentLoadoutID = ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpec] or 0
-        if (currentTalentLoadoutID) and (currentTalentLoadoutID > 0) then
-            local currentTalentLoadoutString = ConditionerAddOn_SavedVariables.TalentsPerLoadout[currentTalentLoadoutID]
-            local compareTalents = ConditionerAddOn:GetTalents()
-            if (currentTalentLoadoutString) and (currentTalentLoadoutString == compareTalents) then
-                return false
-            else
-                return true
-            end
-        end
-    end
-    return false
 end
 
 function ConditionerAddOn.DebuffExists(unitToken, auraString, filter)
@@ -581,134 +541,6 @@ function ConditionerAddOn.BuffExists(unitToken, auraString, filter)
         end
     end
     return false
-end
-
-function ConditionerAddOn:AddTalentSelectionHighlight()
-    local currentSpecID = GetSpecialization()
-    if (currentSpecID) then
-        local currentSpec = GetSpecializationInfo(currentSpecID)
-        local currentTalentLoadoutID = ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpec] or 0
-        if (currentTalentLoadoutID) and (currentTalentLoadoutID > 0) then
-            local currentTalentLoadoutString = ConditionerAddOn_SavedVariables.TalentsPerLoadout[currentTalentLoadoutID]
-            if (currentTalentLoadoutString) then
-                for i = 1, #currentTalentLoadoutString do
-                    if (not ConditionerAddOn.TalentSelectionFrames[i]) then
-                        ConditionerAddOn.TalentSelectionFrames[i] =
-                            CreateFrame("Frame", nil, _G["PlayerTalentFrameTalents"])
-                        ConditionerAddOn.TalentSelectionFrames[i]:SetFrameStrata("HIGH")
-                        ConditionerAddOn.TalentSelectionFrames[i].Texture =
-                            ConditionerAddOn.TalentSelectionFrames[i]:CreateTexture()
-                        ConditionerAddOn.TalentSelectionFrames[i].Texture:SetAllPoints(
-                            ConditionerAddOn.TalentSelectionFrames[i]
-                        )
-                        ConditionerAddOn.TalentSelectionFrames[i].Texture:SetTexture(
-                            "Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar-Blue"
-                        )
-                        ConditionerAddOn.TalentSelectionFrames[i].Texture:SetBlendMode("ADD")
-                        ConditionerAddOn.TalentSelectionFrames[i].Texture:SetDrawLayer("OVERLAY")
-                    end
-
-                    local row = i
-                    local col = tonumber(currentTalentLoadoutString:sub(i, i))
-                    if (col > 0) then
-                        local _, _, _, isSelected = GetTalentInfo(row, col, 1)
-                        if (isSelected) then
-                            ConditionerAddOn.TalentSelectionFrames[i]:Hide()
-                        else
-                            local currentTalentFrame =
-                                _G[string.format("PlayerTalentFrameTalentsTalentRow%sTalent%s", row, col)]
-                            ConditionerAddOn.TalentSelectionFrames[i]:ClearAllPoints()
-                            ConditionerAddOn.TalentSelectionFrames[i]:SetPoint("TOPLEFT", currentTalentFrame, "TOPLEFT")
-                            ConditionerAddOn.TalentSelectionFrames[i]:SetPoint(
-                                "BOTTOMRIGHT",
-                                currentTalentFrame,
-                                "BOTTOMRIGHT"
-                            )
-                            ConditionerAddOn.TalentSelectionFrames[i]:Show()
-                        end
-                    else
-                        ConditionerAddOn.TalentSelectionFrames[i]:Hide()
-                    end
-                end
-            end
-            if (ConditionerAddOn:IsTalentsDirty()) then
-                ConditionerAddOn.TalentSaveButton:Show()
-            else
-                ConditionerAddOn.TalentSaveButton:Hide()
-            end
-        else
-            for k, v in pairs(ConditionerAddOn.TalentSelectionFrames) do
-                v:Hide()
-            end
-            if (ConditionerAddOn.TalentSaveButton) then
-                ConditionerAddOn.TalentSaveButton:Hide()
-            end
-        end
-    end
-end
-
-function ConditionerAddOn:SetUpTalentTextures()
-    if (not PlayerTalentFrame) then
-        LoadAddOn("Blizzard_TalentUI")
-    end
-
-    if (PlayerTalentFrame) then
-        if (not ConditionerAddOn.TalentSelectionFrames) then
-            ConditionerAddOn.TalentSelectionFrames = {}
-            local TalentFrame = _G["PlayerTalentFrameTalents"]
-            TalentFrame:SetScript(
-                "OnShow",
-                function(self)
-                    ConditionerAddOn:AddTalentSelectionHighlight()
-                end
-            )
-            ConditionerAddOn.TalentSaveButton = CreateFrame("Button", nil, TalentFrame, "ConditionerButtonTemplate")
-            ConditionerAddOn.TalentSaveButton:SetText("Save")
-            ConditionerAddOn.TalentSaveButton:SetFrameStrata("HIGH")
-            ConditionerAddOn.TalentSaveButton:SetSize(80, 32)
-            ConditionerAddOn.TalentSaveButton:SetPoint("LEFT", PlayerTalentFramePortrait, "RIGHT")
-            ConditionerAddOn.TalentSaveButton:SetPoint("BOTTOM", PlayerTalentFrameTalentsPvpTalentButton, "BOTTOM")
-            ConditionerAddOn.TalentSaveButton:SetScript(
-                "OnEnter",
-                function(self)
-                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
-                    GameTooltip:SetText("Conditioner", 0, 0.75, 1)
-                    GameTooltip:AddLine(
-                        "Save this set of talents for your current loadout.\n\nTalents and rotations are saved independently of one another.",
-                        1,
-                        1,
-                        1,
-                        true
-                    )
-                    GameTooltip:SetMinimumWidth(150)
-                    GameTooltip:Show()
-                end
-            )
-            ConditionerAddOn.TalentSaveButton:SetScript(
-                "OnLeave",
-                function(self)
-                    GameTooltip:Hide()
-                end
-            )
-            ConditionerAddOn.TalentSaveButton:SetScript(
-                "OnClick",
-                function(self)
-                    local currentSpecID = GetSpecialization()
-                    if (currentSpecID) then
-                        local currentSpec = GetSpecializationInfo(currentSpecID)
-                        local currentTalentLoadoutID = ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpec] or 0
-                        if (currentTalentLoadoutID) and (currentTalentLoadoutID > 0) then
-                            ConditionerAddOn_SavedVariables.TalentsPerLoadout[currentTalentLoadoutID] =
-                                ConditionerAddOn:GetTalents()
-                        end
-                        ConditionerAddOn:AddTalentSelectionHighlight()
-                    end
-                end
-            )
-        else
-            ConditionerAddOn:AddTalentSelectionHighlight()
-        end
-    end
 end
 
 function ConditionerAddOn:GetRunes()
@@ -3031,6 +2863,8 @@ function ConditionerAddOn:GetLoadoutPackageByID(loadoutID)
                 if (basicLoadString) then
                     local basicPackage = {name = "Basic Rotation", value = basicLoadString, spec = currentSpec}
                     return basicPackage
+                else
+                    return
                 end
             end
         else
@@ -4862,8 +4696,6 @@ function ConditionerAddOn:Init()
                     ConditionerAddOn.LoadoutFrame.InputName:Hide()
 
                     ConditionerAddOn.LoadoutFrame.DropDown:SetValue(nextFreeLoadoutSlot)
-                    ConditionerAddOn_SavedVariables.TalentsPerLoadout[nextFreeLoadoutSlot] =
-                        ConditionerAddOn:GetTalents()
                 end
             else
                 UIErrorsFrame:Clear()
@@ -5143,8 +4975,6 @@ function ConditionerAddOn:Init()
                     (ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].spec ~=
                         currentSpecID)
              then
-                ConditionerAddOn_SavedVariables.TalentsPerLoadout[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice] =
-                    nil
                 ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpecID] = 0
                 ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = 0
             end
@@ -5231,16 +5061,11 @@ function ConditionerAddOn:Init()
         ConditionerAddOn:StoreCurrentLoadout()
         ConditionerAddOn.LoadoutFrame.InputName:Hide()
         ConditionerAddOn.LoadoutFrame.ImportExport:Hide()
-
-        --fixup talents
-        ConditionerAddOn:SetUpTalentTextures()
     end
 
     function ConditionerAddOn.LoadoutFrame.DropDown:DeleteLoadout()
         if (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice > 0) then
             ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice] = false
-            ConditionerAddOn_SavedVariables.TalentsPerLoadout[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice] =
-                nil
             CONDITIONERDROPDOWNMENU_SetText(
                 ConditionerAddOn.LoadoutFrame.DropDown,
                 string.format("|cffd742f4%s|r", ConditionerAddOn.LoadoutFrame.DropDown.Choices[0].name)
@@ -5252,7 +5077,6 @@ function ConditionerAddOn:Init()
                 ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
             end
             ConditionerAddOn.SharedConditionerFrame:Hide()
-            ConditionerAddOn:AddTalentSelectionHighlight()
         end
     end
 
@@ -5319,7 +5143,6 @@ function ConditionerAddOn:Init()
                 ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
                 ActionButton_HideOverlayGlow(ConditionerAddOn.LoadoutFrame.OverWrite)
                 ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
-                ConditionerAddOn:AddTalentSelectionHighlight()
             end
         end
     )
@@ -5885,8 +5708,6 @@ function ConditionerAddOn.EventHandler:PLAYER_ENTERING_WORLD(...)
     end
     ConditionerAddOn:ResizeTrackers()
     ConditionerAddOn:CacheCurrentSpecSpells()
-
-    ConditionerAddOn:SetUpTalentTextures()
 end
 
 function ConditionerAddOn.EventHandler:PLAYER_SPECIALIZATION_CHANGED(...)
@@ -5902,8 +5723,6 @@ function ConditionerAddOn.EventHandler:PLAYER_SPECIALIZATION_CHANGED(...)
         end
         SetPortraitTexture(ConditionerAddOn.LoadoutFrame.DragTexture, "player")
         ConditionerAddOn:CacheCurrentSpecSpells()
-
-        ConditionerAddOn:SetUpTalentTextures()
     end
 end
 
@@ -5914,7 +5733,6 @@ function ConditionerAddOn.EventHandler:ADDON_LOADED(...)
         ConditionerAddOn_SavedVariables_Loadouts =
             ConditionerAddOn_SavedVariables_Loadouts or
             {[-1] = {name = "Basic Rotation", value = "", spec = 0}, [0] = {name = "None", value = "", spec = 0}}
-        ConditionerAddOn_SavedVariables.TalentsPerLoadout = ConditionerAddOn_SavedVariables.TalentsPerLoadout or {}
         ConditionerAddOn_SavedVariables.CurrentLoadouts = ConditionerAddOn_SavedVariables.CurrentLoadouts or {}
         ConditionerAddOn:FixupSavedVariables()
         ConditionerAddOn:FixupLoadoutGaps()
@@ -5944,11 +5762,11 @@ function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_SUCCEEDED(...)
 end
 --[[
 function ConditionerAddOn.EventHandler:ADDON_ACTION_FORBIDDEN(...)
-    
+
 end
 
 function ConditionerAddOn.EventHandler:ADDON_ACTION_BLOCKED(...)
-    
+
 end
 ]]
 ConditionerAddOn:SetScript(
