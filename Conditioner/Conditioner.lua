@@ -2681,7 +2681,7 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
         o.text:SetJustifyH("CENTER")
         o.text:SetJustifyV("CENTER")
         o.text:SetTextColor(0, 1, 1, 1)
-        o.text:SetSize(o.text:GetStringWidth(), o:GetHeight())
+        o.text:SetSize(150, o:GetHeight())
     end
     CONDITIONERDROPDOWNMENU_SetWidth(o, width)
     function o:Update()
@@ -3918,7 +3918,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetJustifyV("CENTER")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetTextColor(0, 1, 1, 1)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetSize(
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:GetStringWidth(),
+        150,
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[5]:GetHeight()
     )
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].title = "Aura Stacks"
@@ -3979,7 +3979,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetJustifyV("CENTER")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetTextColor(0, 1, 1, 1)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetSize(
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:GetStringWidth(),
+        150,
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetHeight()
     )
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].title = "Spell Charges"
