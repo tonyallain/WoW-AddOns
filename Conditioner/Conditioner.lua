@@ -466,7 +466,7 @@ end
 function ConditionerAddOn:GetUsableResources()
     local usableResources = {}
     for k, v in pairs(Enum.PowerType) do
-        if (v >= 0) then
+        if (v >= 0) and not (v == Enum.PowerType.NumPowerTypes) then
             local isUsable = UnitPowerMax("player", v)
             if (isUsable) and (isUsable > 0) then
                 usableResources[v + 1] = true
@@ -2710,7 +2710,7 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
                 for i = 0, #choices do
                     if (key == "alternateResourceTypeEnum" or key == "resourceTypeEnum") then
                         local usableResources = ConditionerAddOn:GetUsableResources()
-                        if (usableResources[i]) or (i == 0) or (i > 19) then
+                        if (usableResources[i]) or (i == 0) or (i > 30) then
                             info.text = choices[i]
                             info.func = self.SetValue
                             info.arg1 = i
@@ -3354,11 +3354,22 @@ function ConditionerAddOn:Init()
             "Arcane Charges",
             "Fury",
             "Pain",
-            "Focus Target's Health", --20
-            "Target of Target's Health", --21
-            "My Pet's Health", --22
-            "Target's Health", --23
-            "My Health" --24
+            "Essence",
+            "Placeholder", -- 21
+            "Placeholder", -- 22
+            "Placeholder", -- 23
+            "Placeholder", -- 24
+            "Placeholder", -- 25
+            "Placeholder", -- 26
+            "Placeholder", -- 27
+            "Placeholder", -- 28
+            "Placeholder", -- 29
+            "Placeholder", -- 30
+            "Focus Target's Health", --31
+            "Target of Target's Health", --32
+            "My Pet's Health", --33
+            "Target's Health", --34
+            "My Health" --35
         },
         conditionalOperatorEnum = {
             [0] = "Choose Operator",
