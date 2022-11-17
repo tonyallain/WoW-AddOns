@@ -1274,7 +1274,7 @@ function ConditionerAddOn:SubEncode(loadString, shouldDecode)
     end
 end
 
-function ConditionerAddOn:GetConditions(frame)
+function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
     if (not frame.Conditions) then
         return false
     end
@@ -1326,7 +1326,7 @@ function ConditionerAddOn:GetConditions(frame)
     local stripped_activeAuraString = frame.Conditions.activeAuraString:gsub("_", "")
     local encoded_activeAuraString = string.format("_%s", stripped_activeAuraString) or "_"
     local stripped_keyBindingString = frame.Conditions.keyBindingString:gsub("_", "")
-    local encoded_keyBindingString = string.format("_%s", stripped_keyBindingString) or "_"
+    local encoded_keyBindingString = withoutKeybinds and "_" or string.format("_%s", stripped_keyBindingString) or "_"
     local encoded_cooldownRemainingAmount = ConditionerAddOn:EncodeToMask(frame.Conditions.cooldownRemainingAmount)
     local encoded_cooldownRemainingConditionalEnum =
         ConditionerAddOn:EncodeToMask(frame.Conditions.cooldownRemainingEnum, true)
@@ -2915,12 +2915,12 @@ function ConditionerAddOn:LoadoutIsDirty()
     end
 end
 
-function ConditionerAddOn:CreateLoadoutString()
+function ConditionerAddOn:CreateLoadoutString(withoutKeybinds)
     local loadoutString = ""
     local results = 0
     for k, v in ipairs(ConditionerAddOn.PriorityButtons) do
         if (v.Data.spellID + v.Data.itemID > 0) then
-            local conditions = ConditionerAddOn:GetConditions(v)
+            local conditions = ConditionerAddOn:GetConditions(v, withoutKeybinds)
             loadoutString =
                 (results == 0) and string.format("%s", conditions) or string.format("%s\n%s", loadoutString, conditions)
             results = results + 1
@@ -5188,7 +5188,7 @@ function ConditionerAddOn:Init()
         "OnClick",
         function(self, button, down)
             PlaySound(1115)
-            local currentLoadout = ConditionerAddOn:CreateLoadoutString()
+            local currentLoadout = ConditionerAddOn:CreateLoadoutString(true)
             if (currentLoadout) then
                 ConditionerAddOn.LoadoutFrame.ImportExport:SetText(currentLoadout)
                 ConditionerAddOn.LoadoutFrame.ImportExport.Message:SetText("Export Loadout")
