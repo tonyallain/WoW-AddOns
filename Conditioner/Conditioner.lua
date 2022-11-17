@@ -2002,25 +2002,11 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         end
     end
 
-    --end up with 0 charges, no way it can be next
-    local _, _, _, _, _, _, _, _, myCastSpellID = UnitCastingInfo("player")
-    local _, _, _, _, _, _, _, myChannelSpellID = UnitChannelInfo("player")
-    if (spellID == myCastSpellID) or (spellID == myChannelSpellID) then
-        local remainingCharges = GetSpellCharges(spellID)
-        if  (remainingCharges and remainingCharges <= 1) then
-            return false
-        end
-
-        --if the spell being cast has a cooldown greater than 0 you can't chain cast it
-        local cooldownToTrigger = GetSpellBaseCooldown(spellID)
-        if (cooldownToTrigger > 0) then
-            return false
-        end
-    end
-
     --hideWhileCasting
     -- repurposed inStealth for casters
     if (Conditions.hideWhileCasting) then
+        local _, _, _, _, _, _, _, _, myCastSpellID = UnitCastingInfo("player")
+        local _, _, _, _, _, _, _, myChannelSpellID = UnitChannelInfo("player")
         --am I casting the spell already?
         if (spellID == myCastSpellID) or (spellID == myChannelSpellID) then
             return false
@@ -2983,15 +2969,6 @@ end
 -----------------------------------------------------------INITIALIZE-----------------------------------------------------------
 --============================================================================================================================--
 function ConditionerAddOn:Init()
-    SLASH_CONDITIONER1 = "/conditioner"
-    SlashCmdList["CONDITIONER"] = function(msg)
-        if (#msg == 0) then
-            ShowUIPanel(SpellBookFrame)
-            if (ConditionerAddOn.LoadoutFrame) then
-                ConditionerAddOn.LoadoutFrame:Show()
-            end
-        end
-    end
     ConditionerAddOn:TooltipScrubber()
     ConditionerAddOn.MainButton = ConditionerAddOn:NewPriorityButton(true)
     ConditionerAddOn.PriorityButtons = {}
