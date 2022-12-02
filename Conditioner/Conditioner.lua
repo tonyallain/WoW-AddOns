@@ -1181,7 +1181,7 @@ function ConditionerAddOn:Delete(destFrame, pickup)
         end
         ConditionerAddOn:StoreCurrentLoadout()
         if (ConditionerAddOn.CurrentPriorityButton) then
-            ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+            -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
         end
     end
 end
@@ -1209,7 +1209,7 @@ function ConditionerAddOn:Place(destFrame)
         ClearCursor()
         ConditionerAddOn:StoreCurrentLoadout()
         if (ConditionerAddOn.CurrentPriorityButton) then
-            ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+            -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
         end
     end
 end
@@ -2601,24 +2601,24 @@ function ConditionerAddOn:NewConditionsWindow(parent)
                 if (ConditionerAddOn.CurrentPriorityButton == parent) then
                     if (ConditionerAddOn.SharedConditionerFrame:IsShown()) then
                         ConditionerAddOn.SharedConditionerFrame:Hide()
-                        ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                        -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
                     else
                         ConditionerAddOn.SharedConditionerFrame:Hide()
                         ConditionerAddOn.SharedConditionerFrame:Show()
-                        ActionButton_ShowOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                        -- ActionButton_ShowOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
                     end
                 else
-                    ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                    -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
                     ConditionerAddOn.CurrentPriorityButton = parent
                     ConditionerAddOn.SharedConditionerFrame:Hide()
                     ConditionerAddOn.SharedConditionerFrame:Show()
-                    ActionButton_ShowOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                    -- ActionButton_ShowOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
                 end
             else
                 ConditionerAddOn.CurrentPriorityButton = parent
                 ConditionerAddOn.SharedConditionerFrame:Hide()
                 ConditionerAddOn.SharedConditionerFrame:Show()
-                ActionButton_ShowOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                -- ActionButton_ShowOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
             end
             local titleString = ""
             if (parent.Data.itemID > 0) then
@@ -2940,11 +2940,11 @@ function ConditionerAddOn:StoreCurrentLoadout()
             if (ConditionerAddOn.LoadoutFrame) then
                 ConditionerAddOn.LoadoutFrame:Show()
             end
-            ActionButton_ShowOverlayGlow(ConditionerAddOn.LoadoutFrame.OverWrite)
+            ConditionerAddOn.LoadoutFrame.OverWrite:LockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Save")
         else
             ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
-            ActionButton_HideOverlayGlow(ConditionerAddOn.LoadoutFrame.OverWrite)
+            ConditionerAddOn.LoadoutFrame.OverWrite:UnlockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
         end
     end
@@ -3284,7 +3284,7 @@ function ConditionerAddOn:Init()
         function(self)
             ConditionerAddOn.SharedConditionerFrame:Hide()
             if (ConditionerAddOn.CurrentPriorityButton) then
-                ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
             end
         end
     )
@@ -4189,7 +4189,7 @@ function ConditionerAddOn:Init()
             ConditionerAddOn.SharedConditionerFrame:Hide()
             ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Anchor:Hide()
             if (ConditionerAddOn.CurrentPriorityButton) then
-                ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
             end
             ConditionerAddOn.LoadoutFrame.InputName:Hide()
             ConditionerAddOn.LoadoutFrame.ImportExport:Hide()
@@ -4958,13 +4958,13 @@ function ConditionerAddOn:Init()
             local textValue =
                 ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].name
             if (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice == -1) then
-                ActionButton_ShowOverlayGlow(ConditionerAddOn.LoadoutFrame.SaveLoadout)
+                ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
                 textValue = string.format("|cffFFff00%s|r", textValue)
             elseif (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice == 0) then
-                ActionButton_ShowOverlayGlow(ConditionerAddOn.LoadoutFrame.SaveLoadout)
+                ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
                 textValue = string.format("|cffd742f4%s|r", textValue)
             else
-                ActionButton_HideOverlayGlow(ConditionerAddOn.LoadoutFrame.SaveLoadout)
+                ConditionerAddOn.LoadoutFrame.SaveLoadout:UnlockHighlight()
             end
             CONDITIONERDROPDOWNMENU_SetText(ConditionerAddOn.LoadoutFrame.DropDown, textValue)
             CONDITIONERDROPDOWNMENU_Initialize(
@@ -5013,19 +5013,19 @@ function ConditionerAddOn:Init()
     function ConditionerAddOn.LoadoutFrame.DropDown:SetValue(newValue)
         ConditionerAddOn.SharedConditionerFrame:Hide()
         if (ConditionerAddOn.CurrentPriorityButton) then
-            ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+            -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
         end
         ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = newValue
         local textValue =
             ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].name
         if (newValue == -1) then
-            ActionButton_ShowOverlayGlow(ConditionerAddOn.LoadoutFrame.SaveLoadout)
+            ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffFFff00%s|r", textValue)
         elseif (newValue == 0) then
-            ActionButton_ShowOverlayGlow(ConditionerAddOn.LoadoutFrame.SaveLoadout)
+            ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffd742f4%s|r", textValue)
         else
-            ActionButton_HideOverlayGlow(ConditionerAddOn.LoadoutFrame.SaveLoadout)
+            ConditionerAddOn.LoadoutFrame.SaveLoadout:UnlockHighlight()
         end
         CONDITIONERDROPDOWNMENU_SetText(ConditionerAddOn.LoadoutFrame.DropDown, textValue)
         ConditionerCloseDropDownMenus()
@@ -5048,10 +5048,10 @@ function ConditionerAddOn:Init()
                 string.format("|cffd742f4%s|r", ConditionerAddOn.LoadoutFrame.DropDown.Choices[0].name)
             )
             ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = 0
-            ActionButton_ShowOverlayGlow(ConditionerAddOn.LoadoutFrame.SaveLoadout)
+            ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             ConditionerAddOn:StoreCurrentLoadout()
             if (ConditionerAddOn.CurrentPriorityButton) then
-                ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
             end
             ConditionerAddOn.SharedConditionerFrame:Hide()
         end
@@ -5077,7 +5077,7 @@ function ConditionerAddOn:Init()
             ConditionerAddOn.LoadoutFrame.ImportExport:Hide()
             if (ConditionerAddOn.CurrentPriorityButton) then
                 ConditionerAddOn.SharedConditionerFrame:Hide()
-                ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
             end
         end
     )
@@ -5118,7 +5118,7 @@ function ConditionerAddOn:Init()
                 ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].value =
                     overwriteString
                 ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
-                ActionButton_HideOverlayGlow(ConditionerAddOn.LoadoutFrame.OverWrite)
+                ConditionerAddOn.LoadoutFrame.OverWrite:UnlockHighlight()
                 ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
             end
         end
@@ -5166,7 +5166,7 @@ function ConditionerAddOn:Init()
             ConditionerAddOn.LoadoutFrame.ImportExport:SetFocus()
             if (ConditionerAddOn.CurrentPriorityButton) then
                 ConditionerAddOn.SharedConditionerFrame:Hide()
-                ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
             end
         end
     )
@@ -5200,7 +5200,7 @@ function ConditionerAddOn:Init()
                 ConditionerAddOn.LoadoutFrame.ImportExport:ClearFocus()
                 if (ConditionerAddOn.CurrentPriorityButton) then
                     ConditionerAddOn.SharedConditionerFrame:Hide()
-                    ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+                    -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
                 end
             end
         end
@@ -5696,7 +5696,7 @@ function ConditionerAddOn.EventHandler:PLAYER_SPECIALIZATION_CHANGED(...)
         ConditionerAddOn.LoadoutFrame.DropDown:Show()
         ConditionerAddOn.SharedConditionerFrame:Hide()
         if (ConditionerAddOn.CurrentPriorityButton) then
-            ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+            -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
         end
         SetPortraitTexture(ConditionerAddOn.LoadoutFrame.DragTexture, "player")
         ConditionerAddOn:CacheCurrentSpecSpells()
