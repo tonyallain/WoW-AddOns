@@ -1872,6 +1872,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         --print("FAILED - NO DATA")
         return false
     end
+    -- bug fix override spells
+    spellID = C_SpellBook.GetOverrideSpell(spellID)
+    
     --the player doesn't know the spell or it isn't in their spellbooks or they don't have any more of that item
     --more override nonsense
     local hasSlot = FindSpellBookSlotBySpellID(spellID)
