@@ -3,12 +3,14 @@
 --===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
 local closeResultsBox = false
+local closeResultsBox2 = false
+local cropAmount = 0.075
 ConditionerAddOn.EventHandler = {}
-ConditionerAddOn.DecodePattern = "%[(........................)(_.-_.-_.-_.-_.-])"
-ConditionerAddOn.Size = 24
+ConditionerAddOn.DecodePattern = "%[(........................)(_.-_.-_.-_.-_.-_.-])"
+ConditionerAddOn.Size = 24 -- the number of wildcards in the first half of the decode pattern
 ConditionerAddOn.SpellCache = {}
-ConditionerAddOn.ConditionPattern =
-    "%[(..)(.)(.)(.)(.)(.)(.)(.)(.)(.)(..)(..)(..)(..)(..)(..)(.)_(.-)_(.-)_(.-)_(.-)_(.-)]"
+ConditionerAddOn.ConditionPattern = "%[(..)(.)(.)(.)(.)(.)(.)(.)(.)(.)(..)(..)(..)(..)(..)(..)(.)_(.-)_(.-)_(.-)_(.-)_(.-)_(.-)]"
+ConditionerAddOn.ConditionPatternMatch = "[%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s]" -- needs to have the same amount as the Condition Pattern above
 ConditionerAddOn.BitMap = {
     ["0"] = 0,
     ["1"] = 1,
@@ -570,45 +572,6 @@ function ConditionerAddOn:IsValidShapeshift(id)
     end
 end
 
-function ConditionerAddOn:RollTheBones()
-    local num_active
-    local RollTheBonesBuffs = {
-        "True Bearing",
-        "Shark Infested Waters",
-        "Broadsides",
-        "Jolly Roger",
-        "Buried Treasure",
-        "Grand Melee",
-        "Skull and Crossbones",
-        "Ruthless Precision"
-    }
-    local results = {}
-    for k, v in ipairs(RollTheBonesBuffs) do
-        local auraName,
-            auraIcon,
-            auraStacks,
-            _,
-            auraDuration,
-            auraExpireTimestamp,
-            _,
-            auraIsStealable,
-            _,
-            auraSpellID,
-            _,
-            _,
-            _,
-            _,
-            auraTimeMod = ConditionerAddOn.BuffExists("player", v)
-        if (auraName) then
-            num_active = (num_active or 0) + 1
-            results[1] = num_active
-            results[2] = auraDuration
-            results[3] = auraExpireTimestamp
-        end
-    end
-    return results
-end
-
 function ConditionerAddOn:CollapsePriorityButtons()
     local collapsedData = {}
     for k, v in ipairs(ConditionerAddOn.PriorityButtons) do
@@ -871,22 +834,19 @@ function ConditionerAddOn:OnUpdate(elapsed)
                 newTrackerFrame.Countdown.Icon:SetPoint(
                     "TOPRIGHT",
                     newTrackerFrame,
-                    "TOPRIGHT",
-                    -newTrackerFrame:GetWidth() * 0.0625,
-                    -newTrackerFrame:GetHeight() * 0.0625
+                    "TOPRIGHT"
                 )
                 newTrackerFrame.Countdown.Text:SetPoint(
                     "TOPLEFT",
                     newTrackerFrame,
-                    "TOPLEFT",
-                    newTrackerFrame:GetWidth() * 0.0625,
-                    -newTrackerFrame:GetHeight() * 0.0625
+                    "TOPLEFT"
                 )
                 local newHeight = newTrackerFrame.Countdown.Icon:GetHeight()
                 local auraDelta = (auraTime > 0) and math.max((auraTS - GetTime()) / auraTime, 0) or 0
                 local textTime = math.max(auraTS - GetTime(), 0)
                 newTrackerFrame.Countdown:SetHeight(newHeight * (1 - auraDelta))
                 newTrackerFrame.Countdown.Icon:SetTexture(auraTexture)
+                newTrackerFrame.Countdown.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
                 newTrackerFrame.Countdown.Text:SetText(
                     (textTime > 0) and string.format("%s", ConditionerAddOn:ConvertTime(textTime)) or ""
                 )
@@ -914,7 +874,6 @@ function ConditionerAddOn:OnUpdate(elapsed)
                 end
             end
             newTrackerFrame.Icon:SetTexture(prioTexture)
-            local cropAmount = 0.075
             newTrackerFrame.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
             newTrackerFrame.Icon:SetAlpha(ConditionerAddOn_SavedVariables.Options.Opacity / 100)
             newTrackerFrame.Keybind:SetText(keybind)
@@ -1231,6 +1190,7 @@ function ConditionerAddOn:SubEncode(loadString, shouldDecode)
         )
         decodedString = string.format("%s%s", decodedString, secondHalf)
         local decodeTest, decodeTestSuffix = decodedString:match(ConditionerAddOn.DecodePattern)
+        -- print(decodeTest, decodeTestSuffix) -- DEBUG
         if (decodeTest) and (decodeTestSuffix) and (#decodeTest == ConditionerAddOn.Size) then
             return decodedString
         else
@@ -1325,6 +1285,8 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
     local encoded_chargesAmount = ConditionerAddOn:EncodeToMask(frame.Conditions.chargesAmount)
     local stripped_activeAuraString = frame.Conditions.activeAuraString:gsub("_", "")
     local encoded_activeAuraString = string.format("_%s", stripped_activeAuraString) or "_"
+    local stripped_myActiveAura = frame.Conditions.myActiveAura:gsub("_", "")
+    local encoded_myActiveAura = string.format("_%s", stripped_myActiveAura) or "_"
     local stripped_keyBindingString = frame.Conditions.keyBindingString:gsub("_", "")
     local encoded_keyBindingString = withoutKeybinds and "_" or string.format("_%s", stripped_keyBindingString) or "_"
     local encoded_cooldownRemainingAmount = ConditionerAddOn:EncodeToMask(frame.Conditions.cooldownRemainingAmount)
@@ -1333,7 +1295,7 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
 
     local finalEncodedString =
         string.format(
-        "[%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s]",
+        ConditionerAddOn.ConditionPatternMatch,
         boolString,
         boolStringShort,
         encoded_resourceTypeEnum,
@@ -1355,7 +1317,8 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
         encoded_keyBindingString,
         string.format("_%s", frame.Data.spellID),
         string.format("_%s", frame.Data.itemID),
-        string.format("_%s", frame.Conditions.cooldownRemainingID)
+        string.format("_%s", frame.Conditions.cooldownRemainingID),
+        encoded_myActiveAura
     )
 
     local subEncodedString = ConditionerAddOn:SubEncode(finalEncodedString, false)
@@ -1383,7 +1346,8 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
             return
         end
         --print(string.format("DECODED %s\n%s", conditionString, subDecodedString)) ConditionerAddOn.ConditionPattern
-        local b, bShort, c, d, e, f, g, h, i, j, k, l, m, n, o, watched_Amount, cdR, p, q, spell_id, item_id, watched_ID =
+        -- ADD NEW CONDITION FOR MY ACTIVE AURA
+        local b, bShort, c, d, e, f, g, h, i, j, k, l, m, n, o, watched_Amount, cdR, p, q, spell_id, item_id, watched_ID, myActiveAura =
             subDecodedString:match(ConditionerAddOn.ConditionPattern)
         --check if work is needed
         if (not C_Spell.DoesSpellExist(tonumber(spell_id))) then
@@ -1430,6 +1394,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
         destFrame.Conditions.hideWhileCasting = decoded_boolStringShort[5]
         destFrame.Conditions.canCast = decoded_boolStringShort[6]
         destFrame.Conditions.cooldownRemainingEnum = ConditionerAddOn:ConvertFromMask(cdR)
+        destFrame.Conditions.myActiveAura = myActiveAura
     else
         --init
         destFrame.Data.spellID = newSpellID or 0
@@ -1438,6 +1403,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
             --strings
             activeAuraString = "",
             keyBindingString = "",
+            myActiveAura = "",
             --bools
             secondsRemainingBool = false,
             isInterruptBool = false,
@@ -2123,6 +2089,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     end
 
     local activeAuraName = Conditions.activeAuraString
+    local myActiveAuraName = Conditions.myActiveAura
     local auraName,
         auraIcon,
         auraStacks,
@@ -2137,7 +2104,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         _,
         _,
         _,
-        auraTimeMod = ConditionerAddOn.DebuffExists(targetUnitToken, activeAuraName, nil, "PLAYER")
+        auraTimeMod = ConditionerAddOn.DebuffExists(targetUnitToken, activeAuraName, "PLAYER")
     if (not auraName) then
         auraName,
             auraIcon,
@@ -2153,18 +2120,23 @@ function ConditionerAddOn:CheckCondition(priorityButton)
             _,
             _,
             _,
-            auraTimeMod = ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, nil, "PLAYER")
+            auraTimeMod = ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, "PLAYER")
     end
-    --special rogue Handling
-    if (UnitClass("player") == "Rogue") and (activeAuraName:lower() == "roll the bones") then
-        --print("special")
-        local results = ConditionerAddOn:RollTheBones()
-        auraStacks = results[1]
-        auraDuration = results[2]
-        auraExpireTimestamp = results[3]
-        auraIcon = 1373910
-        auraName = (auraStacks) and activeAuraName or auraName
+
+    -- check for my active aura
+    if (myActiveAuraName ~= "") then
+        -- the player wants to know if they have an active aura
+        local isMyAuraActive = ConditionerAddOn.DebuffExists("player", myActiveAuraName)
+        -- print('is it a debuff?', isMyAuraActive)
+        if (not isMyAuraActive) then
+            isMyAuraActive = ConditionerAddOn.BuffExists("player", myActiveAuraName)
+        end
+
+        if (not isMyAuraActive) then
+            return false
+        end
     end
+
     --is the aura even active, we let "" pass
     if (not auraName) and (activeAuraName ~= "") then
         if (not Conditions.secondsRemainingBool) and (Conditions.stackConditionalEnum == 0) then
@@ -3322,7 +3294,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.DropDowns[6],
         "BOTTOMLEFT",
         0,
-        -12
+        -60
     )
     --resource Conditional 1
     ConditionerAddOn.SharedConditionerFrame.DropDowns[2] =
@@ -3494,7 +3466,9 @@ function ConditionerAddOn:Init()
     )
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].title = "Active Aura"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].tooltip =
-        "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit.\n\n|cffFFff00Right click to empty input box.|r"
+        "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit. This field can interact with the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
+
+    -- aura search box
     ConditionerAddOn.SharedConditionerFrame.ResultsBox =
         CreateFrame("Frame", nil, ConditionerAddOn.SharedConditionerFrame.EditBoxes[3])
     ConditionerAddOn.SharedConditionerFrame.ResultsBox:SetFrameStrata("HIGH")
@@ -4453,6 +4427,203 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].title = "Only While Moving"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].tooltip =
         "Enable this option if you only want to see this spell while moving."
+
+    --myActiveAura
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6] =
+        ConditionerAddOn:NewInputBox(ConditionerAddOn.SharedConditionerFrame, "myActiveAura")
+    local activeAuraOffset = -20
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetPoint(
+        "TOPLEFT",
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[4],
+        "BOTTOMLEFT",
+        0,
+        activeAuraOffset
+    )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetPoint(
+        "TOPRIGHT",
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[4],
+        "BOTTOMRIGHT",
+        0,
+        activeAuraOffset
+    )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text =
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:CreateFontString(
+        nil,
+        "OVERLAY",
+        "SystemFont_NamePlateCastBar"
+    )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetPoint(
+        "BOTTOM",
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6],
+        "TOP",
+        0,
+        -6
+    )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetText("My Active Aura")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetJustifyH("CENTER")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetJustifyV("CENTER")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetTextColor(0, 1, 1, 1)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetSize(
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:GetStringWidth(),
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetHeight()
+    )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].title = "My Active Aura"
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].tooltip =
+        "Check that a specific aura is active on YOURSELF. This is NOT related to the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
+
+    -- second aura search box
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2 =
+        CreateFrame("Frame", nil, ConditionerAddOn.SharedConditionerFrame.EditBoxes[6])
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2:SetFrameStrata("HIGH")
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2:SetPoint(
+        "TOPLEFT",
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6],
+        "BOTTOMLEFT"
+    )
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2:SetPoint(
+        "TOPRIGHT",
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6],
+        "BOTTOMRIGHT"
+    )
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:HookScript("OnEscapePressed", function()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
+    end)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:HookScript("OnHide", function()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
+    end)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetScript("OnEditFocusLost", function()
+        closeResultsBox2 = true
+    end)
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture =
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox2:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture:SetAllPoints(
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox2
+    )
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture:SetTexture(
+        "Interface\\DialogFrame\\UI-DialogBox-Background-Dark"
+    )
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool = {}
+    ConditionerAddOn:AddBorder(ConditionerAddOn.SharedConditionerFrame.ResultsBox2)
+    function ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
+        for k, v in ipairs(ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool) do
+            v:Hide()
+            v.isEmpty = true
+            v:SetText("")
+        end
+    end
+    function ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
+        local PoolSize = 0
+        for k, v in ipairs(ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool) do
+            if (not v.isEmpty) then
+                PoolSize = PoolSize + 1
+            end
+        end
+        if (PoolSize > 0) then
+            local standardHeight = ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool[PoolSize]:GetHeight()
+            ConditionerAddOn.SharedConditionerFrame.ResultsBox2:SetHeight(PoolSize * standardHeight)
+            ConditionerAddOn.SharedConditionerFrame.ResultsBox2:Show()
+        else
+            ConditionerAddOn.SharedConditionerFrame.ResultsBox2:Hide()
+        end
+    end
+    function ConditionerAddOn.SharedConditionerFrame.ResultsBox2:GetResultButton(s)
+        for k, v in ipairs(ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool) do
+            if (v.isEmpty) then
+                v:SetText(s)
+                v.isEmpty = false
+                v:Show()
+                return v
+            end
+        end
+        local EmptyPool = CreateFrame("Frame", nil, ConditionerAddOn.SharedConditionerFrame.ResultsBox2)
+        EmptyPool:SetFrameStrata("HIGH")
+        local parentPool = #ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool
+        EmptyPool:SetPoint(
+            "TOPLEFT",
+            (parentPool > 0) and ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool[parentPool] or
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox2,
+            (parentPool > 0) and "BOTTOMLEFT" or "TOPLEFT"
+        )
+        EmptyPool:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame.ResultsBox2, "RIGHT")
+        EmptyPool.isEmpty = false
+        EmptyPool.Highlight = EmptyPool:CreateTexture()
+        EmptyPool.Highlight:Hide()
+        EmptyPool.Highlight:SetBlendMode("ADD")
+        EmptyPool.Highlight:SetAllPoints(EmptyPool)
+        EmptyPool.Highlight:SetTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar-Blue")
+        EmptyPool:SetScript(
+            "OnEnter",
+            function(self)
+                EmptyPool.Highlight:Show()
+            end
+        )
+        EmptyPool:SetScript(
+            "OnLeave",
+            function(self)
+                EmptyPool.Highlight:Hide()
+            end
+        )
+        function EmptyPool:SetText(s)
+            if (not EmptyPool.text) then
+                EmptyPool.text = EmptyPool:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+                EmptyPool.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
+                EmptyPool.text:SetTextColor(1, 0.95, 0.15, 1)
+                EmptyPool.text:SetPoint("LEFT", EmptyPool, "LEFT", 4, 0)
+                EmptyPool.text:SetJustifyH("LEFT")
+                EmptyPool.text:SetJustifyV("MIDDLE")
+            end
+            EmptyPool.text:SetText(s)
+        end
+
+        function EmptyPool:GetText()
+            return EmptyPool.text:GetText()
+        end
+
+        EmptyPool:SetScript(
+            "OnMouseDown",
+            function(self, button)
+                ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetText(EmptyPool:GetText())
+                ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:ClearFocus()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
+
+                local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText():gsub("_", " ")
+                ConditionerAddOn:SetCurrentCondition('myActiveAura', strippedString)
+            end
+        )
+        EmptyPool:SetText(s)
+        EmptyPool:SetHeight(20)
+        table.insert(ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool, EmptyPool)
+        return EmptyPool
+    end
+    --search through cache
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetScript(
+        "OnTextChanged",
+        function(self, userinput)
+            --try to populate results
+            if (userinput) then
+                local searchText = ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
+                if (#searchText > 0) then
+                    local lastNode, lastPrefix =
+                        ConditionerAddOn:SpellCacheTraverse(searchText, 1, ConditionerAddOn.SpellCache)
+                    ConditionerAddOn:SpellCacheGetSuffixes(
+                        lastNode,
+                        lastPrefix,
+                        ConditionerAddOn.SharedConditionerFrame.ResultsBox2
+                    )
+                end
+            else
+                if (#ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText() == 0) then
+                    ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
+                end
+            end
+            ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
+        end
+    )
 
     --=============================================================================================================================--
     -----------------------------------------------SHARED CONDITIONS WINDOW BACKGROUND-----------------------------------------------
@@ -5774,6 +5945,21 @@ ConditionerAddOn:SetScript(
             end
             
             closeResultsBox = false
+        end
+
+        -- second search box shameful copy/paste
+        if (closeResultsBox2 and ConditionerAddOn.SharedConditionerFrame.ResultsBox2) then
+            if (ConditionerAddOn.SharedConditionerFrame.ResultsBox2:IsShown()) then
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
+                ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
+            end
+            
+            if (ConditionerAddOn.SharedConditionerFrame.EditBoxes and ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]) then
+                local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText():gsub("_", " ")
+                ConditionerAddOn:SetCurrentCondition('myActiveAura', strippedString)
+            end
+            
+            closeResultsBox2 = false
         end
     end
 )
