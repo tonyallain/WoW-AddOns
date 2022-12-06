@@ -7,6 +7,7 @@ local closeResultsBox2 = false
 local cropAmount = 0.075
 ConditionerAddOn.EventHandler = {}
 ConditionerAddOn.DecodePattern = "%[(........................)(_.-_.-_.-_.-_.-_.-])"
+ConditionerAddOn.NumConditionsForSecondHalf = 6
 ConditionerAddOn.Size = 24 -- the number of wildcards in the first half of the decode pattern
 ConditionerAddOn.SpellCache = {}
 ConditionerAddOn.ConditionPattern = "%[(..)(.)(.)(.)(.)(.)(.)(.)(.)(.)(..)(..)(..)(..)(..)(..)(.)_(.-)_(.-)_(.-)_(.-)_(.-)_(.-)]"
@@ -1188,6 +1189,17 @@ function ConditionerAddOn:SubEncode(loadString, shouldDecode)
                 return returnString
             end
         )
+        -- did we extend the number of conditions? fixup
+        local _, numConditionsForSecondHalf = secondHalf:gsub("_", "_")
+        if (numConditionsForSecondHalf ~= ConditionerAddOn.NumConditionsForSecondHalf) then
+            -- we need to fix the string and add another
+            local difference = ConditionerAddOn.NumConditionsForSecondHalf - numConditionsForSecondHalf
+            if (difference > 0) then
+                local underscoreDifference = string.rep("_", difference)
+                secondHalf = secondHalf:gsub("]", underscoreDifference .. "]")
+            end
+        end
+
         decodedString = string.format("%s%s", decodedString, secondHalf)
         local decodeTest, decodeTestSuffix = decodedString:match(ConditionerAddOn.DecodePattern)
         -- print(decodeTest, decodeTestSuffix) -- DEBUG
