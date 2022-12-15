@@ -1997,7 +1997,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     local inRange = false
     if (itemID > 0) then
         inRange = IsItemInRange(itemID, targetUnitToken)
-        inRange = (inRange) and 1 or 0
+        inRange = (inRange == nil) and 1 or inRange
     else
         local spellBookSlot = FindSpellBookSlotBySpellID(spellID)
         local petBookSlot = FindSpellBookSlotBySpellID(spellID, "pet")
