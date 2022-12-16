@@ -1760,6 +1760,23 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         targetUnitToken = "focustarget"
     elseif (targetUnitEnum == 12) then
         targetUnitToken = "targettarget"
+    elseif (targetUnitEnum == 16) then
+        targetUnitToken = "anyenemy"
+    elseif (targetUnitEnum == 17) then
+        targetUnitToken = "anyfriend"
+    elseif (targetUnitEnum == 18) then
+        targetUnitToken = "anyinteract"
+    elseif (targetUnitEnum == 19) then
+        targetUnitToken = "softenemy"
+    elseif (targetUnitEnum == 20) then
+        targetUnitToken = "softfriend"
+    elseif (targetUnitEnum == 21) then
+        targetUnitToken = "softinteract"
+    end
+
+    -- if we don't have a target other than myself then fail
+    if (targetUnitToken ~= "player" and not UnitExists(targetUnitToken)) then
+        return false
     end
 
     -- 2/5 enemy
@@ -1885,9 +1902,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- is interrupt
     if (Conditions.isInterruptBool) then
         local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
-            UnitCastingInfo("target")
+            UnitCastingInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         local channelSpellName, _, channelSpellTexture, channelStart, channelEnd, _, notInterruptible, channelSpellID =
-            UnitChannelInfo("target")
+            UnitChannelInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         if (castSpellName) or (channelSpellName) then
             if (uninterruptable or notInterruptible) then
                 -- print("FAILED - UNINTERRUPTABLE")
@@ -2004,6 +2021,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
             leftValue = UnitHealth("targettarget") / ((usePercentage) and UnitHealthMax("targettarget") or 1)
         elseif (Conditions.resourceTypeEnum == (#ConditionerAddOn.Enums.resourceEnum - 4)) then
             leftValue = UnitHealth("focus") / ((usePercentage) and UnitHealthMax("focus") or 1)
+        elseif (Conditions.resourceTypeEnum == 30) then
+            leftValue = UnitHealth(targetUnitToken) / ((usePercentage) and UnitHealthMax(targetUnitToken) or 1)
         elseif (Conditions.resourceTypeEnum == 6) then
             -- runes
             local currentRunes, maxRunes = ConditionerAddOn:GetRunes()
@@ -2035,6 +2054,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
             leftValue = UnitHealth("targettarget") / ((usePercentage) and UnitHealthMax("targettarget") or 1)
         elseif (Conditions.alternateResourceTypeEnum == (#ConditionerAddOn.Enums.resourceEnum - 4)) then
             leftValue = UnitHealth("focus") / ((usePercentage) and UnitHealthMax("focus") or 1)
+        elseif (Conditions.alternateResourceTypeEnum == 30) then
+            leftValue = UnitHealth(targetUnitToken) / ((usePercentage) and UnitHealthMax(targetUnitToken) or 1)
         elseif (Conditions.alternateResourceTypeEnum == 6) then
             -- runes
             local currentRunes, maxRunes = ConditionerAddOn:GetRunes()
@@ -2266,7 +2287,7 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
             for i = 0, #choices do
                 if (key == "alternateResourceTypeEnum" or key == "resourceTypeEnum") then
                     local usableResources = ConditionerAddOn:GetUsableResources()
-                    if (usableResources[i]) or (i == 0) or (i > 30) then
+                    if (usableResources[i]) or (i == 0) or (i > 29) then
                         info.text = choices[i]
                         info.func = self.SetValue
                         info.arg1 = i
@@ -2822,7 +2843,7 @@ function ConditionerAddOn:Init()
             "Placeholder", -- 27
             "Placeholder", -- 28
             "Placeholder", -- 29
-            "Placeholder", -- 30
+            "Target Unit's Health", -- 30
             "Focus Target's Health", -- 31
             "Target of Target's Health", -- 32
             "My Pet's Health", -- 33
@@ -2854,7 +2875,13 @@ function ConditionerAddOn:Init()
             "My Target's Target",
             "Friendly Player",
             "Enemy Player",
-            "Any Player"
+            "Any Player", -- 15
+            "Soft - Any Enemy",
+            "Soft - Any Friend",
+            "Soft - Any Interact",
+            "Soft - Enemy",
+            "Soft - Friend",
+            "Soft - Interact"
         },
         shapeShiftChoicesEnum = {
             [0] = "None",
