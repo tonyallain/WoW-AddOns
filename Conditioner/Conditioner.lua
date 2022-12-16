@@ -1775,7 +1775,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     end
 
     -- if we don't have a target other than myself then fail
-    if (targetUnitToken ~= "player" and not UnitExists(targetUnitToken)) then
+    if (not UnitExists(targetUnitToken)) then
         return false
     end
 
