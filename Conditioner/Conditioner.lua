@@ -448,6 +448,7 @@ end
 
 function ConditionerAddOn:AddBorder(frame)
     frame.Border = frame.Border or CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
+    frame.Border:SetFrameLevel(frame:GetFrameLevel() + 1)
     frame.Border:SetBackdrop({
         edgeFile = "Interface\\GLUES\\COMMON\\Glue-Tooltip-Border",
         edgeSize = 16
@@ -714,104 +715,121 @@ function ConditionerAddOn:OnUpdate(elapsed)
     ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
     ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
         ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
+
+    -- mouse icon, find first mouseover
+    local usingMouseover = ConditionerAddOn_SavedVariables.Options.ShowMouseoverAtCursor
+    if (usingMouseover) then
+        ConditionerAddOn:CollectMouseOverSpells(sortedList)
+    else
+        ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
+    end
+
+    local numTracked = 0
     for k, v in ipairs(sortedList) do
-        if (k <= ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
-            local newTrackerFrame = ConditionerAddOn:GetAvailableTrackingFrame()
-            if (k == 1) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
-                ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetHeight(newTrackerFrame:GetHeight() / 6)
-                ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetHeight(newTrackerFrame:GetHeight() / 6)
-                ConditionerAddOn.TrackedFrameDragAnchor.MainHand:ClearAllPoints()
-                ConditionerAddOn.TrackedFrameDragAnchor.OffHand:ClearAllPoints()
-                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:ClearAllPoints()
-                if (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 3) then
-                    if (ConditionerAddOn.TrackedFrameDragAnchor.OffHand:IsShown()) then
-                        ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("BOTTOMLEFT", newTrackerFrame,
-                            "TOPLEFT")
-                        ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("BOTTOMLEFT",
-                            ConditionerAddOn.TrackedFrameDragAnchor.OffHand, "TOPLEFT")
-                    else
-                        ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("BOTTOMLEFT", newTrackerFrame,
-                            "TOPLEFT")
-                    end
-                    if (ConditionerAddOn.TrackedFrameDragAnchor.MainHand:IsShown()) then
-                        ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT",
-                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "TOPLEFT")
-                    else
+        if (numTracked < ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
+            if (not usingMouseover) or (usingMouseover and not v.isMouseover) then
+                numTracked = numTracked + 1
+                local newTrackerFrame = ConditionerAddOn:GetAvailableTrackingFrame()
+                if (k == 1) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
+                    ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetHeight(newTrackerFrame:GetHeight() / 6)
+                    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetHeight(newTrackerFrame:GetHeight() / 6)
+                    ConditionerAddOn.TrackedFrameDragAnchor.MainHand:ClearAllPoints()
+                    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:ClearAllPoints()
+                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:ClearAllPoints()
+                    if (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 3) then
+                        if (ConditionerAddOn.TrackedFrameDragAnchor.OffHand:IsShown()) then
+                            ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("BOTTOMLEFT", newTrackerFrame,
+                                "TOPLEFT")
+                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("BOTTOMLEFT",
+                                ConditionerAddOn.TrackedFrameDragAnchor.OffHand, "TOPLEFT")
+                        else
+                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("BOTTOMLEFT", newTrackerFrame,
+                                "TOPLEFT")
+                        end
+                        if (ConditionerAddOn.TrackedFrameDragAnchor.MainHand:IsShown()) then
+                            ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT",
+                                ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "TOPLEFT")
+                        else
+                            ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT", newTrackerFrame,
+                                "TOPLEFT")
+                        end
+                    elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0 or
+                        ConditionerAddOn_SavedVariables.Options.AnchorDirection == 2) then
                         ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT", newTrackerFrame,
                             "TOPLEFT")
-                    end
-                elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0 or
-                    ConditionerAddOn_SavedVariables.Options.AnchorDirection == 2) then
-                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT", newTrackerFrame, "TOPLEFT")
-                    ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT", newTrackerFrame, "BOTTOMLEFT")
-                    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("TOPLEFT",
-                        ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "BOTTOMLEFT")
-                else
-                    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("TOPLEFT", newTrackerFrame, "BOTTOMLEFT")
-                    if (ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:IsShown()) then
-                        ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT",
-                            ConditionerAddOn.TrackedFrameDragAnchor.CastingBar, "BOTTOMLEFT")
-                    else
                         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT", newTrackerFrame,
                             "BOTTOMLEFT")
+                        ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("TOPLEFT",
+                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "BOTTOMLEFT")
+                    else
+                        ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("TOPLEFT", newTrackerFrame,
+                            "BOTTOMLEFT")
+                        if (ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:IsShown()) then
+                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT",
+                                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar, "BOTTOMLEFT")
+                        else
+                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT", newTrackerFrame,
+                                "BOTTOMLEFT")
+                        end
+                        ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("TOPLEFT",
+                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "BOTTOMLEFT")
                     end
-                    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("TOPLEFT",
-                        ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "BOTTOMLEFT")
-                end
 
-                ConditionerAddOn.ShowCastBar = ConditionerAddOn.PriorityButtons[v.priority].Conditions.isInterruptBool
-            end
-            -- handle duration logic
-            local auraTexture, auraTime, auraTS = v.auraIcon, v.auraTime, v.auraTS
-            if (auraTime) then
-                newTrackerFrame.Countdown.Icon:SetPoint("TOPRIGHT", newTrackerFrame, "TOPRIGHT")
-                newTrackerFrame.Countdown.Text:SetPoint("TOPLEFT", newTrackerFrame, "TOPLEFT")
-                local newHeight = newTrackerFrame.Countdown.Icon:GetHeight()
-                local auraDelta = (auraTime > 0) and math.max((auraTS - GetTime()) / auraTime, 0) or 0
-                local textTime = math.max(auraTS - GetTime(), 0)
-                newTrackerFrame.Countdown:SetHeight(newHeight * (1 - auraDelta))
-                newTrackerFrame.Countdown.Icon:SetTexture(auraTexture)
-                newTrackerFrame.Countdown.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
-                newTrackerFrame.Countdown.Text:SetText((textTime > 0) and
-                                                           string.format("%s", ConditionerAddOn:ConvertTime(textTime)) or
-                                                           "")
-                newTrackerFrame.Countdown.Text:SetTextColor(1 - auraDelta, auraDelta, 0)
-                newTrackerFrame.Countdown:Show()
-            else
-                newTrackerFrame.Countdown:Hide()
-            end
-            local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
-            local isCoolingDown, cooldownDuration = newTrackerFrame.cooldown:GetCooldownTimes()
-            if (cooldownDuration ~= v.duration) then
-                newTrackerFrame.cooldown:SetCooldown(v.startTime, v.duration)
-            end
-            local prioSlotButton = ConditionerAddOn.PriorityButtons[v.priority]
-            local prioTexture = v.texture
-            if (prioSlotButton.Data.itemID == 0) then
-                local hasBookSlot = FindSpellBookSlotBySpellID(prioSlotButton.Data.spellID)
-                if (hasBookSlot) then
-                    prioTexture = GetSpellBookItemTexture(hasBookSlot, "spell")
+                    ConditionerAddOn.ShowCastBar = ConditionerAddOn.PriorityButtons[v.priority].Conditions
+                                                       .isInterruptBool
+                end
+                -- handle duration logic
+                local auraTexture, auraTime, auraTS = v.auraIcon, v.auraTime, v.auraTS
+                if (auraTime) then
+                    newTrackerFrame.Countdown.Icon:SetPoint("TOPRIGHT", newTrackerFrame, "TOPRIGHT")
+                    newTrackerFrame.Countdown.Text:SetPoint("TOPLEFT", newTrackerFrame, "TOPLEFT")
+                    local newHeight = newTrackerFrame.Countdown.Icon:GetHeight()
+                    local auraDelta = (auraTime > 0) and math.max((auraTS - GetTime()) / auraTime, 0) or 0
+                    local textTime = math.max(auraTS - GetTime(), 0)
+                    newTrackerFrame.Countdown:SetHeight(newHeight * (1 - auraDelta))
+                    newTrackerFrame.Countdown.Icon:SetTexture(auraTexture)
+                    newTrackerFrame.Countdown.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
+                    newTrackerFrame.Countdown.Text:SetText((textTime > 0) and
+                                                               string.format("%s",
+                            ConditionerAddOn:ConvertTime(textTime)) or "")
+                    newTrackerFrame.Countdown.Text:SetTextColor(1 - auraDelta, auraDelta, 0)
+                    newTrackerFrame.Countdown:Show()
                 else
-                    local tryPetSlot = FindSpellBookSlotBySpellID(prioSlotButton.Data.spellID, "pet")
-                    if (tryPetSlot) then
-                        prioTexture = GetSpellBookItemTexture(tryPetSlot, "pet")
+                    newTrackerFrame.Countdown:Hide()
+                end
+                local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
+                local isCoolingDown, cooldownDuration = newTrackerFrame.cooldown:GetCooldownTimes()
+                if (cooldownDuration ~= v.duration) then
+                    newTrackerFrame.cooldown:SetCooldown(v.startTime, v.duration)
+                end
+                local prioSlotButton = ConditionerAddOn.PriorityButtons[v.priority]
+                local prioTexture = v.texture
+                if (prioSlotButton.Data.itemID == 0) then
+                    local hasBookSlot = FindSpellBookSlotBySpellID(prioSlotButton.Data.spellID)
+                    if (hasBookSlot) then
+                        prioTexture = GetSpellBookItemTexture(hasBookSlot, "spell")
+                    else
+                        local tryPetSlot = FindSpellBookSlotBySpellID(prioSlotButton.Data.spellID, "pet")
+                        if (tryPetSlot) then
+                            prioTexture = GetSpellBookItemTexture(tryPetSlot, "pet")
+                        end
                     end
                 end
-            end
-            newTrackerFrame.Icon:SetTexture(prioTexture)
-            newTrackerFrame.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
-            newTrackerFrame.Icon:SetAlpha(ConditionerAddOn_SavedVariables.Options.Opacity / 100)
-            newTrackerFrame.Keybind:SetText(keybind)
-            if (not v.range) or (v.range == 1) then
-                newTrackerFrame.Icon:SetDesaturated(false)
-                newTrackerFrame.Keybind:SetTextColor(0, 1, 1, 1)
-            else
-                newTrackerFrame.Icon:SetDesaturated(true)
-                newTrackerFrame.Keybind:SetTextColor(1, 0.3, 0.75, 1)
-            end
+                newTrackerFrame.Icon:SetTexture(prioTexture)
+                newTrackerFrame.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
+                newTrackerFrame.Icon:SetAlpha(ConditionerAddOn_SavedVariables.Options.Opacity / 100)
+                newTrackerFrame.Keybind:SetText(keybind)
+                if (not v.range) or (v.range == 1) then
+                    newTrackerFrame.Icon:SetDesaturated(false)
+                    newTrackerFrame.Keybind:SetTextColor(0, 1, 1, 1)
+                else
+                    newTrackerFrame.Icon:SetDesaturated(true)
+                    newTrackerFrame.Keybind:SetTextColor(1, 0.3, 0.75, 1)
+                end
 
-            newTrackerFrame.isActive = true
-            newTrackerFrame:Show()
+                newTrackerFrame.isActive = true
+                newTrackerFrame:Show()
+            end
         end
     end
 end
@@ -1497,7 +1515,7 @@ function ConditionerAddOn:NewTrackingFrame()
     o.cooldown:SetHideCountdownNumbers(true)
     o.KeybindFrame = CreateFrame("Frame", nil, o)
     o.KeybindFrame:SetAllPoints(o)
-    o.KeybindFrame:SetFrameStrata(o:GetFrameStrata(), o:GetFrameLevel() + 1)
+    o.KeybindFrame:SetFrameStrata(o:GetFrameStrata())
     o.Keybind = o.KeybindFrame:CreateFontString(nil, "OVERLAY", "SystemFont_OutlineThick_Huge2")
     o.Keybind:SetPoint("BOTTOMLEFT", o, "BOTTOMLEFT", 8, 6.25)
     o.Keybind:SetJustifyH("LEFT")
@@ -1607,11 +1625,66 @@ function ConditionerAddOn:CompareValues(leftValue, operatorEnum, rightValue)
     return true
 end
 
+function ConditionerAddOn:CollectMouseOverSpells(sortedList)
+    ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
+    local lastParentFrame = ConditionerAddOn.MouseIconTracker
+    local found = 0
+    local scale = UIParent:GetScale() * 0.15
+    for i, v in ipairs(sortedList) do
+        if (v.isMouseover and found < ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
+            local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
+            local frame = ConditionerAddOn:GetTrackerFromPool(ConditionerAddOn.MouseIconTracker.Pool)
+            frame.available = false
+            frame.Texture:SetTexture(v.texture)
+            frame:ClearAllPoints()
+            local isCoolingDown, cooldownDuration = frame.Cooldown:GetCooldownTimes()
+            if (cooldownDuration ~= v.duration) then
+                frame.Cooldown:SetCooldown(v.startTime, v.duration)
+            end
+            -- attach it to lastParentFrame
+            -- match lastParentFrame if it is the MouseIconTracker
+            if (lastParentFrame == ConditionerAddOn.MouseIconTracker) then
+                frame:SetAllPoints(lastParentFrame)
+            else
+                if (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0) then
+                    frame:SetPoint("BOTTOMRIGHT", lastParentFrame, "BOTTOMLEFT", -2, 0)
+                elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 1) then
+                    frame:SetPoint("BOTTOM", lastParentFrame, "TOP", 0, 2)
+                elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 2) then
+                    frame:SetPoint("BOTTOMLEFT", lastParentFrame, "BOTTOMRIGHT", 2, 0)
+                elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 3) then
+                    frame:SetPoint("TOP", lastParentFrame, "BOTTOM", 0, -2)
+                end
+            end
+
+            frame:SetSize(lastParentFrame:GetSize())
+            frame:SetAlpha(ConditionerAddOn_SavedVariables.Options.Opacity / 100)
+            frame.Keybind:SetFont("Fonts\\FRIZQT__.TTF",
+                ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * scale, "OUTLINE, THICK")
+            frame.Keybind:SetText(keybind)
+            frame.Keybind:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT",
+                ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * 0.0325 * 0.5,
+                ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * 0.0325 * 0.5)
+            if (not v.range) or (v.range == 1) then
+                frame.Texture:SetDesaturated(false)
+                frame.Keybind:SetTextColor(0, 1, 1, 1)
+            else
+                frame.Texture:SetDesaturated(true)
+                frame.Keybind:SetTextColor(1, 0.3, 0.75, 1)
+            end
+
+            frame:Show()
+            lastParentFrame = frame
+            found = found + 1
+        end
+    end
+end
+
 function ConditionerAddOn:GetCooldownList()
     local validSpells = {}
     local found = {}
     for k, v in ipairs(ConditionerAddOn.PriorityButtons) do
-        local spellTimeRemaining, spellGCD, s, d, inRange, auraTexture, auraDuration, auraTimestamp =
+        local spellTimeRemaining, spellGCD, s, d, inRange, auraTexture, auraDuration, auraTimestamp, isMouseover =
             ConditionerAddOn:CheckCondition(v)
         local id = v.Data.spellID
         if (spellTimeRemaining) and (not found[id]) then
@@ -1626,7 +1699,8 @@ function ConditionerAddOn:GetCooldownList()
                 range = inRange,
                 auraIcon = auraTexture,
                 auraTime = auraDuration,
-                auraTS = auraTimestamp
+                auraTS = auraTimestamp,
+                isMouseover = isMouseover
             })
         end
     end
@@ -1786,6 +1860,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     elseif (targetUnitEnum == 21) then
         targetUnitToken = "softinteract"
     end
+
+    -- is mouseover spell
+    local isMouseover = (targetUnitToken == "mouseover")
 
     -- I Am Tanking Elite+ 22
     if (targetUnitEnum == 22) then
@@ -2118,7 +2195,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- print(myGCD, spellID, itemSpell)
     -- did we make it?
     -- print("WE MADE IT", spellID, finalTimeLeft, myGCD)
-    return finalTimeLeft, myGCD, finalStartTime, finalDurationTime, inRange, auraIcon, auraDuration, auraExpireTimestamp
+    return finalTimeLeft, myGCD, finalStartTime, finalDurationTime, inRange, auraIcon, auraDuration,
+        auraExpireTimestamp, isMouseover
 end
 
 function ConditionerAddOn:GetAvailableTrackingFrame()
@@ -2678,6 +2756,64 @@ function ConditionerAddOn:CreateLoadoutString(withoutKeybinds)
     return (results > 0) and loadoutString or false
 end
 
+function ConditionerAddOn:UnsavedChanges(frame, shouldHide)
+    if (not ConditionerAddOn.WarningInfoBoxUnsaved) then
+        ConditionerAddOn.WarningInfoBoxUnsaved = CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame)
+        ConditionerAddOn.WarningInfoBoxUnsaved:SetFrameLevel(UIParent:GetFrameLevel() + 10)
+        ConditionerAddOn.WarningInfoBoxUnsaved:Hide()
+        ConditionerAddOn:AddBorder(ConditionerAddOn.WarningInfoBoxUnsaved)
+        ConditionerAddOn.WarningInfoBoxUnsaved.Texture = ConditionerAddOn.WarningInfoBoxUnsaved:CreateTexture()
+        ConditionerAddOn.WarningInfoBoxUnsaved.Texture:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Background")
+        ConditionerAddOn.WarningInfoBoxUnsaved.Texture:SetAllPoints(ConditionerAddOn.WarningInfoBoxUnsaved)
+        ConditionerAddOn.WarningInfoBoxUnsaved.Text = ConditionerAddOn.WarningInfoBoxUnsaved:CreateFontString(nil,
+            "OVERLAY", "SystemFont_Huge1_Outline")
+        ConditionerAddOn.WarningInfoBoxUnsaved.Text:SetFont("Fonts\\FRIZQT__.TTF", 15, "OUTLINE, THICK")
+        ConditionerAddOn.WarningInfoBoxUnsaved.Text:SetAllPoints(ConditionerAddOn.WarningInfoBoxUnsaved)
+        ConditionerAddOn.WarningInfoBoxUnsaved.Text:SetTextColor(1, 1, 0, 1)
+        ConditionerAddOn.WarningInfoBoxUnsaved.Text:SetText("You have\nunsaved changes\nin your rotation!")
+        ConditionerAddOn.WarningInfoBoxUnsaved:SetSize(ConditionerAddOn.WarningInfoBoxUnsaved.Text:GetStringWidth() *
+                                                           1.25,
+            ConditionerAddOn.WarningInfoBoxUnsaved.Text:GetStringHeight() * 1.25)
+    end
+
+    if (shouldHide) then
+        ConditionerAddOn.WarningInfoBoxUnsaved:Hide()
+    else
+        ConditionerAddOn.WarningInfoBoxUnsaved:ClearAllPoints()
+        ConditionerAddOn.WarningInfoBoxUnsaved:SetPoint("TOP", frame, "BOTTOM")
+        ConditionerAddOn.WarningInfoBoxUnsaved:Show()
+    end
+end
+
+function ConditionerAddOn:WarningCreateNewLoadout(frame, shouldHide)
+    if (not ConditionerAddOn.WarningInfoBoxCreateNew) then
+        ConditionerAddOn.WarningInfoBoxCreateNew = CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame)
+        ConditionerAddOn.WarningInfoBoxCreateNew:SetFrameLevel(UIParent:GetFrameLevel() + 10)
+        ConditionerAddOn.WarningInfoBoxCreateNew:Hide()
+        ConditionerAddOn:AddBorder(ConditionerAddOn.WarningInfoBoxCreateNew)
+        ConditionerAddOn.WarningInfoBoxCreateNew.Texture = ConditionerAddOn.WarningInfoBoxCreateNew:CreateTexture()
+        ConditionerAddOn.WarningInfoBoxCreateNew.Texture:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Background")
+        ConditionerAddOn.WarningInfoBoxCreateNew.Texture:SetAllPoints(ConditionerAddOn.WarningInfoBoxCreateNew)
+        ConditionerAddOn.WarningInfoBoxCreateNew.Text = ConditionerAddOn.WarningInfoBoxCreateNew:CreateFontString(nil,
+            "OVERLAY", "SystemFont_Huge1_Outline")
+        ConditionerAddOn.WarningInfoBoxCreateNew.Text:SetFont("Fonts\\FRIZQT__.TTF", 15, "OUTLINE, THICK")
+        ConditionerAddOn.WarningInfoBoxCreateNew.Text:SetAllPoints(ConditionerAddOn.WarningInfoBoxCreateNew)
+        ConditionerAddOn.WarningInfoBoxCreateNew.Text:SetTextColor(1, 1, 0, 1)
+        ConditionerAddOn.WarningInfoBoxCreateNew.Text:SetText("You must create\na new loadout!")
+        ConditionerAddOn.WarningInfoBoxCreateNew:SetSize(
+            ConditionerAddOn.WarningInfoBoxCreateNew.Text:GetStringWidth() * 1.25,
+            ConditionerAddOn.WarningInfoBoxCreateNew.Text:GetStringHeight() * 1.5)
+    end
+
+    if (shouldHide) then
+        ConditionerAddOn.WarningInfoBoxCreateNew:Hide()
+    else
+        ConditionerAddOn.WarningInfoBoxCreateNew:ClearAllPoints()
+        ConditionerAddOn.WarningInfoBoxCreateNew:SetPoint("TOP", frame, "BOTTOM")
+        ConditionerAddOn.WarningInfoBoxCreateNew:Show()
+    end
+end
+
 function ConditionerAddOn:StoreCurrentLoadout()
     local currentSpecID = GetSpecialization()
     if (currentSpecID) then
@@ -2691,10 +2827,12 @@ function ConditionerAddOn:StoreCurrentLoadout()
             end
             ConditionerAddOn.LoadoutFrame.OverWrite:LockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Save")
+            ConditionerAddOn:UnsavedChanges(ConditionerAddOn.LoadoutFrame.OverWrite)
         else
             ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
             ConditionerAddOn.LoadoutFrame.OverWrite:UnlockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
+            ConditionerAddOn:UnsavedChanges(nil, true)
         end
     end
 end
@@ -4162,11 +4300,14 @@ function ConditionerAddOn:Init()
         if (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice == -1) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffFFff00%s|r", textValue)
+            ConditionerAddOn:WarningCreateNewLoadout(ConditionerAddOn.LoadoutFrame.SaveLoadout)
         elseif (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice == 0) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffd742f4%s|r", textValue)
+            ConditionerAddOn:WarningCreateNewLoadout(ConditionerAddOn.LoadoutFrame.SaveLoadout)
         else
             ConditionerAddOn.LoadoutFrame.SaveLoadout:UnlockHighlight()
+            ConditionerAddOn:WarningCreateNewLoadout(nil, true)
         end
         CONDITIONERDROPDOWNMENU_SetText(ConditionerAddOn.LoadoutFrame.DropDown, textValue)
         CONDITIONERDROPDOWNMENU_Initialize(ConditionerAddOn.LoadoutFrame.DropDown, function(self, level, menuList)
@@ -4217,11 +4358,14 @@ function ConditionerAddOn:Init()
         if (newValue == -1) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffFFff00%s|r", textValue)
+            ConditionerAddOn:WarningCreateNewLoadout(ConditionerAddOn.LoadoutFrame.SaveLoadout)
         elseif (newValue == 0) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffd742f4%s|r", textValue)
+            ConditionerAddOn:WarningCreateNewLoadout(ConditionerAddOn.LoadoutFrame.SaveLoadout)
         else
             ConditionerAddOn.LoadoutFrame.SaveLoadout:UnlockHighlight()
+            ConditionerAddOn:WarningCreateNewLoadout(nil, true)
         end
         CONDITIONERDROPDOWNMENU_SetText(ConditionerAddOn.LoadoutFrame.DropDown, textValue)
         ConditionerCloseDropDownMenus()
@@ -4243,6 +4387,7 @@ function ConditionerAddOn:Init()
                 ConditionerAddOn.LoadoutFrame.DropDown.Choices[0].name))
             ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = 0
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
+            ConditionerAddOn:WarningCreateNewLoadout(ConditionerAddOn.LoadoutFrame.SaveLoadout)
             ConditionerAddOn:StoreCurrentLoadout()
             if (ConditionerAddOn.CurrentPriorityButton) then
                 -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
@@ -4294,6 +4439,7 @@ function ConditionerAddOn:Init()
             ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
             ConditionerAddOn.LoadoutFrame.OverWrite:UnlockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
+            ConditionerAddOn:WarningCreateNewLoadout(nil, true)
         end
     end)
 
@@ -4381,6 +4527,64 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetText("Conditioner")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetPoint("BOTTOMLEFT",
         ConditionerAddOn.LoadoutFrame.BackgroundFrame, "TOPLEFT")
+
+    -- Icon At Mouse Icon Tracker
+    ConditionerAddOn.MouseIconTracker = CreateFrame("Frame")
+    ConditionerAddOn.MouseIconTracker.Pool = {}
+    function ConditionerAddOn:HideTrackerPool(pool)
+        for i, v in ipairs(pool) do
+            v.available = true
+            v:Hide()
+        end
+    end
+    function ConditionerAddOn:GetTrackerFromPool(pool)
+        -- is one available?
+        for i, v in ipairs(pool) do
+            if (v.available) then
+                return v
+            end
+        end
+
+        local frame = CreateFrame("Frame")
+        frame:SetFrameLevel(UIParent:GetFrameLevel() + 5) -- some arbitrary amount higher than parent
+        frame.available = true
+        frame:Hide()
+        ConditionerAddOn:AddBorder(frame)
+
+        -- mouse icon texture
+        frame.Texture = frame:CreateTexture()
+        frame.Texture:SetAllPoints(frame)
+        -- frame.Texture:SetDrawLayer("BACKGROUND")
+        frame.Texture:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
+
+        -- mouse icon cooldown
+        frame.Cooldown = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
+        frame.Cooldown:SetAllPoints(frame)
+
+        -- keybind
+        frame.KeybindFrame = CreateFrame("Frame", nil, frame)
+        frame.KeybindFrame:SetAllPoints(frame)
+        frame.KeybindFrame:SetFrameStrata(frame:GetFrameStrata())
+        frame.Keybind = frame.KeybindFrame:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+        -- frame.Keybind:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 8, 6.25)
+        frame.Keybind:SetJustifyH("LEFT")
+        frame.Keybind:SetJustifyV("BOTTOM")
+        frame.Keybind:SetTextColor(0, 1, 1, 1)
+
+        -- add to pool
+        table.insert(pool, frame)
+
+        return frame
+    end
+    -- mouse tracker position to cursor
+    ConditionerAddOn.MouseIconTracker:SetScript("OnUpdate", function(self, elapsed)
+        local x, y = GetCursorPosition()
+        local scale = UIParent:GetScale() * 0.5
+        local size = ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
+        local width = size * scale
+        ConditionerAddOn.MouseIconTracker:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x - width, y)
+        ConditionerAddOn.MouseIconTracker:SetSize(width, width)
+    end)
 
     -- ===================================================================================================================--
     --------------------------------------------------------OPTIONS--------------------------------------------------------
@@ -4504,6 +4708,39 @@ function ConditionerAddOn:Init()
     end)
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:SetScript("OnShow", function(self)
         self:SetChecked(ConditionerAddOn_SavedVariables.Options.ShowTargetCastBar)
+    end)
+
+    -- show mouseover abilities at cursor
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
+        "UICheckButtonTemplate")
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text =
+        ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:CreateFontString(nil, "OVERLAY")
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetText("Show Mouseover Rotation")
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetJustifyH("LEFT")
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetTextColor(0.1, 0.9, 1, 1)
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetPoint("LEFT", ConditionerAddOn.LoadoutFrame
+        .ShowMouseoverAtCursor, "RIGHT")
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:SetPoint("TOPLEFT",
+        ConditionerAddOn.LoadoutFrame.ShowTargetCastBar, "BOTTOMLEFT", 0, 0)
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
+        GameTooltip:SetText("Show Mouseover Rotation", 0, 0.75, 1)
+        GameTooltip:AddLine(
+            "Check this option to display your mouseover abilities at your cursor instead of the rotation frames.", 1,
+            1, 1, true)
+        GameTooltip:SetMinimumWidth(150)
+        GameTooltip:Show()
+    end)
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:SetScript("OnClick", function(self)
+        PlaySound(1115)
+        ConditionerAddOn_SavedVariables.Options.ShowMouseoverAtCursor = self:GetChecked()
+    end)
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:SetScript("OnShow", function(self)
+        self:SetChecked(ConditionerAddOn_SavedVariables.Options.ShowMouseoverAtCursor)
     end)
 
     -- STRETCH THE CONTAINER
