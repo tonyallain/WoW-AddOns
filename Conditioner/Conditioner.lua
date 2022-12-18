@@ -574,6 +574,19 @@ function ConditionerAddOn:CollapsePriorityButtons()
     end
 end
 
+function ConditionerAddOn:IsEliteOrHigher(token)
+    if (not UnitExists(token)) then
+        return false
+    end
+
+    local classification = UnitClassification(token)
+    if (classification == "normal" or classification == "trivial" or classification == "minus") then
+        return false
+    end
+
+    return true
+end
+
 function ConditionerAddOn:CreateSwingFrame(text, parent, r, g, b)
     local o = CreateFrame("Frame", nil, parent)
     o:SetFrameStrata("MEDIUM")
@@ -1145,7 +1158,7 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
                                                       frame.Conditions.diseaseBool})
     local boolStringShort = ConditionerAddOn:EncodeToMask({frame.Conditions.cooldownRemainingIsItemID,
                                                            frame.Conditions.onlyInRange, frame.Conditions.onlyDuringCC,
-                                                           false, -- 4
+                                                           frame.Conditions.onlyWhileMoving, -- 4
     frame.Conditions.hideWhileCasting, -- 5
     frame.Conditions.canCast}, true)
     local encoded_resourceTypeEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.resourceTypeEnum, true)
@@ -1742,7 +1755,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     end
 
     -- target Unit exists
-    local targetUnitEnum, targetUnitToken = Conditions.auraTargetEnum, "target"
+    local targetUnitEnum, targetUnitToken = Conditions.auraTargetEnum, "player"
     if (targetUnitEnum == 1) then
         targetUnitToken = "player"
     elseif (targetUnitEnum == 2 or targetUnitEnum == 3 or targetUnitEnum == 4 or targetUnitEnum == 13 or targetUnitEnum ==
@@ -1772,6 +1785,25 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         targetUnitToken = "softfriend"
     elseif (targetUnitEnum == 21) then
         targetUnitToken = "softinteract"
+    end
+
+    -- I Am Tanking Elite+ 22
+    if (targetUnitEnum == 22) then
+        local isTanking = UnitDetailedThreatSituation("player", "anyenemy")
+        local isElite = ConditionerAddOn:IsEliteOrHigher("anyenemy")
+
+        if (not isElite) or (UnitExists("anyenemy") and not isTanking) then
+            return false
+        end
+    end
+
+    -- I Am Not Tanking Elite+ 23
+    if (targetUnitEnum == 23) then
+        local isTanking = UnitDetailedThreatSituation("player", "anyenemy")
+        local isElite = ConditionerAddOn:IsEliteOrHigher("anyenemy")
+        if (not isElite) or (UnitExists("anyenemy") and isTanking) then
+            return false
+        end
     end
 
     -- if we don't have a target other than myself then fail
@@ -2865,12 +2897,12 @@ function ConditionerAddOn:Init()
             "Enemy Target",
             "Friendly Target",
             "Any Target",
-            "Enemy MouseOver",
+            "Enemy MouseOver", -- 5
             "Friendly MouseOver",
             "Any MouseOver",
             "My Pet",
             "My Pet's Target",
-            "My Focus",
+            "My Focus", -- 10
             "My Focus' Target",
             "My Target's Target",
             "Friendly Player",
@@ -2880,8 +2912,10 @@ function ConditionerAddOn:Init()
             "Soft - Any Friend",
             "Soft - Any Interact",
             "Soft - Enemy",
-            "Soft - Friend",
-            "Soft - Interact"
+            "Soft - Friend", -- 20
+            "Soft - Interact",
+            "I Am Tanking Elite+",
+            "I Am Not Tanking Elite+"
         },
         shapeShiftChoicesEnum = {
             [0] = "None",
