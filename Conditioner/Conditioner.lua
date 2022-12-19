@@ -709,6 +709,8 @@ function ConditionerAddOn:OnUpdate(elapsed)
     ConditionerAddOn:ClearTrackers()
     if (ConditionerAddOn_SavedVariables.Options.OnlyDisplayInCombat) and (not SpellBookFrame:IsShown()) and
         (not UnitAffectingCombat("player")) or (UnitHasVehicleUI("player")) then
+        ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
+        ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
         return
     end
     local sortedList = ConditionerAddOn:GetCooldownList()
@@ -724,10 +726,19 @@ function ConditionerAddOn:OnUpdate(elapsed)
         ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
     end
 
+    -- for AoE rotation
+    local usingAoE = ConditionerAddOn_SavedVariables.Options.ShowAoeRotation
+    if (usingAoE) then
+        ConditionerAddOn:CollectAoeSpells(sortedList)
+    else
+        ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
+    end
+
     local numTracked = 0
     for k, v in ipairs(sortedList) do
         if (numTracked < ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
-            if (not usingMouseover) or (usingMouseover and not v.isMouseover) then
+            if ((not usingMouseover) or (usingMouseover and not v.isMouseover)) and
+                ((not usingAoE) or (usingAoE and not v.isAoe)) then
                 numTracked = numTracked + 1
                 local newTrackerFrame = ConditionerAddOn:GetAvailableTrackingFrame()
                 if (k == 1) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
@@ -1176,7 +1187,7 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
                                                       frame.Conditions.diseaseBool})
     local boolStringShort = ConditionerAddOn:EncodeToMask({frame.Conditions.cooldownRemainingIsItemID,
                                                            frame.Conditions.onlyInRange, frame.Conditions.onlyDuringCC,
-                                                           frame.Conditions.onlyWhileMoving, -- 4
+                                                           frame.Conditions.showInAoeRotation, -- 4
     frame.Conditions.hideWhileCasting, -- 5
     frame.Conditions.canCast}, true)
     local encoded_resourceTypeEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.resourceTypeEnum, true)
@@ -1284,7 +1295,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
         destFrame.Conditions.cooldownRemainingIsItemID = decoded_boolStringShort[1]
         destFrame.Conditions.onlyInRange = decoded_boolStringShort[2]
         destFrame.Conditions.onlyDuringCC = decoded_boolStringShort[3]
-        destFrame.Conditions.onlyWhileMoving = decoded_boolStringShort[4]
+        destFrame.Conditions.showInAoeRotation = decoded_boolStringShort[4]
         destFrame.Conditions.hideWhileCasting = decoded_boolStringShort[5]
         destFrame.Conditions.canCast = decoded_boolStringShort[6]
         destFrame.Conditions.cooldownRemainingEnum = ConditionerAddOn:ConvertFromMask(cdR)
@@ -1317,7 +1328,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
             onlyDuringCC = false,
             canCast = false,
             hideWhileCasting = false,
-            onlyWhileMoving = false,
+            showInAoeRotation = false,
             -- enums
             resourceTypeEnum = 0,
             resourceConditionalEnum = 0,
@@ -1680,11 +1691,66 @@ function ConditionerAddOn:CollectMouseOverSpells(sortedList)
     end
 end
 
+function ConditionerAddOn:CollectAoeSpells(sortedList)
+    ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
+    local lastParentFrame = ConditionerAddOn.AoeRotation.Anchor
+    local found = 0
+    local scale = UIParent:GetScale() * 0.15
+    for i, v in ipairs(sortedList) do
+        if (v.isAoe and found < ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
+            local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
+            local frame = ConditionerAddOn:GetTrackerFromPool(ConditionerAddOn.AoeRotation.Pool)
+            frame.available = false
+            frame.Texture:SetTexture(v.texture)
+            frame:ClearAllPoints()
+            local isCoolingDown, cooldownDuration = frame.Cooldown:GetCooldownTimes()
+            if (cooldownDuration ~= v.duration) then
+                frame.Cooldown:SetCooldown(v.startTime, v.duration)
+            end
+            -- attach it to lastParentFrame
+            -- match lastParentFrame if it is the AoeRotation
+            if (lastParentFrame == ConditionerAddOn.AoeRotation.Anchor) then
+                frame:SetAllPoints(lastParentFrame)
+            else
+                if (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0) then
+                    frame:SetPoint("BOTTOMRIGHT", lastParentFrame, "BOTTOMLEFT", -2, 0)
+                elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 1) then
+                    frame:SetPoint("BOTTOM", lastParentFrame, "TOP", 0, 2)
+                elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 2) then
+                    frame:SetPoint("BOTTOMLEFT", lastParentFrame, "BOTTOMRIGHT", 2, 0)
+                elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 3) then
+                    frame:SetPoint("TOP", lastParentFrame, "BOTTOM", 0, -2)
+                end
+            end
+
+            frame:SetSize(lastParentFrame:GetSize())
+            frame:SetAlpha(ConditionerAddOn_SavedVariables.Options.Opacity / 100)
+            frame.Keybind:SetFont("Fonts\\FRIZQT__.TTF",
+                ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * scale, "OUTLINE, THICK")
+            frame.Keybind:SetText(keybind)
+            frame.Keybind:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT",
+                ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * 0.0325 * 0.5,
+                ConditionerAddOn_SavedVariables.Options.TrackedFrameSize * 0.0325 * 0.5)
+            if (not v.range) or (v.range == 1) then
+                frame.Texture:SetDesaturated(false)
+                frame.Keybind:SetTextColor(0, 1, 1, 1)
+            else
+                frame.Texture:SetDesaturated(true)
+                frame.Keybind:SetTextColor(1, 0.3, 0.75, 1)
+            end
+
+            frame:Show()
+            lastParentFrame = frame
+            found = found + 1
+        end
+    end
+end
+
 function ConditionerAddOn:GetCooldownList()
     local validSpells = {}
     local found = {}
     for k, v in ipairs(ConditionerAddOn.PriorityButtons) do
-        local spellTimeRemaining, spellGCD, s, d, inRange, auraTexture, auraDuration, auraTimestamp, isMouseover =
+        local spellTimeRemaining, spellGCD, s, d, inRange, auraTexture, auraDuration, auraTimestamp, isMouseover, isAoe =
             ConditionerAddOn:CheckCondition(v)
         local id = v.Data.spellID
         if (spellTimeRemaining) and (not found[id]) then
@@ -1700,7 +1766,8 @@ function ConditionerAddOn:GetCooldownList()
                 auraIcon = auraTexture,
                 auraTime = auraDuration,
                 auraTS = auraTimestamp,
-                isMouseover = isMouseover
+                isMouseover = isMouseover,
+                isAoe = isAoe
             })
         end
     end
@@ -1791,10 +1858,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         return false
     end
 
-    -- moving
-    if (Conditions.onlyWhileMoving) and (not IsPlayerMoving()) then
-        return false
-    end
+    -- Conditions.showInAoeRotation repurposed to AoE ability
+    local isAoe = Conditions.showInAoeRotation
 
     -- onlyDuringCC
     if (Conditions.onlyDuringCC) and (HasFullControl()) then
@@ -2196,7 +2261,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- did we make it?
     -- print("WE MADE IT", spellID, finalTimeLeft, myGCD)
     return finalTimeLeft, myGCD, finalStartTime, finalDurationTime, inRange, auraIcon, auraDuration,
-        auraExpireTimestamp, isMouseover
+        auraExpireTimestamp, isMouseover, isAoe
 end
 
 function ConditionerAddOn:GetAvailableTrackingFrame()
@@ -2587,7 +2652,7 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             onlyDuringCC = false,
             canCast = false,
             hideWhileCasting = false,
-            onlyWhileMoving = false,
+            showInAoeRotation = false,
             -- enums
             resourceTypeEnum = 0,
             resourceConditionalEnum = 0,
@@ -3802,16 +3867,16 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16].tooltip =
         "Enable this option if you want to hide the spell if it is actively being cast."
 
-    -- only while moving
+    -- show in AoE rotation
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17] = ConditionerAddOn:NewCheckBox(
-        ConditionerAddOn.SharedConditionerFrame, "Only While Moving", "onlyWhileMoving")
+        ConditionerAddOn.SharedConditionerFrame, "Area of Effect Only", "showInAoeRotation")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[15], "BOTTOMLEFT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].text:SetPoint("LEFT",
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17], "RIGHT")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].title = "Only While Moving"
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].title = "Area of Effect Only"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].tooltip =
-        "Enable this option if you only want to see this spell while moving."
+        "Enable this option if this spell should appear in the AoE rotation instead of the primary rotation."
 
     -- myActiveAura
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6] = ConditionerAddOn:NewInputBox(
@@ -4439,7 +4504,7 @@ function ConditionerAddOn:Init()
             ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
             ConditionerAddOn.LoadoutFrame.OverWrite:UnlockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
-            ConditionerAddOn:WarningCreateNewLoadout(nil, true)
+            ConditionerAddOn:UnsavedChanges(nil, true)
         end
     end)
 
@@ -4584,6 +4649,52 @@ function ConditionerAddOn:Init()
         local width = size * scale
         ConditionerAddOn.MouseIconTracker:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x - width, y)
         ConditionerAddOn.MouseIconTracker:SetSize(width, width)
+    end)
+
+    -- AoE rotation tracker
+    ConditionerAddOn.AoeRotation = CreateFrame("Frame", nil, SpellBookFrame)
+    ConditionerAddOn.AoeRotation.Pool = {}
+    ConditionerAddOn.AoeRotation.x =
+        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.x or UIParent:GetWidth() / 2
+    ConditionerAddOn.AoeRotation.y =
+        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.y or UIParent:GetHeight() / 2
+    ConditionerAddOn.AoeRotation:SetFrameStrata("HIGH")
+    ConditionerAddOn.AoeRotation:SetPoint("CENTER", UIParent, "BOTTOMLEFT", ConditionerAddOn.AoeRotation.x,
+        ConditionerAddOn.AoeRotation.y)
+    ConditionerAddOn.AoeRotation:SetSize(64, 64)
+    ConditionerAddOn.AoeRotation.Anchor = CreateFrame("Frame")
+    local rotationAnchorSize = UIParent:GetScale() * 0.5 *
+                                   (ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100)
+    ConditionerAddOn.AoeRotation.Anchor:SetSize(rotationAnchorSize, rotationAnchorSize)
+    ConditionerAddOn.AoeRotation.Anchor:SetPoint("CENTER", ConditionerAddOn.AoeRotation, "CENTER")
+    ConditionerAddOn.AoeRotation.Texture = ConditionerAddOn.AoeRotation:CreateTexture()
+    ConditionerAddOn.AoeRotation.Texture:SetAllPoints(ConditionerAddOn.AoeRotation)
+    ConditionerAddOn.AoeRotation.Texture:SetDrawLayer("BACKGROUND")
+    SetPortraitToTexture(ConditionerAddOn.AoeRotation.Texture, "Interface\\DialogFrame\\UI-DialogBox-Background")
+    ConditionerAddOn.AoeRotation.Text = ConditionerAddOn.AoeRotation:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.AoeRotation.Text:SetPoint("CENTER", ConditionerAddOn.AoeRotation, "CENTER")
+    ConditionerAddOn.AoeRotation.Text:SetTextColor(0, 1, 1, 1)
+    ConditionerAddOn.AoeRotation.Text:SetText("AoE\nTracked\nFrame\nAnchor")
+    ConditionerAddOn.AoeRotation:EnableMouse(true)
+    ConditionerAddOn.AoeRotation:RegisterForDrag("LeftButton")
+    ConditionerAddOn.AoeRotation:SetMovable(true)
+    ConditionerAddOn.AoeRotation:SetClampedToScreen(true)
+    ConditionerAddOn.AoeRotation:SetScript("OnDragStart", function(self)
+        self:StartMoving()
+    end)
+    ConditionerAddOn.AoeRotation:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        local left, bottom, width, height = self:GetRect()
+        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.x = (left + width / 2)
+        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.y = (bottom + height / 2)
+    end)
+    -- handle size
+    ConditionerAddOn.AoeRotation:SetScript("OnUpdate", function(self, elapsed)
+        local scale = UIParent:GetScale() * 0.5
+        local size = ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
+        local width = size * scale
+        ConditionerAddOn.AoeRotation.Anchor:SetSize(width, width)
     end)
 
     -- ===================================================================================================================--
@@ -4741,6 +4852,39 @@ function ConditionerAddOn:Init()
     end)
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:SetScript("OnShow", function(self)
         self:SetChecked(ConditionerAddOn_SavedVariables.Options.ShowMouseoverAtCursor)
+    end)
+
+    -- show AoE rotation
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
+        "UICheckButtonTemplate")
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation.text = ConditionerAddOn.LoadoutFrame.ShowAoeRotation:CreateFontString(
+        nil, "OVERLAY")
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation.text:SetText("Show AoE Rotation")
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation.text:SetJustifyH("LEFT")
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation.text:SetTextColor(0.1, 0.9, 1, 1)
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation.text:SetPoint("LEFT", ConditionerAddOn.LoadoutFrame.ShowAoeRotation,
+        "RIGHT")
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation:SetPoint("TOPLEFT",
+        ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor, "BOTTOMLEFT", 0, 0)
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
+        GameTooltip:SetText("Show AoE Rotation", 0, 0.75, 1)
+        GameTooltip:AddLine(
+            "Check this option to display the AoE rotation bar for abilities you flagged as 'Area of Effect Only'.", 1,
+            1, 1, true)
+        GameTooltip:SetMinimumWidth(150)
+        GameTooltip:Show()
+    end)
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation:SetScript("OnClick", function(self)
+        PlaySound(1115)
+        ConditionerAddOn_SavedVariables.Options.ShowAoeRotation = self:GetChecked()
+    end)
+    ConditionerAddOn.LoadoutFrame.ShowAoeRotation:SetScript("OnShow", function(self)
+        self:SetChecked(ConditionerAddOn_SavedVariables.Options.ShowAoeRotation)
     end)
 
     -- STRETCH THE CONTAINER
@@ -4944,6 +5088,14 @@ function ConditionerAddOn.EventHandler:ADDON_LOADED(...)
             ShowSwingTimers = false,
             OnlyDisplayInCombat = false
         }
+        -- new options
+        if (not ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor) then
+            ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor = {
+                x = false,
+                y = false
+            }
+        end
+
         ConditionerAddOn:Init()
     end
 end
