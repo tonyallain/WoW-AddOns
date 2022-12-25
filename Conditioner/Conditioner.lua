@@ -852,6 +852,8 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
             (not UnitAffectingCombat("player"))) then
         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:Hide()
         ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Hide()
+        ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
+        ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
         return
     end
     if (ConditionerAddOn_SavedVariables.Options.ShowSwingTimers) then
@@ -3037,14 +3039,21 @@ function ConditionerAddOn:Init()
         C_Timer.After(0.01, function()
             local leftA, bottomA, widthA, heightA = ConditionerAddOn.SharedConditionerFrame.Background:GetRect()
             local leftB, bottomB, widthB, heightB = ConditionerAddOn.TrackedFrameDragAnchor:GetRect()
+            local leftC, bottomC, widthC, heightC = ConditionerAddOn.AoeRotation:GetRect()
             if (leftA) and (leftB) and (leftA <= (leftB + widthB)) and (leftB <= (leftA + widthA)) and
                 (bottomA <= (bottomB + heightB)) and (bottomB <= (bottomA + heightA)) then
                 ConditionerAddOn.TrackedFrameDragAnchor:Hide()
+            end
+            -- for aoe tracked frame
+            if (leftA) and (leftC) and (leftA <= (leftC + widthC)) and (leftC <= (leftA + widthA)) and
+                (bottomA <= (bottomC + heightC)) and (bottomC <= (bottomA + heightA)) then
+                ConditionerAddOn.AoeRotation:Hide()
             end
         end)
     end)
     ConditionerAddOn.SharedConditionerFrame.Background:SetScript("OnHide", function(self)
         ConditionerAddOn.TrackedFrameDragAnchor:Show()
+        ConditionerAddOn.AoeRotation:Show()
     end)
     ConditionerAddOn.Enums = {
         resourceEnum = {
