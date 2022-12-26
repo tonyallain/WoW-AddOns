@@ -1252,7 +1252,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
             ConditionerAddOn:SetConditions(destFrame)
             return
         end
-        -- print(string.format("DECODED %s\n%s", conditionString, subDecodedString)) ConditionerAddOn.ConditionPattern
+        -- print(string.format("DECODED %s\n%s", conditionString, subDecodedString)) -- ConditionerAddOn.ConditionPattern
         -- ADD NEW CONDITION FOR MY ACTIVE AURA
         local b, bShort, c, d, e, f, g, h, i, j, k, l, m, n, o, watched_Amount, cdR, p, q, spell_id, item_id,
             watched_ID, myActiveAura = subDecodedString:match(ConditionerAddOn.ConditionPattern)
@@ -2635,6 +2635,7 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             -- strings
             activeAuraString = "",
             keyBindingString = "",
+            myActiveAura = "",
             -- bools
             secondsRemainingBool = false,
             isInterruptBool = false,
@@ -3888,47 +3889,47 @@ function ConditionerAddOn:Init()
         "Enable this option if this spell should appear in the AoE rotation instead of the primary rotation."
 
     -- myActiveAura
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6] = ConditionerAddOn:NewInputBox(
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9] = ConditionerAddOn:NewInputBox(
         ConditionerAddOn.SharedConditionerFrame, "myActiveAura")
     local activeAuraOffset = -20
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetPoint("TOPLEFT",
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4], "BOTTOMLEFT", 0, activeAuraOffset)
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetPoint("TOPRIGHT",
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetPoint("TOPRIGHT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4], "BOTTOMRIGHT", 0, activeAuraOffset)
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:CreateFontString(nil, "OVERLAY",
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text =
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:CreateFontString(nil, "OVERLAY",
             "SystemFont_NamePlateCastBar")
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetPoint("BOTTOM",
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6], "TOP", 0, -6)
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetText("My Active Aura")
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetJustifyH("CENTER")
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetJustifyV("CENTER")
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetTextColor(0, 1, 1, 1)
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetSize(
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:GetStringWidth(),
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetHeight())
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].title = "My Active Aura"
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].tooltip =
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetPoint("BOTTOM",
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9], "TOP", 0, -6)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetText("My Active Aura")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetJustifyH("CENTER")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetJustifyV("CENTER")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetTextColor(0, 1, 1, 1)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetSize(
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:GetStringWidth(),
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:GetHeight())
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].title = "My Active Aura"
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].tooltip =
         "Check that a specific aura is active on YOURSELF. This is NOT related to the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- second aura search box
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2 = CreateFrame("Frame", nil,
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6])
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9])
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2:SetFrameStrata("HIGH")
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2:SetPoint("TOPLEFT",
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6], "BOTTOMLEFT")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9], "BOTTOMLEFT")
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2:SetPoint("TOPRIGHT",
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6], "BOTTOMRIGHT")
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:HookScript("OnEscapePressed", function()
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9], "BOTTOMRIGHT")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:HookScript("OnEscapePressed", function()
         ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
         ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
     end)
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:HookScript("OnHide", function()
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:HookScript("OnHide", function()
         ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
         ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
     end)
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetScript("OnEditFocusLost", function()
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetScript("OnEditFocusLost", function()
         closeResultsBox2 = true
     end)
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture =
@@ -4006,12 +4007,12 @@ function ConditionerAddOn:Init()
         end
 
         EmptyPool:SetScript("OnMouseDown", function(self, button)
-            ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetText(EmptyPool:GetText())
-            ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:ClearFocus()
+            ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetText(EmptyPool:GetText())
+            ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:ClearFocus()
             ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
             ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
 
-            local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText():gsub("_", " ")
+            local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:GetText():gsub("_", " ")
             ConditionerAddOn:SetCurrentCondition('myActiveAura', strippedString)
         end)
         EmptyPool:SetText(s)
@@ -4020,10 +4021,10 @@ function ConditionerAddOn:Init()
         return EmptyPool
     end
     -- search through cache
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetScript("OnTextChanged", function(self, userinput)
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetScript("OnTextChanged", function(self, userinput)
         -- try to populate results
         if (userinput) then
-            local searchText = ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText()
+            local searchText = ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:GetText()
             ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
             if (#searchText > 0) then
                 local lastNode, lastPrefix = ConditionerAddOn:SpellCacheTraverse(searchText, 1,
@@ -4032,7 +4033,7 @@ function ConditionerAddOn:Init()
                     ConditionerAddOn.SharedConditionerFrame.ResultsBox2)
             end
         else
-            if (#ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText() == 0) then
+            if (#ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:GetText() == 0) then
                 ConditionerAddOn.SharedConditionerFrame.ResultsBox2:ClearResults()
             end
         end
@@ -5158,8 +5159,8 @@ ConditionerAddOn:SetScript("OnUpdate", function(self, elapsed)
             ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
         end
 
-        if (ConditionerAddOn.SharedConditionerFrame.EditBoxes and ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]) then
-            local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:GetText():gsub("_", " ")
+        if (ConditionerAddOn.SharedConditionerFrame.EditBoxes and ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]) then
+            local strippedString = ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:GetText():gsub("_", " ")
             ConditionerAddOn:SetCurrentCondition('myActiveAura', strippedString)
         end
 
