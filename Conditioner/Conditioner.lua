@@ -847,11 +847,14 @@ end
 
 function ConditionerAddOn:UpdateSwingTimers(elapsed)
     local parent = ConditionerAddOn.TrackingFrames[1]
-    if (UnitHasVehicleUI("player")) or (InCinematic()) or (not parent) or (not parent:IsShown()) or
-        ((ConditionerAddOn_SavedVariables.Options.OnlyDisplayInCombat) and (not SpellBookFrame:IsShown()) and
-            (not UnitAffectingCombat("player"))) then
+    if (not parent) or (not parent:IsShown()) then
         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:Hide()
         ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Hide()
+        return
+    end
+    if (UnitHasVehicleUI("player")) or (InCinematic()) or
+        ((ConditionerAddOn_SavedVariables.Options.OnlyDisplayInCombat) and (not SpellBookFrame:IsShown()) and
+            (not UnitAffectingCombat("player"))) then
         ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
         ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
         return
