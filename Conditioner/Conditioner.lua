@@ -741,7 +741,7 @@ function ConditionerAddOn:OnUpdate(elapsed)
                 ((not usingAoE) or (usingAoE and not v.isAoe)) then
                 numTracked = numTracked + 1
                 local newTrackerFrame = ConditionerAddOn:GetAvailableTrackingFrame()
-                if (k == 1) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
+                if (numTracked == 1) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
                     ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetHeight(newTrackerFrame:GetHeight() / 6)
                     ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetHeight(newTrackerFrame:GetHeight() / 6)
                     ConditionerAddOn.TrackedFrameDragAnchor.MainHand:ClearAllPoints()
