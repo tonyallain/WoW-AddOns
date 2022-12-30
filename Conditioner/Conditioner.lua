@@ -474,6 +474,21 @@ function ConditionerAddOn:GetNextPriorityButton()
     return freeButton, #ConditionerAddOn.PriorityButtons
 end
 
+function ConditionerAddOn:ScrollPriorityButtons(numToHide)
+    numToHide = numToHide or 0
+    local previous = ConditionerAddOn.MainButton
+    for i, v in ipairs(ConditionerAddOn.PriorityButtons) do
+        -- up to the num to hide we will attach those somewhere else
+        v:ClearAllPoints()
+        if (i <= numToHide) then
+            v:SetPoint("TOPLEFT", UIParent, "BOTTOMRIGHT")
+        else
+            v:SetPoint("TOPLEFT", previous, "BOTTOMLEFT")
+            previous = v
+        end
+    end
+end
+
 function ConditionerAddOn:GetUsableResources()
     local usableResources = {}
     for k, v in pairs(Enum.PowerType) do
@@ -2620,6 +2635,14 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             end
             PlaySound(1115)
         end)
+        o:SetScript("OnHide", function(self, delta)
+            ConditionerAddOn.numToHide = 0
+            ConditionerAddOn:ScrollPriorityButtons(ConditionerAddOn.numToHide)
+        end)
+        o:SetScript("OnShow", function(self, delta)
+            ConditionerAddOn.numToHide = 0
+            ConditionerAddOn:ScrollPriorityButtons(ConditionerAddOn.numToHide)
+        end)
     else
         o.Text = o:CreateFontString(nil, "OVERLAY")
         o.Text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
@@ -2704,8 +2727,9 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             end
             GameTooltip:AddLine(string.format("\n%s : %s", (o.Data.itemID ~= 0) and "Item ID" or "Spell ID",
                 (o.Data.itemID ~= 0) and o.Data.itemID or o.Data.spellID), 0, 0.75, 1, true)
-            GameTooltip:AddLine(string.format("\nLeft Click - Pick Up %s", (o.Data.itemID ~= 0) and "Item" or "Spell"),
-                1, 0.4, 1, true)
+            GameTooltip:AddLine("\nMouse Wheel - Scroll Priority List", 1, 0.4, 1, true)
+            GameTooltip:AddLine(string.format("Left Click - Pick Up %s", (o.Data.itemID ~= 0) and "Item" or "Spell"), 1,
+                0.4, 1, true)
             GameTooltip:AddLine(string.format("Right Click - Remove %s From List",
                 (o.Data.itemID ~= 0) and "Item" or "Spell"), 1, 0.4, 1, true)
             GameTooltip:SetMinimumWidth(150)
@@ -2715,6 +2739,8 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             GameTooltip:AddLine(
                 "Drag and drop spells or items here to begin creating rotations!\n\n|cffFFff00You MUST save a rotation in the loadout menu in order for it to persist.|r",
                 1, 1, 1, true)
+            GameTooltip:AddLine("\nMouse Wheel - Scroll Priority List", 1, 0.4, 1, true)
+            GameTooltip:AddLine("Right Click - Scroll Priority List To Top", 1, 0.4, 1, true)
             GameTooltip:SetMinimumWidth(150)
             GameTooltip:Show()
         end
@@ -2727,7 +2753,16 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
         if (not down) then
             ConditionerAddOn:PriorityClickHandler(self, button)
         end
+        if (isPrimary) and (not down) and (button == "RightButton") then
+            ConditionerAddOn.numToHide = 0
+            ConditionerAddOn:ScrollPriorityButtons(ConditionerAddOn.numToHide)
+        end
         PlaySound(1202)
+    end)
+    o:SetScript("OnMouseWheel", function(self, delta)
+        ConditionerAddOn.numToHide = math.min(#ConditionerAddOn.PriorityButtons,
+            math.max((ConditionerAddOn.numToHide or 0) + delta, 0))
+        ConditionerAddOn:ScrollPriorityButtons(ConditionerAddOn.numToHide)
     end)
     return o
 end
@@ -2922,6 +2957,8 @@ function ConditionerAddOn:ApplyLoadout(loadoutPackage, fromString)
         ConditionerAddOn:SetConditions(freeButton, v)
     end
     ConditionerAddOn:CollapsePriorityButtons()
+    ConditionerAddOn.numToHide = 0
+    ConditionerAddOn:ScrollPriorityButtons(ConditionerAddOn.numToHide)
 end
 -- ============================================================================================================================--
 -----------------------------------------------------------INITIALIZE-----------------------------------------------------------
