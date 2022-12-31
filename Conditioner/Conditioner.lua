@@ -11,7 +11,7 @@ ConditionerAddOn.NumConditionsForSecondHalf = 6
 ConditionerAddOn.Size = 24 -- the number of wildcards in the first half of the decode pattern
 ConditionerAddOn.SpellCache = {}
 ConditionerAddOn.ConditionPattern =
-    "%[(..)(.)(.)(.)(.)(.)(.)(.)(.)(.)(..)(..)(..)(..)(..)(..)(.)_(.-)_(.-)_(.-)_(.-)_(.-)_(.-)]"
+"%[(..)(.)(.)(.)(.)(.)(.)(.)(.)(.)(..)(..)(..)(..)(..)(..)(.)_(.-)_(.-)_(.-)_(.-)_(.-)_(.-)]"
 ConditionerAddOn.ConditionPatternMatch = "[%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s]" -- needs to have the same amount as the Condition Pattern above
 ConditionerAddOn.BitMap = {
     ["0"] = 0,
@@ -467,8 +467,8 @@ function ConditionerAddOn:GetNextPriorityButton()
     end
     local freeButton = ConditionerAddOn:NewPriorityButton()
     local myParent = (#ConditionerAddOn.PriorityButtons > 0) and
-                         ConditionerAddOn.PriorityButtons[#ConditionerAddOn.PriorityButtons] or
-                         ConditionerAddOn.MainButton
+        ConditionerAddOn.PriorityButtons[#ConditionerAddOn.PriorityButtons] or
+        ConditionerAddOn.MainButton
     freeButton:SetPoint("TOPRIGHT", myParent, "BOTTOMRIGHT")
     table.insert(ConditionerAddOn.PriorityButtons, freeButton)
     return freeButton, #ConditionerAddOn.PriorityButtons
@@ -520,7 +520,7 @@ end
 function ConditionerAddOn.DebuffExists(unitToken, auraString, filter)
     for i = 1, 64 do
         local auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID,
-            _, _, _, _, auraTimeMod = UnitDebuff(unitToken, i, filter)
+        _, _, _, _, auraTimeMod = UnitDebuff(unitToken, i, filter)
         if (auraName) and (auraName:lower() == auraString:lower()) then
             return auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _,
                 auraSpellID, _, _, _, _, auraTimeMod
@@ -532,7 +532,7 @@ end
 function ConditionerAddOn.BuffExists(unitToken, auraString, filter)
     for i = 1, 64 do
         local auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID,
-            _, _, _, _, auraTimeMod = UnitBuff(unitToken, i, filter)
+        _, _, _, _, auraTimeMod = UnitBuff(unitToken, i, filter)
         if (auraName) and (auraName:lower() == auraString:lower()) then
             return auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _,
                 auraSpellID, _, _, _, _, auraTimeMod
@@ -644,9 +644,9 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
             ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(
                 0.5 * mainTrackedFrame:GetHeight() / 5), "OUTLINE, NORMAL")
             local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
-                UnitCastingInfo("target")
+            UnitCastingInfo("target")
             local channelSpellName, _, channelSpellTexture, channelStart, channelEnd, _, notInterruptible,
-                channelSpellID = UnitChannelInfo("target")
+            channelSpellID = UnitChannelInfo("target")
             local texture = castSpellTexture or channelSpellTexture
             local castName = castSpellName or channelSpellName
             local timeLeft = castEnd or channelEnd
@@ -674,8 +674,8 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
                 end
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetWidth(mult * mainTrackedFrame:GetWidth())
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Background:SetWidth(mainTrackedFrame:GetWidth() -
-                                                                                           ConditionerAddOn.TrackedFrameDragAnchor
-                                                                                               .CastingBar:GetWidth())
+                    ConditionerAddOn.TrackedFrameDragAnchor
+                    .CastingBar:GetWidth())
 
                 if (ConditionerAddOn.ShowCastBar) then
                     local convertedTime = ConditionerAddOn:ConvertTime(timeLeft / 1000 - GetTime())
@@ -696,8 +696,8 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
             else
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:Hide()
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Background:SetWidth(mainTrackedFrame:GetWidth() -
-                                                                                           ConditionerAddOn.TrackedFrameDragAnchor
-                                                                                               .CastingBar:GetWidth())
+                    ConditionerAddOn.TrackedFrameDragAnchor
+                    .CastingBar:GetWidth())
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetWidth(mainTrackedFrame:GetWidth())
             end
         else
@@ -731,7 +731,7 @@ function ConditionerAddOn:OnUpdate(elapsed)
     local sortedList = ConditionerAddOn:GetCooldownList()
     ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
     ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
+    ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
 
     -- mouse icon, find first mouseover
     local usingMouseover = ConditionerAddOn_SavedVariables.Options.ShowMouseoverAtCursor
@@ -802,7 +802,7 @@ function ConditionerAddOn:OnUpdate(elapsed)
                     end
 
                     ConditionerAddOn.ShowCastBar = ConditionerAddOn.PriorityButtons[v.priority].Conditions
-                                                       .isInterruptBool
+                        .isInterruptBool
                 end
                 -- handle duration logic
                 local auraTexture, auraTime, auraTS = v.auraIcon, v.auraTime, v.auraTS
@@ -816,7 +816,7 @@ function ConditionerAddOn:OnUpdate(elapsed)
                     newTrackerFrame.Countdown.Icon:SetTexture(auraTexture)
                     newTrackerFrame.Countdown.Icon:SetTexCoord(cropAmount, 1 - cropAmount, cropAmount, 1 - cropAmount)
                     newTrackerFrame.Countdown.Text:SetText((textTime > 0) and
-                                                               string.format("%s",
+                        string.format("%s",
                             ConditionerAddOn:ConvertTime(textTime)) or "")
                     newTrackerFrame.Countdown.Text:SetTextColor(1 - auraDelta, auraDelta, 0)
                     newTrackerFrame.Countdown:Show()
@@ -931,9 +931,9 @@ end
 
 function ConditionerAddOn:HandleSwingTimerMelee(...)
     if (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
-        local eventArgs = {...}
+        local eventArgs = { ... }
         if (CombatLogGetCurrentEventInfo) then
-            eventArgs = {CombatLogGetCurrentEventInfo()}
+            eventArgs = { CombatLogGetCurrentEventInfo() }
         end
         local subEvent = eventArgs[2]
         local attacker = eventArgs[5]
@@ -956,9 +956,9 @@ function ConditionerAddOn:HandleSwingTimerMelee(...)
 end
 
 function ConditionerAddOn:SpellCacheWatcher(...)
-    local eventArgs = {...}
+    local eventArgs = { ... }
     if (CombatLogGetCurrentEventInfo) then
-        eventArgs = {CombatLogGetCurrentEventInfo()}
+        eventArgs = { CombatLogGetCurrentEventInfo() }
     end
     local subEvent = eventArgs[2]
     if (subEvent == "SPELL_AURA_APPLIED" or subEvent == "SPELL_AURA_REMOVED") then
@@ -1196,27 +1196,27 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
     if (not frame.Conditions) then
         return false
     end
-    local boolString = ConditionerAddOn:EncodeToMask({frame.Conditions.secondsRemainingBool,
-                                                      frame.Conditions.isInterruptBool,
-                                                      frame.Conditions.resourceUsePercentageBool,
-                                                      frame.Conditions.alternateResourceUsePercentageBool,
-                                                      frame.Conditions.onlyWhenReadyBool,
-                                                      frame.Conditions.highlightOnlyBool, frame.Conditions.buffBool,
-                                                      frame.Conditions.debuffBool, frame.Conditions.magicBool,
-                                                      frame.Conditions.curseBool, frame.Conditions.poisonBool,
-                                                      frame.Conditions.diseaseBool})
-    local boolStringShort = ConditionerAddOn:EncodeToMask({frame.Conditions.cooldownRemainingIsItemID,
-                                                           frame.Conditions.onlyInRange, frame.Conditions.onlyDuringCC,
-                                                           frame.Conditions.showInAoeRotation, -- 4
-    frame.Conditions.hideWhileCasting, -- 5
-    frame.Conditions.canCast}, true)
+    local boolString = ConditionerAddOn:EncodeToMask({ frame.Conditions.secondsRemainingBool,
+        frame.Conditions.isInterruptBool,
+        frame.Conditions.resourceUsePercentageBool,
+        frame.Conditions.alternateResourceUsePercentageBool,
+        frame.Conditions.onlyWhenReadyBool,
+        frame.Conditions.highlightOnlyBool, frame.Conditions.buffBool,
+        frame.Conditions.debuffBool, frame.Conditions.magicBool,
+        frame.Conditions.curseBool, frame.Conditions.poisonBool,
+        frame.Conditions.diseaseBool })
+    local boolStringShort = ConditionerAddOn:EncodeToMask({ frame.Conditions.cooldownRemainingIsItemID,
+        frame.Conditions.onlyInRange, frame.Conditions.onlyDuringCC,
+        frame.Conditions.showInAoeRotation, -- 4
+        frame.Conditions.hideWhileCasting, -- 5
+        frame.Conditions.canCast }, true)
     local encoded_resourceTypeEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.resourceTypeEnum, true)
     local encoded_resourceConditionalEnum =
-        ConditionerAddOn:EncodeToMask(frame.Conditions.resourceConditionalEnum, true)
+    ConditionerAddOn:EncodeToMask(frame.Conditions.resourceConditionalEnum, true)
     local encoded_alternateResourceTypeEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.alternateResourceTypeEnum,
         true)
     local encoded_alternateResourceConditionalEnum = ConditionerAddOn:EncodeToMask(frame.Conditions
-                                                                                       .alternateResourceConditionalEnum,
+        .alternateResourceConditionalEnum,
         true)
     local encoded_auraTargetEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.auraTargetEnum, true)
     local encoded_stackConditionalEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.stackConditionalEnum, true)
@@ -1235,7 +1235,7 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
     local encoded_keyBindingString = withoutKeybinds and "_" or string.format("_%s", stripped_keyBindingString) or "_"
     local encoded_cooldownRemainingAmount = ConditionerAddOn:EncodeToMask(frame.Conditions.cooldownRemainingAmount)
     local encoded_cooldownRemainingConditionalEnum = ConditionerAddOn:EncodeToMask(frame.Conditions
-                                                                                       .cooldownRemainingEnum, true)
+        .cooldownRemainingEnum, true)
 
     local finalEncodedString = string.format(ConditionerAddOn.ConditionPatternMatch, boolString, boolStringShort,
         encoded_resourceTypeEnum, encoded_resourceConditionalEnum, encoded_alternateResourceTypeEnum,
@@ -1273,7 +1273,7 @@ function ConditionerAddOn:SetConditions(destFrame, conditionString, newSpellID, 
         -- print(string.format("DECODED %s\n%s", conditionString, subDecodedString)) -- ConditionerAddOn.ConditionPattern
         -- ADD NEW CONDITION FOR MY ACTIVE AURA
         local b, bShort, c, d, e, f, g, h, i, j, k, l, m, n, o, watched_Amount, cdR, p, q, spell_id, item_id,
-            watched_ID, myActiveAura = subDecodedString:match(ConditionerAddOn.ConditionPattern)
+        watched_ID, myActiveAura = subDecodedString:match(ConditionerAddOn.ConditionPattern)
         -- check if work is needed
         if (not C_Spell.DoesSpellExist(tonumber(spell_id))) then
             ConditionerAddOn:SetConditions(destFrame)
@@ -1442,7 +1442,7 @@ function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, m
         o:SetValue(o:GetValue())
         ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
         ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-            ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
+        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
         ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
         ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
         ConditionerAddOn_SavedVariables.Options[key] = o:GetValue()
@@ -1456,7 +1456,7 @@ function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, m
     o:SetScript("OnShow", function(self, ...)
         ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
         ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-            ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
+        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
         ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
         ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
         o:SetValue(ConditionerAddOn_SavedVariables.Options[key])
@@ -1530,6 +1530,7 @@ function ConditionerAddOn:NewInputBox(parent, key, numbersOnly)
             self:SetText(ConditionerAddOn.CurrentPriorityButton.Conditions[key])
         end
     end
+
     return o
 end
 
@@ -1575,7 +1576,7 @@ end
 function ConditionerAddOn:UpdateTrackerPoints()
     ConditionerAddOn.TrackingFrames = ConditionerAddOn.TrackingFrames or {}
     ConditionerAddOn_SavedVariables.Options.AnchorDirection =
-        ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
+    ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
     for k, v in ipairs(ConditionerAddOn.TrackingFrames) do
         if (v.parentNode ~= ConditionerAddOn.TrackedFrameDragAnchor) then
             v:ClearAllPoints()
@@ -1612,7 +1613,7 @@ end
 function ConditionerAddOn:ResizeTrackers()
     ConditionerAddOn.TrackingFrames = ConditionerAddOn.TrackingFrames or {}
     ConditionerAddOn_SavedVariables.Options.TrackedFrameSize =
-        ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
+    ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
     ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
     ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
     local modAmount = ConditionerAddOn_SavedVariables.Options.TrackedFrameSize
@@ -1771,7 +1772,7 @@ function ConditionerAddOn:GetCooldownList()
     local found = {}
     for k, v in ipairs(ConditionerAddOn.PriorityButtons) do
         local spellTimeRemaining, spellGCD, s, d, inRange, auraTexture, auraDuration, auraTimestamp, isMouseover, isAoe =
-            ConditionerAddOn:CheckCondition(v)
+        ConditionerAddOn:CheckCondition(v)
         local id = v.Data.spellID
         if (spellTimeRemaining) and (not found[id]) then
             found[id] = true
@@ -1917,8 +1918,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     local targetUnitEnum, targetUnitToken = Conditions.auraTargetEnum, "player"
     if (targetUnitEnum == 1) then
         targetUnitToken = "player"
-    elseif (targetUnitEnum == 2 or targetUnitEnum == 3 or targetUnitEnum == 4 or targetUnitEnum == 13 or targetUnitEnum ==
-        14 or targetUnitEnum == 15) then
+    elseif (
+        targetUnitEnum == 2 or targetUnitEnum == 3 or targetUnitEnum == 4 or targetUnitEnum == 13 or targetUnitEnum ==
+            14 or targetUnitEnum == 15) then
         targetUnitToken = "target"
     elseif (targetUnitEnum == 5 or targetUnitEnum == 6 or targetUnitEnum == 7) then
         targetUnitToken = "mouseover"
@@ -2096,9 +2098,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- is interrupt
     if (Conditions.isInterruptBool) then
         local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
-            UnitCastingInfo(targetUnitToken == "player" and "target" or targetUnitToken)
+        UnitCastingInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         local channelSpellName, _, channelSpellTexture, channelStart, channelEnd, _, notInterruptible, channelSpellID =
-            UnitChannelInfo(targetUnitToken == "player" and "target" or targetUnitToken)
+        UnitChannelInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         if (castSpellName) or (channelSpellName) then
             if (uninterruptable or notInterruptible) then
                 -- print("FAILED - UNINTERRUPTABLE")
@@ -2123,10 +2125,11 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     local activeAuraName = Conditions.activeAuraString
     local myActiveAuraName = Conditions.myActiveAura
     local auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _,
-        _, _, _, auraTimeMod = ConditionerAddOn.DebuffExists(targetUnitToken, activeAuraName, "PLAYER")
+    _, _, _, auraTimeMod = ConditionerAddOn.DebuffExists(targetUnitToken, activeAuraName, "PLAYER")
     if (not auraName) then
-        auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _, _, _, _, auraTimeMod =
-            ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, "PLAYER")
+        auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _, _, _
+            , _, auraTimeMod =
+        ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, "PLAYER")
     end
 
     -- check for my active aura
@@ -2223,7 +2226,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
             leftValue = currentRunes / ((usePercentage) and maxRunes or 1)
         else
             leftValue = UnitPower("player", Conditions.resourceTypeEnum - 1) /
-                            ((usePercentage) and UnitPowerMax("player", Conditions.resourceTypeEnum - 1) or 1)
+                ((usePercentage) and UnitPowerMax("player", Conditions.resourceTypeEnum - 1) or 1)
         end
         leftValue = (usePercentage) and (leftValue * 100) or leftValue
         local satisfied = ConditionerAddOn:CompareValues(leftValue, Conditions.resourceConditionalEnum, rightValue)
@@ -2256,7 +2259,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
             leftValue = currentRunes / ((usePercentage) and maxRunes or 1)
         else
             leftValue = UnitPower("player", Conditions.alternateResourceTypeEnum - 1) /
-                            ((usePercentage) and UnitPowerMax("player", Conditions.alternateResourceTypeEnum - 1) or 1)
+                ((usePercentage) and UnitPowerMax("player", Conditions.alternateResourceTypeEnum - 1) or 1)
         end
         leftValue = (usePercentage) and (leftValue * 100) or leftValue
         local satisfied = ConditionerAddOn:CompareValues(leftValue, Conditions.alternateResourceConditionalEnum,
@@ -2294,14 +2297,14 @@ function ConditionerAddOn:GetAvailableTrackingFrame()
 
     local trackingFrame = ConditionerAddOn:NewTrackingFrame()
     trackingFrame.parentNode = (#ConditionerAddOn.TrackingFrames > 0) and
-                                   ConditionerAddOn.TrackingFrames[#ConditionerAddOn.TrackingFrames] or
-                                   ConditionerAddOn.TrackedFrameDragAnchor
+        ConditionerAddOn.TrackingFrames[#ConditionerAddOn.TrackingFrames] or
+        ConditionerAddOn.TrackedFrameDragAnchor
     if (trackingFrame.parentNode == ConditionerAddOn.TrackedFrameDragAnchor) then
         -- I am root
         trackingFrame:SetPoint("CENTER", ConditionerAddOn.TrackedFrameDragAnchor, "CENTER")
     else
         ConditionerAddOn_SavedVariables.Options.AnchorDirection =
-            ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
+        ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
         if (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0) then
             trackingFrame:SetPoint("BOTTOMRIGHT", trackingFrame.parentNode, "BOTTOMLEFT", -2, 0)
         elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 1) then
@@ -2314,7 +2317,7 @@ function ConditionerAddOn:GetAvailableTrackingFrame()
         trackingFrame.Keybind:SetPoint("RIGHT", trackingFrame, "RIGHT")
     end
     ConditionerAddOn_SavedVariables.Options.TrackedFrameSize =
-        ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
+    ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
     ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
     local mult = math.pow(ConditionerAddOn_SavedVariables.Options.TaperSize / 100, #ConditionerAddOn.TrackingFrames)
     table.insert(ConditionerAddOn.TrackingFrames, trackingFrame)
@@ -2419,6 +2422,7 @@ function ConditionerAddOn:NewCheckBox(parent, label, key)
     function o:Update()
         self:SetChecked(ConditionerAddOn.CurrentPriorityButton.Conditions[key])
     end
+
     return o
 end
 
@@ -2519,6 +2523,7 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
         CONDITIONERDROPDOWNMENU_SetText(o, text)
         ConditionerCloseDropDownMenus()
     end
+
     return o
 end
 
@@ -2710,9 +2715,11 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             end
             o.Text:SetText(o.Conditions.keyBindingString)
         end
+
         function o:UpdateKeyBind()
             o.Text:SetText(o.Conditions.keyBindingString)
         end
+
         o.ToggleConditions = ConditionerAddOn:NewConditionsWindow(o)
     end
     o:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -2737,7 +2744,8 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
         else
             GameTooltip:SetText("Conditioner", 0, 0.75, 1)
             GameTooltip:AddLine(
-                "Drag and drop spells or items here to begin creating rotations!\n\n|cffFFff00You MUST save a rotation in the loadout menu in order for it to persist.|r",
+                "Drag and drop spells or items here to begin creating rotations!\n\n|cffFFff00You MUST save a rotation in the loadout menu in order for it to persist.|r"
+                ,
                 1, 1, 1, true)
             GameTooltip:AddLine("\nMouse Wheel - Scroll Priority List", 1, 0.4, 1, true)
             GameTooltip:AddLine("Right Click - Scroll Priority List To Top", 1, 0.4, 1, true)
@@ -2855,7 +2863,7 @@ function ConditionerAddOn:CreateLoadoutString(withoutKeybinds)
         if (v.Data.spellID + v.Data.itemID > 0) then
             local conditions = ConditionerAddOn:GetConditions(v, withoutKeybinds)
             loadoutString = (results == 0) and string.format("%s", conditions) or
-                                string.format("%s\n%s", loadoutString, conditions)
+                string.format("%s\n%s", loadoutString, conditions)
             results = results + 1
         end
     end
@@ -2878,7 +2886,7 @@ function ConditionerAddOn:UnsavedChanges(frame, shouldHide)
         ConditionerAddOn.WarningInfoBoxUnsaved.Text:SetTextColor(1, 1, 0, 1)
         ConditionerAddOn.WarningInfoBoxUnsaved.Text:SetText("You have\nunsaved changes\nin your rotation!")
         ConditionerAddOn.WarningInfoBoxUnsaved:SetSize(ConditionerAddOn.WarningInfoBoxUnsaved.Text:GetStringWidth() *
-                                                           1.25,
+            1.25,
             ConditionerAddOn.WarningInfoBoxUnsaved.Text:GetStringHeight() * 1.25)
     end
 
@@ -2925,7 +2933,7 @@ function ConditionerAddOn:StoreCurrentLoadout()
     if (currentSpecID) then
         local currentSpec = GetSpecializationInfo(currentSpecID)
         ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpec] =
-            ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice or 0
+        ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice or 0
         if (ConditionerAddOn:LoadoutIsDirty()) then
             ConditionerAddOn.LoadoutFrame.OverWrite:Enable()
             if (ConditionerAddOn.LoadoutFrame) then
@@ -2960,6 +2968,7 @@ function ConditionerAddOn:ApplyLoadout(loadoutPackage, fromString)
     ConditionerAddOn.numToHide = 0
     ConditionerAddOn:ScrollPriorityButtons(ConditionerAddOn.numToHide)
 end
+
 -- ============================================================================================================================--
 -----------------------------------------------------------INITIALIZE-----------------------------------------------------------
 -- ============================================================================================================================--
@@ -2991,9 +3000,9 @@ function ConditionerAddOn:Init()
     -- ==================================================================================================--
     ConditionerAddOn.TrackedFrameDragAnchor = CreateFrame("Frame", nil, SpellBookFrame)
     ConditionerAddOn.TrackedFrameDragAnchor.x = ConditionerAddOn_SavedVariables.Options.TrackedFrameAnchorCoords.x or
-                                                    UIParent:GetWidth() / 2
+        UIParent:GetWidth() / 2
     ConditionerAddOn.TrackedFrameDragAnchor.y = ConditionerAddOn_SavedVariables.Options.TrackedFrameAnchorCoords.y or
-                                                    UIParent:GetHeight() / 2
+        UIParent:GetHeight() / 2
     ConditionerAddOn.TrackedFrameDragAnchor:SetFrameStrata("HIGH")
     ConditionerAddOn.TrackedFrameDragAnchor:SetPoint("CENTER", UIParent, "BOTTOMLEFT",
         ConditionerAddOn.TrackedFrameDragAnchor.x, ConditionerAddOn.TrackedFrameDragAnchor.y)
@@ -3025,7 +3034,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.TrackedFrameDragAnchor:SetScript("OnMouseUp", function(self, button)
         if (button == "RightButton") then
             ConditionerAddOn_SavedVariables.Options.AnchorDirection =
-                (ConditionerAddOn_SavedVariables.Options.AnchorDirection + 1) % 4
+            (ConditionerAddOn_SavedVariables.Options.AnchorDirection + 1) % 4
             ConditionerAddOn:UpdateTrackerPoints()
         end
     end)
@@ -3058,7 +3067,7 @@ function ConditionerAddOn:Init()
         0.25)
     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetSize(10, 10)
     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer =
-        ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
+    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
 
     -- ==================================================================================================--
     --------------------------------------MAIN TRACKING FRAME ANCHOR--------------------------------------
@@ -3070,7 +3079,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.Background = CreateFrame("Frame", nil,
         ConditionerAddOn.SharedConditionerFrame)
     ConditionerAddOn.SharedConditionerFrame.Background.Texture =
-        ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.Background.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.Background)
     ConditionerAddOn.SharedConditionerFrame.Background.Texture:SetTexture("Interface\\FrameGeneral\\UI-Background-Rock")
@@ -3190,7 +3199,7 @@ function ConditionerAddOn:Init()
     -- aura target
     ConditionerAddOn.SharedConditionerFrame.DropDowns[5] = ConditionerAddOn:NewDropDown("Target Unit",
         "ConditionerAuraTargetDropDown", ConditionerAddOn.SharedConditionerFrame, 150, ConditionerAddOn.Enums
-            .auraTargetChoicesEnum, "auraTargetEnum")
+        .auraTargetChoicesEnum, "auraTargetEnum")
     ConditionerAddOn.SharedConditionerFrame.DropDowns[5]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame,
         "TOPRIGHT")
 
@@ -3205,7 +3214,8 @@ function ConditionerAddOn:Init()
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 0, 0)
         GameTooltip:SetText("Conditions", 0, 0.75, 1)
         GameTooltip:AddLine(
-            "Here you can set up additional conditions beyond only priority and cooldown for the tracking frames to monitor.\n\n|cff00ffff(AND)|r\nA spell or item will not be displayed unless it satisfies ALL of the criteria you specify here.\n\n|cff00ffff(OR)|r\nYou can insert the same spell or item as many times as you wish with different conditions to be satisfied, only a single instance will be displayed if its criteria is satisfied.",
+            "Here you can set up additional conditions beyond only priority and cooldown for the tracking frames to monitor.\n\n|cff00ffff(AND)|r\nA spell or item will not be displayed unless it satisfies ALL of the criteria you specify here.\n\n|cff00ffff(OR)|r\nYou can insert the same spell or item as many times as you wish with different conditions to be satisfied, only a single instance will be displayed if its criteria is satisfied."
+            ,
             1, 1, 1, true)
         GameTooltip:SetMinimumWidth(150)
         GameTooltip:Show()
@@ -3223,7 +3233,7 @@ function ConditionerAddOn:Init()
     -- shapeshift form
     ConditionerAddOn.SharedConditionerFrame.DropDowns[6] = ConditionerAddOn:NewDropDown("Required Shapeshift Form",
         "ConditionerShapeShiftDropDown", ConditionerAddOn.SharedConditionerFrame, 150, ConditionerAddOn.Enums
-            .shapeShiftChoicesEnum, "shapeShiftEnum")
+        .shapeShiftChoicesEnum, "shapeShiftEnum")
     ConditionerAddOn.SharedConditionerFrame.DropDowns[6]:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[5], "BOTTOMLEFT", 0, -12)
 
@@ -3236,7 +3246,7 @@ function ConditionerAddOn:Init()
     -- resource Conditional 1
     ConditionerAddOn.SharedConditionerFrame.DropDowns[2] = ConditionerAddOn:NewDropDown(nil,
         "ConditionerResourceDropDownOperator", ConditionerAddOn.SharedConditionerFrame, 75, ConditionerAddOn.Enums
-            .conditionalOperatorEnum, "resourceConditionalEnum")
+        .conditionalOperatorEnum, "resourceConditionalEnum")
     ConditionerAddOn.SharedConditionerFrame.DropDowns[2]:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[1], "BOTTOMLEFT")
     -- resource Conditional 1 input box
@@ -3246,34 +3256,35 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.DropDowns[2], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[1].title = "Resource Amount"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[1].tooltip =
-        "Enter an amount of resources you want Conditioner to track for you.\n\n|cffFFff00Right click to empty input box.|r"
+    "Enter an amount of resources you want Conditioner to track for you.\n\n|cffFFff00Right click to empty input box.|r"
     -- resource 1 checkbox
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame, "%", "resourceUsePercentageBool")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[1], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1]:SetPoint("TOPRIGHT", ConditionerAddOn.SharedConditionerFrame
         .DropDowns[1], "BOTTOMRIGHT", -12, 0)
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1].title = "Use Percentage"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1].tooltip =
-        "Check this button if you would like this resource condition to be percentage based instead of a flat value."
+    "Check this button if you would like this resource condition to be percentage based instead of a flat value."
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[1].linkedPercentBox =
-        ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1]
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1]
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1].linkedEditBox =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[1]
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[1]
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[1]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[1], "LEFT")
 
     -- resource type 2
     ConditionerAddOn.SharedConditionerFrame.DropDowns[3] = ConditionerAddOn:NewDropDown("Resource Type",
         "ConditionerAltResourceDropDown", ConditionerAddOn.SharedConditionerFrame, 150, ConditionerAddOn.Enums
-            .resourceEnum, "alternateResourceTypeEnum")
+        .resourceEnum, "alternateResourceTypeEnum")
     ConditionerAddOn.SharedConditionerFrame.DropDowns[3]:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[1], "TOPRIGHT")
     -- resource Conditional 2
     ConditionerAddOn.SharedConditionerFrame.DropDowns[4] = ConditionerAddOn:NewDropDown(nil,
         "ConditionerAltResourceDropDownOperator", ConditionerAddOn.SharedConditionerFrame, 75, ConditionerAddOn.Enums
-            .conditionalOperatorEnum, "alternateResourceConditionalEnum")
+        .conditionalOperatorEnum, "alternateResourceConditionalEnum")
     ConditionerAddOn.SharedConditionerFrame.DropDowns[4]:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[3], "BOTTOMLEFT")
     -- resource Conditional 2 input box
@@ -3283,21 +3294,22 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.DropDowns[4], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[2].title = "Resource Amount"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[2].tooltip =
-        "Enter an amount of resources you want Conditioner to track for you.\n\n|cffFFff00Right click to empty input box.|r"
+    "Enter an amount of resources you want Conditioner to track for you.\n\n|cffFFff00Right click to empty input box.|r"
     -- resource 2 checkbox
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame, "%", "alternateResourceUsePercentageBool")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[2], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2]:SetPoint("TOPRIGHT", ConditionerAddOn.SharedConditionerFrame
         .DropDowns[3], "BOTTOMRIGHT", -12, 0)
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2].title = "Use Percentage"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2].tooltip =
-        "Check this button if you would like this resource condition to be percentage based instead of a flat value."
+    "Check this button if you would like this resource condition to be percentage based instead of a flat value."
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[2].linkedPercentBox =
-        ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2]
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2]
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2].linkedEditBox =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[2]
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[2]
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[2]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[2], "LEFT")
     -- aura name
@@ -3319,8 +3331,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetPoint("RIGHT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[3], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:CreateFontString(nil, "OVERLAY",
-            "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "TOP", 0, -6)
@@ -3333,7 +3345,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].title = "Active Aura"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].tooltip =
-        "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit. This field can interact with the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
+    "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit. This field can interact with the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- aura search box
     ConditionerAddOn.SharedConditionerFrame.ResultsBox = CreateFrame("Frame", nil,
@@ -3344,7 +3356,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.ResultsBox:SetPoint("TOPRIGHT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "BOTTOMRIGHT")
     ConditionerAddOn.SharedConditionerFrame.ResultsBox.Texture =
-        ConditionerAddOn.SharedConditionerFrame.ResultsBox:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.ResultsBox.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.ResultsBox)
     ConditionerAddOn.SharedConditionerFrame.ResultsBox.Texture:SetTexture(
@@ -3358,6 +3370,7 @@ function ConditionerAddOn:Init()
             v:SetText("")
         end
     end
+
     function ConditionerAddOn.SharedConditionerFrame.ResultsBox:FixBackground()
         local PoolSize = 0
         for k, v in ipairs(ConditionerAddOn.SharedConditionerFrame.ResultsBox.Pool) do
@@ -3373,6 +3386,7 @@ function ConditionerAddOn:Init()
             ConditionerAddOn.SharedConditionerFrame.ResultsBox:Hide()
         end
     end
+
     function ConditionerAddOn.SharedConditionerFrame.ResultsBox:GetResultButton(s)
         for k, v in ipairs(ConditionerAddOn.SharedConditionerFrame.ResultsBox.Pool) do
             if (v.isEmpty) then
@@ -3387,7 +3401,7 @@ function ConditionerAddOn:Init()
         local parentPool = #ConditionerAddOn.SharedConditionerFrame.ResultsBox.Pool
         EmptyPool:SetPoint("TOPLEFT",
             (parentPool > 0) and ConditionerAddOn.SharedConditionerFrame.ResultsBox.Pool[parentPool] or
-                ConditionerAddOn.SharedConditionerFrame.ResultsBox, (parentPool > 0) and "BOTTOMLEFT" or "TOPLEFT")
+            ConditionerAddOn.SharedConditionerFrame.ResultsBox, (parentPool > 0) and "BOTTOMLEFT" or "TOPLEFT")
         EmptyPool:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame.ResultsBox, "RIGHT")
         EmptyPool.isEmpty = false
         EmptyPool.Highlight = EmptyPool:CreateTexture()
@@ -3431,6 +3445,7 @@ function ConditionerAddOn:Init()
         table.insert(ConditionerAddOn.SharedConditionerFrame.ResultsBox.Pool, EmptyPool)
         return EmptyPool
     end
+
     -- search through cache
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetScript("OnTextChanged", function(self, userinput)
         -- try to populate results
@@ -3459,8 +3474,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4]:SetPoint("RIGHT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[4]:CreateFontString(nil, "OVERLAY",
-            "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[4]:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4], "TOP", 0, -6)
@@ -3473,12 +3488,12 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].title = "Displayed Key Binding"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].tooltip =
-        "This information will be displayed for its relative tracker icon.\n\n|cffFFff00Right click to empty input box.|r"
+    "This information will be displayed for its relative tracker icon.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- stacks conditional
     ConditionerAddOn.SharedConditionerFrame.DropDowns[7] = ConditionerAddOn:NewDropDown(nil,
         "ConditionerStacksDropDown", ConditionerAddOn.SharedConditionerFrame, 75, ConditionerAddOn.Enums
-            .conditionalOperatorEnum, "stackConditionalEnum")
+        .conditionalOperatorEnum, "stackConditionalEnum")
     ConditionerAddOn.SharedConditionerFrame.DropDowns[7]:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[2], "BOTTOMLEFT", 0, -12)
     -- stacks amount
@@ -3489,8 +3504,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[1], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[5]:CreateFontString(nil, "OVERLAY",
-            "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[5]:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[7], "TOP", 0, -10)
@@ -3504,12 +3519,12 @@ function ConditionerAddOn:Init()
         .EditBoxes[5]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].title = "Aura Stacks"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].tooltip =
-        "Aura stacks are the number of stacking buffs or debuffs a spell can accumulate on a target.\n\nMost spells can only stack once, unless otherwise stated in its tooltip.\n\n|cffFFff00Right click to empty input box.|r"
+    "Aura stacks are the number of stacking buffs or debuffs a spell can accumulate on a target.\n\nMost spells can only stack once, unless otherwise stated in its tooltip.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- charges conditional
     ConditionerAddOn.SharedConditionerFrame.DropDowns[8] = ConditionerAddOn:NewDropDown(nil,
         "ConditionerChargesDropDown", ConditionerAddOn.SharedConditionerFrame, 75, ConditionerAddOn.Enums
-            .conditionalOperatorEnum, "chargesConditionalEnum")
+        .conditionalOperatorEnum, "chargesConditionalEnum")
     ConditionerAddOn.SharedConditionerFrame.DropDowns[8]:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[4], "BOTTOMLEFT", 0, -12)
     -- charges amount
@@ -3520,8 +3535,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[2], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:CreateFontString(nil, "OVERLAY",
-            "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[8], "TOP", 0, -10)
@@ -3535,26 +3550,27 @@ function ConditionerAddOn:Init()
         .EditBoxes[6]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].title = "Spell Charges"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].tooltip =
-        "A spell that has charges means that it can accumulate more than 1 cast over time.\n\nUsually you will see a number on your spell indicating how many charges it can store.\n\n|cffFFff00Right click to empty input box.|r"
+    "A spell that has charges means that it can accumulate more than 1 cast over time.\n\nUsually you will see a number on your spell indicating how many charges it can store.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- seconds remaining dropdown
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[3] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame, "Aura Seconds Remaining", "secondsRemainingBool")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[3].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[3].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[3], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[3]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .DropDowns[7]:GetName() .. "Middle", "BOTTOMLEFT", -10, 12)
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[3].title = "Use Aura Seconds Remaining"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[3].tooltip =
-        "Enable this option if you want to know when the Active Aura you specified has less than a certain amount of time remaining before it fades.\n\nThis will also inform you when the aura isn't applied to your target at all!"
+    "Enable this option if you want to know when the Active Aura you specified has less than a certain amount of time remaining before it fades.\n\nThis will also inform you when the aura isn't applied to your target at all!"
     -- seconds remaining amount
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7] = ConditionerAddOn:NewInputBox(
         ConditionerAddOn.SharedConditionerFrame, "secondsRemainingAmount", true)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .DropDowns[8]:GetName() .. "Middle", "BOTTOMLEFT", 0, 8)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[7]:CreateFontString(nil, "OVERLAY",
-            "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[7]:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
         .EditBoxes[7], "RIGHT")
@@ -3567,40 +3583,43 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[7]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].title = "Seconds Remaining Amount"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].tooltip =
-        "This will inform you when the Active Aura has less than or equal to the amount of time you specify (or if it isn't active at all).\n\n|cffFFff00Right click to empty input box.|r"
+    "This will inform you when the Active Aura has less than or equal to the amount of time you specify (or if it isn't active at all).\n\n|cffFFff00Right click to empty input box.|r"
 
     -- Has Enough Resources
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[4] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame, "Requirements Met", "canCast")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[4]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[3], "BOTTOMLEFT")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[4].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[4].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[4], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[4].title = "Requirements Met"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[4].tooltip =
-        "Enable this option if you want to know when you can cast the slotted spell.\n\nThis activates if the spell was throttled behind resources, another spell, or required state like Victory Rush/Raging Blow/Stealth/Execute/etc.\n\n|cffFFff00This is the most useful condition.|r"
+    "Enable this option if you want to know when you can cast the slotted spell.\n\nThis activates if the spell was throttled behind resources, another spell, or required state like Victory Rush/Raging Blow/Stealth/Execute/etc.\n\n|cffFFff00This is the most useful condition.|r"
 
     -- only when ready
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[5] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame, "Only When Off Cooldown", "onlyWhenReadyBool")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[5]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[4], "BOTTOMLEFT")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[5].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[5].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[5], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[5].title = "Only When Off Cooldown"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[5].tooltip =
-        "Enable this option if you want to know when this spell is fully finished cooling down and is ready to use."
+    "Enable this option if you want to know when this spell is fully finished cooling down and is ready to use."
 
     -- highlight only
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame, "Only When Highlighted", "highlightOnlyBool")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[5], "BOTTOMLEFT")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[6], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6].title = "Only When Highlighted"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6].tooltip =
-        "Enable this option if you want to know when this spell is highlighted, usually triggered from another spell."
+    "Enable this option if you want to know when this spell is highlighted, usually triggered from another spell."
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6].demoButton = ConditionerAddOn.HighlightDemoButton
 
     -- only in range
@@ -3612,7 +3631,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[13], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[13].title = "Only Within Range"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[13].tooltip =
-        "Enable this option if you want to know when your Target Unit is within the range of your slotted spell."
+    "Enable this option if you want to know when your Target Unit is within the range of your slotted spell."
 
     -- is interrupt
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[15] = ConditionerAddOn:NewCheckBox(
@@ -3623,7 +3642,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[15], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[15].title = "Interrupt Spell"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[15].tooltip =
-        "Enable this option if this spell is meant to be used as an interrupt.\n\nThis condition is satisfied if your current target (regardless of the Target Unit choice) is casting a spell that can be interrupted and if your interrupt spell will be ready before it finishes!"
+    "Enable this option if this spell is meant to be used as an interrupt.\n\nThis condition is satisfied if your current target (regardless of the Target Unit choice) is casting a spell that can be interrupted and if your interrupt spell will be ready before it finishes!"
 
     -- dispel filter button
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton = CreateFrame("Button", nil,
@@ -3645,7 +3664,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Anchor)
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu:SetFrameStrata("BACKGROUND")
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Texture =
-        ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu)
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Texture:SetTexture(
@@ -3657,7 +3676,8 @@ function ConditionerAddOn:Init()
     -- debuff
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[7] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Anchor, "Debuff", "debuffBool")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[7].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[7].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[7], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[7]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .DispelFilterButton.Anchor, "CENTER")
@@ -3666,7 +3686,8 @@ function ConditionerAddOn:Init()
     -- buff
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[8] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Anchor, "Buff", "buffBool")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[8].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[8].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[8], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[8]:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[7].text, "RIGHT")
@@ -3675,7 +3696,8 @@ function ConditionerAddOn:Init()
     -- magic
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[9] = ConditionerAddOn:NewCheckBox(
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Anchor, "Magic", "magicBool")
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[9].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[9].text:SetPoint("LEFT",
+        ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[9], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[9]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[8], "BOTTOMLEFT")
@@ -3721,7 +3743,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner:SetPoint("BOTTOMLEFT",
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[7], "BOTTOMLEFT")
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner.Texture =
-        ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner)
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner.Texture:SetTexture(
@@ -3773,14 +3795,14 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6], "BOTTOM", 0, 6)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:SetSize(50, 50)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture =
-        ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture:SetTexture(
         "Interface\\FrameGeneral\\UI-Background-Marble")
     ConditionerAddOn:AddBorder(ConditionerAddOn.SharedConditionerFrame.CooldownRemaining)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.HighlightTexture =
-        ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.HighlightTexture:Hide()
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.HighlightTexture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining)
@@ -3797,8 +3819,8 @@ function ConditionerAddOn:Init()
             (ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID > 0) then
             local isItem = ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingIsItemID
             local cooldownName = (isItem) and
-                                     GetItemInfo(ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID) or
-                                     GetSpellInfo(ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID)
+                GetItemInfo(ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID) or
+                GetSpellInfo(ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID)
             GameTooltip:AddLine(string.format("\n%s : %s", cooldownName,
                 ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID), 0, 0.75, 1, true)
             GameTooltip:AddLine(string.format("Right Click - Stop Tracking %s's Cooldown", cooldownName), 1, 0.4, 1,
@@ -3813,9 +3835,9 @@ function ConditionerAddOn:Init()
             local isItem = ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingIsItemID
             if (ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID > 0) then
                 local cooldownTexture = (isItem) and
-                                            GetItemIcon(
+                    GetItemIcon(
                         ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID) or
-                                            GetSpellTexture(
+                    GetSpellTexture(
                         ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID)
                 ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture:SetTexture(cooldownTexture)
             else
@@ -3849,8 +3871,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8]:SetPoint("LEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[9], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[8]:CreateFontString(nil, "OVERLAY",
-            "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[8]:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining, "TOPRIGHT", 4, 0)
@@ -3865,7 +3887,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[8]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].title = "Cooldown Remaining Amount"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].tooltip =
-        "This will inform you when the selected spell or item's cooldown has the amount of time you specify.\n\n|cffFFff00Right click to empty input box.|r"
+    "This will inform you when the selected spell or item's cooldown has the amount of time you specify.\n\n|cffFFff00Right click to empty input box.|r"
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:SetScript("OnClick", function(self, button, down)
         if (button == "RightButton") then
             ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingIsItemID = false
@@ -3881,10 +3903,10 @@ function ConditionerAddOn:Init()
             local spellID, itemID = ConditionerAddOn:GetCursorInfo()
             if (spellID) then
                 ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingIsItemID = (itemID > 0) and true or
-                                                                                                  false
+                    false
                 local newTexture = (itemID > 0) and GetItemIcon(itemID) or GetSpellTexture(spellID)
                 ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingID = ((itemID > 0) and itemID or
-                                                                                            spellID) or 0
+                    spellID) or 0
                 ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture:SetTexture(newTexture)
                 ClearCursor()
                 ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:ShowTooltip()
@@ -3904,7 +3926,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[14], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[14].title = "Only While Controlled"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[14].tooltip =
-        "Enable this option if you want to know when you do not have full control of your character (Stunned/Feared/Mind Controlled/etc)."
+    "Enable this option if you want to know when you do not have full control of your character (Stunned/Feared/Mind Controlled/etc)."
 
     -- Stealth
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16] = ConditionerAddOn:NewCheckBox(
@@ -3915,7 +3937,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16].title = "Hide While Casting"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[16].tooltip =
-        "Enable this option if you want to hide the spell if it is actively being cast."
+    "Enable this option if you want to hide the spell if it is actively being cast."
 
     -- show in AoE rotation
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17] = ConditionerAddOn:NewCheckBox(
@@ -3926,7 +3948,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].title = "Area of Effect Only"
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[17].tooltip =
-        "Enable this option if this spell should appear in the AoE rotation instead of the primary rotation."
+    "Enable this option if this spell should appear in the AoE rotation instead of the primary rotation."
 
     -- myActiveAura
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9] = ConditionerAddOn:NewInputBox(
@@ -3937,8 +3959,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetPoint("TOPRIGHT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4], "BOTTOMRIGHT", 0, activeAuraOffset)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text =
-        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:CreateFontString(nil, "OVERLAY",
-            "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:CreateFontString(nil, "OVERLAY",
+        "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[9], "TOP", 0, -6)
@@ -3951,7 +3973,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].title = "My Active Aura"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].tooltip =
-        "Check that a specific aura is active on YOURSELF. This is NOT related to the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
+    "Check that a specific aura is active on YOURSELF. This is NOT related to the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- second aura search box
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2 = CreateFrame("Frame", nil,
@@ -3973,7 +3995,7 @@ function ConditionerAddOn:Init()
         closeResultsBox2 = true
     end)
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture =
-        ConditionerAddOn.SharedConditionerFrame.ResultsBox2:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.ResultsBox2:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.ResultsBox2)
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture:SetTexture(
@@ -3987,6 +4009,7 @@ function ConditionerAddOn:Init()
             v:SetText("")
         end
     end
+
     function ConditionerAddOn.SharedConditionerFrame.ResultsBox2:FixBackground()
         local PoolSize = 0
         for k, v in ipairs(ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool) do
@@ -4002,6 +4025,7 @@ function ConditionerAddOn:Init()
             ConditionerAddOn.SharedConditionerFrame.ResultsBox2:Hide()
         end
     end
+
     function ConditionerAddOn.SharedConditionerFrame.ResultsBox2:GetResultButton(s)
         for k, v in ipairs(ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool) do
             if (v.isEmpty) then
@@ -4016,7 +4040,7 @@ function ConditionerAddOn:Init()
         local parentPool = #ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool
         EmptyPool:SetPoint("TOPLEFT",
             (parentPool > 0) and ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool[parentPool] or
-                ConditionerAddOn.SharedConditionerFrame.ResultsBox2, (parentPool > 0) and "BOTTOMLEFT" or "TOPLEFT")
+            ConditionerAddOn.SharedConditionerFrame.ResultsBox2, (parentPool > 0) and "BOTTOMLEFT" or "TOPLEFT")
         EmptyPool:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame.ResultsBox2, "RIGHT")
         EmptyPool.isEmpty = false
         EmptyPool.Highlight = EmptyPool:CreateTexture()
@@ -4060,6 +4084,7 @@ function ConditionerAddOn:Init()
         table.insert(ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Pool, EmptyPool)
         return EmptyPool
     end
+
     -- search through cache
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetScript("OnTextChanged", function(self, userinput)
         -- try to populate results
@@ -4089,14 +4114,15 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "RIGHT", 12, 0)
     ConditionerAddOn:AddBorder(ConditionerAddOn.SharedConditionerFrame.Background)
     ConditionerAddOn.SharedConditionerFrame.Background.Title =
-        ConditionerAddOn.SharedConditionerFrame.Background:CreateFontString(nil, "OVERLAY",
-            "SystemFont_OutlineThick_Huge2")
+    ConditionerAddOn.SharedConditionerFrame.Background:CreateFontString(nil, "OVERLAY",
+        "SystemFont_OutlineThick_Huge2")
     ConditionerAddOn.SharedConditionerFrame.Background.Title:SetTextColor(0, 1, 1, 1)
-    ConditionerAddOn.SharedConditionerFrame.Background.Title:SetPoint("BOTTOM", ConditionerAddOn.SharedConditionerFrame
+    ConditionerAddOn.SharedConditionerFrame.Background.Title:SetPoint("BOTTOM",
+        ConditionerAddOn.SharedConditionerFrame
         .Background, "TOP")
     ConditionerAddOn.SharedConditionerFrame.Background.Title:SetText("DEFAULT")
     ConditionerAddOn.SharedConditionerFrame.Background.Title.Texture =
-        ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
+    ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.Background.Title.Texture:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.Background, "TOP")
     ConditionerAddOn.SharedConditionerFrame.Background.Title.Texture:SetBlendMode("ADD")
@@ -4130,7 +4156,8 @@ function ConditionerAddOn:Init()
         GameTooltip:SetOwner(self, "ANCHOR_LEFT", 0, 0)
         GameTooltip:SetText("Options and Loadouts", 0, 0.75, 1)
         GameTooltip:AddLine(
-            "Click and drag the portrait to move the options window around.\n\nHere you will find the ability to save/import/export loadouts along with additional options on how you want your tracking frames displayed.\n\n|cffFFff00You MUST save a rotation in the loadout menu in order for it to persist.|r",
+            "Click and drag the portrait to move the options window around.\n\nHere you will find the ability to save/import/export loadouts along with additional options on how you want your tracking frames displayed.\n\n|cffFFff00You MUST save a rotation in the loadout menu in order for it to persist.|r"
+            ,
             1, 1, 1, true)
         GameTooltip:SetMinimumWidth(150)
         GameTooltip:Show()
@@ -4179,7 +4206,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.InputName:SetScript("OnMouseDown", function(self, button)
         local nextFreeLoadoutSlot = ConditionerAddOn:GetNextLoadoutSlot()
         local defaultCheck = (ConditionerAddOn.LoadoutFrame.DropDown.Choices) and
-                                 (string.format("New Loadout %s", nextFreeLoadoutSlot)) or ""
+            (string.format("New Loadout %s", nextFreeLoadoutSlot)) or ""
         if (button == "RightButton") or (self:GetText() == defaultCheck) then
             self:SetText("")
         end
@@ -4268,7 +4295,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.ImportExport.Background:SetPoint("RIGHT", ConditionerAddOn.LoadoutFrame.ImportExport,
         "RIGHT", 10, 0)
     ConditionerAddOn.LoadoutFrame.ImportExport.Texture =
-        ConditionerAddOn.LoadoutFrame.ImportExport.Background:CreateTexture()
+    ConditionerAddOn.LoadoutFrame.ImportExport.Background:CreateTexture()
     ConditionerAddOn.LoadoutFrame.ImportExport.Texture:SetDrawLayer("BACKGROUND")
     ConditionerAddOn.LoadoutFrame.ImportExport.Texture:SetAllPoints(
         ConditionerAddOn.LoadoutFrame.ImportExport.Background)
@@ -4320,7 +4347,8 @@ function ConditionerAddOn:Init()
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
         GameTooltip:SetText("Import Loadout", 0, 0.75, 1)
         GameTooltip:AddLine(
-            "Paste a loadout string into the text box and click Apply to load the rotation you received, it won't overwrite or be saved unless you Create New Loadout with it applied.",
+            "Paste a loadout string into the text box and click Apply to load the rotation you received, it won't overwrite or be saved unless you Create New Loadout with it applied."
+            ,
             1, 1, 1, true)
         GameTooltip:SetMinimumWidth(150)
         GameTooltip:Show()
@@ -4329,7 +4357,8 @@ function ConditionerAddOn:Init()
         GameTooltip:Hide()
     end)
 
-    ConditionerAddOn.LoadoutFrame.ImportExport.Background:SetPoint("BOTTOM", ConditionerAddOn.LoadoutFrame.ImportExport
+    ConditionerAddOn.LoadoutFrame.ImportExport.Background:SetPoint("BOTTOM",
+        ConditionerAddOn.LoadoutFrame.ImportExport
         .AcceptButton, "BOTTOM", 0, 0)
     ConditionerAddOn.LoadoutFrame.ImportExport:SetPoint("CENTER", UIParent, "CENTER")
 
@@ -4353,7 +4382,7 @@ function ConditionerAddOn:Init()
         "RIGHT", 10, 0)
     ConditionerAddOn.LoadoutFrame.InputName.Background:SetFrameStrata("MEDIUM")
     ConditionerAddOn.LoadoutFrame.InputName.Background.Texture =
-        ConditionerAddOn.LoadoutFrame.InputName.Background:CreateTexture()
+    ConditionerAddOn.LoadoutFrame.InputName.Background:CreateTexture()
     ConditionerAddOn.LoadoutFrame.InputName.Background.Texture:SetAllPoints(
         ConditionerAddOn.LoadoutFrame.InputName.Background)
     ConditionerAddOn.LoadoutFrame.InputName.Background.Texture:SetTexture(
@@ -4364,11 +4393,11 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.SpecializationInfo = CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo:SetSize(50, 50)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.Texture =
-        ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateTexture()
+    ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateTexture()
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.Texture:SetAllPoints(ConditionerAddOn.LoadoutFrame
-                                                                              .SpecializationInfo)
+        .SpecializationInfo)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName =
-        ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
+    ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName:SetTextColor(0, 1, 1)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame, "TOPRIGHT", 6, 0)
 
@@ -4391,7 +4420,7 @@ function ConditionerAddOn:Init()
     CONDITIONERDROPDOWNMENU_SetWidth(ConditionerAddOn.LoadoutFrame.DropDown, 150)
     ConditionerAddOn.LoadoutFrame.DropDown:SetScript("OnShow", function(self)
         local currentSpecID, specName, specDesc, specIcon, specBackground, specRole, specPrimaryStat =
-            GetSpecializationInfo(GetSpecialization())
+        GetSpecializationInfo(GetSpecialization())
         local _, classFileName = UnitClass("player")
         local color = (RAID_CLASS_COLORS) and RAID_CLASS_COLORS[classFileName] or {
             r = 0,
@@ -4402,16 +4431,17 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName:SetTextColor(color.r, color.g, color.b)
         ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName:SetText(specName)
         ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice =
-            ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpecID] or 0
+        ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpecID] or 0
         -- is the currentChoice still valid? we might have deleted it on a diff char or even overwritten the slot with a diff spec's loadout
         if (not ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice]) or
-            (ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].spec ~=
+            (
+            ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].spec ~=
                 currentSpecID) then
             ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpecID] = 0
             ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = 0
         end
         local textValue = ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown
-                              .CurrentChoice].name
+            .CurrentChoice].name
         if (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice == -1) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffFFff00%s|r", textValue)
@@ -4469,7 +4499,7 @@ function ConditionerAddOn:Init()
         end
         ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = newValue
         local textValue = ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown
-                              .CurrentChoice].name
+            .CurrentChoice].name
         if (newValue == -1) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffFFff00%s|r", textValue)
@@ -4486,7 +4516,7 @@ function ConditionerAddOn:Init()
         ConditionerCloseDropDownMenus()
         ConditionerAddOn:ClearCurrentLoadout()
         local savedPackage =
-            ConditionerAddOn:GetLoadoutPackageByID(ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice)
+        ConditionerAddOn:GetLoadoutPackageByID(ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice)
         if (savedPackage) then
             ConditionerAddOn:ApplyLoadout(savedPackage)
         end
@@ -4531,7 +4561,8 @@ function ConditionerAddOn:Init()
         GameTooltip:SetOwner(self, "ANCHOR_LEFT", 0, 0)
         GameTooltip:SetText("Create New Loadout", 0, 0.75, 1)
         GameTooltip:AddLine(
-            "|cffd742f4None|r/|cffFFff00Basic Rotation|r can NOT be overwritten.\n\nYou MUST create a new loadout if you wish to save your modifications!",
+            "|cffd742f4None|r/|cffFFff00Basic Rotation|r can NOT be overwritten.\n\nYou MUST create a new loadout if you wish to save your modifications!"
+            ,
             1, 1, 1, true)
         GameTooltip:SetMinimumWidth(150)
         GameTooltip:Show()
@@ -4550,7 +4581,7 @@ function ConditionerAddOn:Init()
         if (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice > 0) then
             local overwriteString = ConditionerAddOn:CreateLoadoutString()
             ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].value =
-                overwriteString
+            overwriteString
             ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
             ConditionerAddOn.LoadoutFrame.OverWrite:UnlockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
@@ -4624,20 +4655,20 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.BackgroundFrame = CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame, "TOPRIGHT", 0, 6)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture =
-        ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateTexture()
+    ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateTexture()
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture:SetAllPoints(ConditionerAddOn.LoadoutFrame.BackgroundFrame)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture:SetTexture("Interface\\FrameGeneral\\UI-Background-Marble")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture:SetDrawLayer("BACKGROUND")
     ConditionerAddOn:AddBorder(ConditionerAddOn.LoadoutFrame.BackgroundFrame)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature =
-        ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+    ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature:SetTextColor(0.2, 0.2, 0.2, 0.2)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature:SetPoint("TOPRIGHT",
         ConditionerAddOn.LoadoutFrame.BackgroundFrame, "TOPRIGHT", 0, -4)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature:SetText("Developed By: Tony Allain")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame:SetPoint("RIGHT", ConditionerAddOn.LoadoutFrame.TrashCan, "RIGHT")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title =
-        ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_OutlineThick_WTF")
+    ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_OutlineThick_WTF")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetTextColor(0, 1, 1)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetText("Conditioner")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetPoint("BOTTOMLEFT",
@@ -4652,6 +4683,7 @@ function ConditionerAddOn:Init()
             v:Hide()
         end
     end
+
     function ConditionerAddOn:GetTrackerFromPool(pool)
         -- is one available?
         for i, v in ipairs(pool) do
@@ -4691,6 +4723,7 @@ function ConditionerAddOn:Init()
 
         return frame
     end
+
     -- mouse tracker position to cursor
     ConditionerAddOn.MouseIconTracker:SetScript("OnUpdate", function(self, elapsed)
         local x, y = GetCursorPosition()
@@ -4705,16 +4738,16 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.AoeRotation = CreateFrame("Frame", nil, SpellBookFrame)
     ConditionerAddOn.AoeRotation.Pool = {}
     ConditionerAddOn.AoeRotation.x =
-        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.x or UIParent:GetWidth() / 2
+    ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.x or UIParent:GetWidth() / 2
     ConditionerAddOn.AoeRotation.y =
-        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.y or UIParent:GetHeight() / 2
+    ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.y or UIParent:GetHeight() / 2
     ConditionerAddOn.AoeRotation:SetFrameStrata("HIGH")
     ConditionerAddOn.AoeRotation:SetPoint("CENTER", UIParent, "BOTTOMLEFT", ConditionerAddOn.AoeRotation.x,
         ConditionerAddOn.AoeRotation.y)
     ConditionerAddOn.AoeRotation:SetSize(64, 64)
     ConditionerAddOn.AoeRotation.Anchor = CreateFrame("Frame")
     local rotationAnchorSize = UIParent:GetScale() * 0.5 *
-                                   (ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100)
+        (ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100)
     ConditionerAddOn.AoeRotation.Anchor:SetSize(rotationAnchorSize, rotationAnchorSize)
     ConditionerAddOn.AoeRotation.Anchor:SetPoint("CENTER", ConditionerAddOn.AoeRotation, "CENTER")
     ConditionerAddOn.AoeRotation.Texture = ConditionerAddOn.AoeRotation:CreateTexture()
@@ -4791,7 +4824,8 @@ function ConditionerAddOn:Init()
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
         GameTooltip:SetText("Only Display In Combat", 0, 0.75, 1)
         GameTooltip:AddLine(
-            "Check this option if you only want to have your rotation displayed in combat, otherwise it will be displayed at all times.",
+            "Check this option if you only want to have your rotation displayed in combat, otherwise it will be displayed at all times."
+            ,
             1, 1, 1, true)
         GameTooltip:SetMinimumWidth(150)
         GameTooltip:Show()
@@ -4842,7 +4876,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
         "UICheckButtonTemplate")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text =
-        ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:CreateFontString(nil, "OVERLAY")
+    ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:CreateFontString(nil, "OVERLAY")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetText("Show Target Cast Bar")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetJustifyH("LEFT")
@@ -4855,7 +4889,8 @@ function ConditionerAddOn:Init()
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
         GameTooltip:SetText("Show Target Cast Bar", 0, 0.75, 1)
         GameTooltip:AddLine(
-            "Check this option to display your current target's cast bar above your primary tracking frame, colored yellow if it can be interrupted or grey if it cannot be interrupted.",
+            "Check this option to display your current target's cast bar above your primary tracking frame, colored yellow if it can be interrupted or grey if it cannot be interrupted."
+            ,
             1, 1, 1, true)
         GameTooltip:SetMinimumWidth(150)
         GameTooltip:Show()
@@ -4875,7 +4910,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
         "UICheckButtonTemplate")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text =
-        ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:CreateFontString(nil, "OVERLAY")
+    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:CreateFontString(nil, "OVERLAY")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetText("Show Mouseover Rotation")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetJustifyH("LEFT")
@@ -4974,12 +5009,12 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.DancingManShoes:SetScript("OnUpdate", function(self, elapsed)
         if (ConditionerAddOn.LoadoutFrame.DancingMan.Wounds) and (ConditionerAddOn.LoadoutFrame.DancingMan.Wounds > 0) then
             ConditionerAddOn.LoadoutFrame.DancingMan.Wounds =
-                ConditionerAddOn.LoadoutFrame.DancingMan.Wounds - elapsed / 2
+            ConditionerAddOn.LoadoutFrame.DancingMan.Wounds - elapsed / 2
             if (ConditionerAddOn.LoadoutFrame.DancingMan.isDead) then
                 ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration =
-                    ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration * (1 + elapsed)
+                ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration * (1 + elapsed)
                 local percentFade = math.max((ConditionerAddOn.LoadoutFrame.DancingMan.Wounds - elapsed *
-                                                 ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration) / 10, 0)
+                    ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration) / 10, 0)
                 ConditionerAddOn.LoadoutFrame.DancingMan:SetAlpha(math.min(1, percentFade))
             end
             if (ConditionerAddOn.LoadoutFrame.DancingMan.Wounds <= 0) then
@@ -4991,18 +5026,18 @@ function ConditionerAddOn:Init()
             end
         else
             ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer =
-                ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer or math.random(4, 8)
+            ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer or math.random(4, 8)
             ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer =
-                (ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer or
-                    -ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer) + elapsed
+            (ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer or
+                -ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer) + elapsed
             if (ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer >
                 ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer) then
                 ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction =
-                    not ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction
+                not ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction
                 ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer = -(math.random(4, 8))
                 ConditionerAddOn.LoadoutFrame.DancingMan:SetRotation(0.85 *
-                                                                         (ConditionerAddOn.LoadoutFrame.DancingManShoes
-                                                                             .Direction and 1 or -1))
+                    (ConditionerAddOn.LoadoutFrame.DancingManShoes
+                        .Direction and 1 or -1))
                 ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(4)
                 ConditionerAddOn.LoadoutFrame.DancingMan.CurrentAnim = 4
                 if (ConditionerAddOn.LoadoutFrame.DancingManShoes.isWalking) then
@@ -5010,24 +5045,24 @@ function ConditionerAddOn:Init()
                     ConditionerAddOn.LoadoutFrame.DancingMan.CurrentAnim = 69
                     ConditionerAddOn.LoadoutFrame.DancingManShoes.isWalking = false
                     ConditionerAddOn.LoadoutFrame.DancingMan:SetRotation(0.25 *
-                                                                             (ConditionerAddOn.LoadoutFrame
-                                                                                 .DancingManShoes.Direction and 1 or -1))
+                        (ConditionerAddOn.LoadoutFrame
+                            .DancingManShoes.Direction and 1 or -1))
                 end
                 ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer = math.random(4, 8)
             end
 
             if (ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer >= 0) then
                 local deltaX = (ConditionerAddOn.LoadoutFrame.BackgroundFrame:GetWidth() - 60) /
-                                   ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer
+                    ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer
                 ConditionerAddOn.LoadoutFrame.DancingManShoes:SetWidth(
                     ConditionerAddOn.LoadoutFrame.DancingManShoes:GetWidth() + deltaX * elapsed *
-                        (ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction and 1 or -1))
+                    (ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction and 1 or -1))
                 if (not ConditionerAddOn.LoadoutFrame.DancingManShoes.isWalking) then
                     ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(4)
                     ConditionerAddOn.LoadoutFrame.DancingMan.CurrentAnim = 4
                     ConditionerAddOn.LoadoutFrame.DancingMan:SetRotation(0.85 *
-                                                                             (ConditionerAddOn.LoadoutFrame
-                                                                                 .DancingManShoes.Direction and 1 or -1))
+                        (ConditionerAddOn.LoadoutFrame
+                            .DancingManShoes.Direction and 1 or -1))
                     ConditionerAddOn.LoadoutFrame.DancingManShoes.isWalking = true
                 end
             end
@@ -5038,10 +5073,10 @@ function ConditionerAddOn:Init()
             if (ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue) and
                 (#ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue > 0) then
                 local nextAnim = ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue[#ConditionerAddOn.LoadoutFrame
-                                     .DancingMan.AnimQueue]
+                    .DancingMan.AnimQueue]
                 ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(nextAnim)
                 ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue[#ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue] =
-                    nil
+                nil
                 if (not ConditionerAddOn.LoadoutFrame.DancingMan.isDead) then
                     ConditionerAddOn.LoadoutFrame.DancingMan.Wounds = 0
                     ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(
@@ -5051,7 +5086,7 @@ function ConditionerAddOn:Init()
         end
     end)
     ConditionerAddOn.LoadoutFrame.DancingMan.Hitbox =
-        CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame.DancingMan)
+    CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame.DancingMan)
     ConditionerAddOn.LoadoutFrame.DancingMan.Hitbox:SetPoint("CENTER", ConditionerAddOn.LoadoutFrame.DancingMan,
         "CENTER")
     ConditionerAddOn.LoadoutFrame.DancingMan.Hitbox:SetSize(20, 50)
@@ -5067,7 +5102,7 @@ function ConditionerAddOn:Init()
         else
             ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(8)
             ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue =
-                ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue or {}
+            ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue or {}
             table.insert(ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue,
                 ConditionerAddOn.LoadoutFrame.DancingMan.CurrentAnim)
         end
@@ -5076,6 +5111,7 @@ function ConditionerAddOn:Init()
     --------------------------------------------------------DANCING MAN--------------------------------------------------------
     -- =======================================================================================================================--
 end
+
 -- ============================================================================================================================--
 -----------------------------------------------------------INITIALIZE-----------------------------------------------------------
 -- ============================================================================================================================--
@@ -5158,6 +5194,7 @@ end
 function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_SUCCEEDED(...)
     ConditionerAddOn:HandleSwingTimerRanged(...)
 end
+
 --[[
 function ConditionerAddOn.EventHandler:ADDON_ACTION_FORBIDDEN(...)
 
