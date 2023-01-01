@@ -1950,6 +1950,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
 
     -- is mouseover spell
     local isMouseover = (targetUnitToken == "mouseover")
+    if (UnitIsDead(targetUnitToken)) then
+        return false
+    end
 
     -- I Am Tanking Elite+ 22
     if (targetUnitEnum == 22) then
