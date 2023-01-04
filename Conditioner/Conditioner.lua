@@ -1425,7 +1425,24 @@ function ConditionerAddOn:PriorityClickHandler(frame, button)
     end
 end
 
-function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, max_Value, sliderText, initValue, key)
+function ConditionerAddOn:InitSavedVars()
+    ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
+    ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
+    ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
+    ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
+    ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
+    ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX = ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX
+        or 0
+    ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY = ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY
+        or 0
+    ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames =
+    ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames or 5
+    ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames =
+    ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames or 5
+end
+
+function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, max_Value, sliderText, initValue, key,
+                                    hidePercent)
     local o = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
     o.textLow = _G[name .. "Low"]
     o.textHigh = _G[name .. "High"]
@@ -1440,28 +1457,22 @@ function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, m
 
     o:SetScript("OnValueChanged", function(self, event, ...)
         o:SetValue(o:GetValue())
-        ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
-        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
-        ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
-        ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
+        ConditionerAddOn:InitSavedVars()
         ConditionerAddOn_SavedVariables.Options[key] = o:GetValue()
         self.text:SetText(
-            string.format("%s (%s%s)", sliderText, o:GetValue(), (key == "NumTrackedFrames") and "" or "%"))
+            string.format("%s (%s%s)", sliderText, o:GetValue(),
+                hidePercent and "" or "%"))
         if (key == "TaperSize" or key == "Opacity") then
             ConditionerAddOn:ResizeTrackers()
         end
     end)
 
     o:SetScript("OnShow", function(self, ...)
-        ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
-        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
-        ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
-        ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
+        ConditionerAddOn:InitSavedVars()
         o:SetValue(ConditionerAddOn_SavedVariables.Options[key])
         self.text:SetText(
-            string.format("%s (%s%s)", sliderText, o:GetValue(), (key == "NumTrackedFrames") and "" or "%"))
+            string.format("%s (%s%s)", sliderText, o:GetValue(),
+                hidePercent and "" or "%"))
     end)
 
     return o
@@ -1494,10 +1505,11 @@ function ConditionerAddOn:NewInputBox(parent, key, numbersOnly)
     end)
     o:SetScript("OnChar", function(self, text)
         if (numbersOnly) then
+            local maxNum = 100000000
             if (o.linkedPercentBox) then
-                self:SetNumber(math.min(self:GetNumber(), (o.linkedPercentBox:GetChecked()) and 100 or 999))
+                self:SetNumber(math.min(self:GetNumber(), (o.linkedPercentBox:GetChecked()) and 100 or maxNum))
             else
-                self:SetNumber(math.min(self:GetNumber(), 999))
+                self:SetNumber(math.min(self:GetNumber(), maxNum))
             end
         end
     end)
@@ -1658,12 +1670,13 @@ function ConditionerAddOn:CompareValues(leftValue, operatorEnum, rightValue)
 end
 
 function ConditionerAddOn:CollectMouseOverSpells(sortedList)
+    ConditionerAddOn:InitSavedVars()
     ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
     local lastParentFrame = ConditionerAddOn.MouseIconTracker
     local found = 0
     local scale = UIParent:GetScale() * 0.15
     for i, v in ipairs(sortedList) do
-        if (v.isMouseover and found < ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
+        if (v.isMouseover and found < ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames) then
             local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
             local frame = ConditionerAddOn:GetTrackerFromPool(ConditionerAddOn.MouseIconTracker.Pool)
             frame.available = false
@@ -1713,12 +1726,13 @@ function ConditionerAddOn:CollectMouseOverSpells(sortedList)
 end
 
 function ConditionerAddOn:CollectAoeSpells(sortedList)
+    ConditionerAddOn:InitSavedVars()
     ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
     local lastParentFrame = ConditionerAddOn.AoeRotation.Anchor
     local found = 0
     local scale = UIParent:GetScale() * 0.15
     for i, v in ipairs(sortedList) do
-        if (v.isAoe and found < ConditionerAddOn_SavedVariables.Options.NumTrackedFrames) then
+        if (v.isAoe and found < ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames) then
             local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
             local frame = ConditionerAddOn:GetTrackerFromPool(ConditionerAddOn.AoeRotation.Pool)
             frame.available = false
@@ -4728,12 +4742,15 @@ function ConditionerAddOn:Init()
     end
 
     -- mouse tracker position to cursor
+    ConditionerAddOn:InitSavedVars()
     ConditionerAddOn.MouseIconTracker:SetScript("OnUpdate", function(self, elapsed)
         local x, y = GetCursorPosition()
         local scale = UIParent:GetScale() * 0.5
         local size = ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
         local width = size * scale
-        ConditionerAddOn.MouseIconTracker:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x - width, y)
+        ConditionerAddOn.MouseIconTracker:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT",
+            (x - width) + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX,
+            y + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY)
         ConditionerAddOn.MouseIconTracker:SetSize(width, width)
     end)
 
@@ -4792,23 +4809,51 @@ function ConditionerAddOn:Init()
 
     -- NUM TRACKER FRAMES
     ConditionerAddOn.LoadoutFrame.NumTrackedFrames = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
-        "ConditionerNumTrackedFrames", "1", "10", 1, 10, "Max Tracked Frames", 5, "NumTrackedFrames")
+        "ConditionerNumTrackedFrames", "1", "10", 1, 10, "Max Tracked Frames", 5, "NumTrackedFrames", true)
     ConditionerAddOn.LoadoutFrame.NumTrackedFrames:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame.ExportLoadout,
         "BOTTOMLEFT", 5, -20)
+    -- AOE NUM TRACKER FRAMES
+    ConditionerAddOn.LoadoutFrame.AoeNumTrackedFrames = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
+        "ConditionerAoeNumTrackedFrames", "1", "10", 1, 10, "AoE Frames", 5, "AoeNumTrackedFrames", true)
+    ConditionerAddOn.LoadoutFrame.AoeNumTrackedFrames:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame.NumTrackedFrames
+        ,
+        "BOTTOMLEFT", 0,
+        -25)
+    -- MOUSEOVER NUM TRACKER FRAMES
+    ConditionerAddOn.LoadoutFrame.MouseoverNumTrackedFrames = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
+        "ConditionerMouseoverNumTrackedFrames", "1", "10", 1, 10, "Mouseover Frames", 5,
+        "MouseoverNumTrackedFrames", true)
+    ConditionerAddOn.LoadoutFrame.MouseoverNumTrackedFrames:SetPoint("TOPLEFT",
+        ConditionerAddOn.LoadoutFrame.AoeNumTrackedFrames,
+        "BOTTOMLEFT", 0,
+        -25)
     -- TAPER SIZE
     ConditionerAddOn.LoadoutFrame.TaperSize = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
         "ConditionerTaperSize", "25%", "100%", 25, 100, "Taper Size", 80, "TaperSize")
-    ConditionerAddOn.LoadoutFrame.TaperSize:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.NumTrackedFrames, "BOTTOM", 0,
+    ConditionerAddOn.LoadoutFrame.TaperSize:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.MouseoverNumTrackedFrames,
+        "BOTTOM", 0,
         -25)
     -- OPACITY
     ConditionerAddOn.LoadoutFrame.Opacity = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
         "ConditionerOpacity", "25%", "100%", 25, 100, "Opacity", 100, "Opacity")
     ConditionerAddOn.LoadoutFrame.Opacity:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.TaperSize, "BOTTOM", 0, -25)
-
     -- GCD CLIPPING
     ConditionerAddOn.LoadoutFrame.ClipGCD = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
         "ConditionerClipping", "0%", "100%", 0, 100, "GCD Factor", 0, "ClipGCD")
     ConditionerAddOn.LoadoutFrame.ClipGCD:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.Opacity, "BOTTOM", 0, -25)
+    -- MOUSEOVER OFFSET X
+    ConditionerAddOn.LoadoutFrame.MouseOverOffsetX = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
+        "ConditionerMouseOverOffsetX", "-50", "+50", -50, 50, "Mouseover Offset X", 0, "MouseOverOffsetX", true)
+    ConditionerAddOn.LoadoutFrame.MouseOverOffsetX:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.ClipGCD, "BOTTOM", 0,
+        -25)
+    -- MOUSEOVER OFFSET Y
+    ConditionerAddOn.LoadoutFrame.MouseOverOffsetY = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
+        "ConditionerMouseOverOffsetY", "-50", "+50", -50, 50, "Mouseover Offset Y", 0, "MouseOverOffsetY", true)
+    ConditionerAddOn.LoadoutFrame.MouseOverOffsetY:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.MouseOverOffsetX,
+        "BOTTOM", 0,
+        -25)
+
+    local lastFrameToStretchTo = ConditionerAddOn.LoadoutFrame.MouseOverOffsetY
 
     -- ONLY IN COMBAT
     ConditionerAddOn.LoadoutFrame.AlwaysShow = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
@@ -4980,7 +5025,7 @@ function ConditionerAddOn:Init()
         "TOPLEFT")
     ConditionerAddOn.LoadoutFrame.OptionsContainer:SetPoint("BOTTOMRIGHT",
         ConditionerAddOn.LoadoutFrame.BackgroundFrame, "BOTTOMRIGHT", -8, 8)
-    ConditionerAddOn.LoadoutFrame.BackgroundFrame:SetPoint("BOTTOM", ConditionerAddOn.LoadoutFrame.ClipGCD, "BOTTOM", 0,
+    ConditionerAddOn.LoadoutFrame.BackgroundFrame:SetPoint("BOTTOM", lastFrameToStretchTo, "BOTTOM", 0,
         -20)
     -- ===================================================================================================================--
     --------------------------------------------------------OPTIONS--------------------------------------------------------
