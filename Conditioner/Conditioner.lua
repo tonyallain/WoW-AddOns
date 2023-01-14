@@ -2786,7 +2786,7 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
     end)
     o:SetScript("OnMouseWheel", function(self, delta)
         ConditionerAddOn.numToHide = math.min(#ConditionerAddOn.PriorityButtons,
-            math.max((ConditionerAddOn.numToHide or 0) + delta, 0))
+            math.max((ConditionerAddOn.numToHide or 0) - delta, 0))
         ConditionerAddOn:ScrollPriorityButtons(ConditionerAddOn.numToHide)
     end)
     return o
