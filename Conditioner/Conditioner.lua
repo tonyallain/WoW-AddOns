@@ -2055,7 +2055,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- charges
     if (Conditions.chargesConditionalEnum > 0) then
         local rightValue = Conditions.chargesAmount
-        local leftValue = (itemID > 0) and (GetItemCount(itemID)) or (GetSpellCharges(spellID))
+        local leftValue = (itemID > 0) and (GetItemCount(itemID)) or (GetSpellCharges(spellID)) or
+            (GetSpellCount(spellID))
         local satisfied = ConditionerAddOn:CompareValues(leftValue, Conditions.chargesConditionalEnum, rightValue)
         if (not satisfied) then
             -- print("FAILED - CHARGES")
