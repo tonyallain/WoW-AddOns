@@ -12,7 +12,8 @@ ConditionerAddOn.Size = 24 -- the number of wildcards in the first half of the d
 ConditionerAddOn.SpellCache = {}
 ConditionerAddOn.ConditionPattern =
 "%[(..)(.)(.)(.)(.)(.)(.)(.)(.)(.)(..)(..)(..)(..)(..)(..)(.)_(.-)_(.-)_(.-)_(.-)_(.-)_(.-)]"
-ConditionerAddOn.ConditionPatternMatch = "[%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s]" -- needs to have the same amount as the Condition Pattern above
+ConditionerAddOn.ConditionPatternMatch =
+"[%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s]" -- needs to have the same amount as the Condition Pattern above
 ConditionerAddOn.BitMap = {
     ["0"] = 0,
     ["1"] = 1,
@@ -521,7 +522,7 @@ function ConditionerAddOn.DebuffExists(unitToken, auraString, filter)
     for i = 1, 64 do
         local auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID,
         _, _, _, _, auraTimeMod = UnitDebuff(unitToken, i, filter)
-        if (auraName) and (auraName:lower() == auraString:lower()) then
+        if (auraName) and ((auraName:lower() == auraString:lower()) or (auraSpellID == tonumber(auraString))) then
             return auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _,
                 auraSpellID, _, _, _, _, auraTimeMod
         end
@@ -533,7 +534,7 @@ function ConditionerAddOn.BuffExists(unitToken, auraString, filter)
     for i = 1, 64 do
         local auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID,
         _, _, _, _, auraTimeMod = UnitBuff(unitToken, i, filter)
-        if (auraName) and (auraName:lower() == auraString:lower()) then
+        if (auraName) and ((auraName:lower() == auraString:lower()) or (auraSpellID == tonumber(auraString))) then
             return auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _,
                 auraSpellID, _, _, _, _, auraTimeMod
         end
@@ -644,7 +645,7 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
             ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(
                 0.5 * mainTrackedFrame:GetHeight() / 5), "OUTLINE, NORMAL")
             local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
-            UnitCastingInfo("target")
+                UnitCastingInfo("target")
             local channelSpellName, _, channelSpellTexture, channelStart, channelEnd, _, notInterruptible,
             channelSpellID = UnitChannelInfo("target")
             local texture = castSpellTexture or channelSpellTexture
@@ -731,7 +732,7 @@ function ConditionerAddOn:OnUpdate(elapsed)
     local sortedList = ConditionerAddOn:GetCooldownList()
     ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
     ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-    ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
+        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
 
     -- mouse icon, find first mouseover
     local usingMouseover = ConditionerAddOn_SavedVariables.Options.ShowMouseoverAtCursor
@@ -780,7 +781,7 @@ function ConditionerAddOn:OnUpdate(elapsed)
                                 "TOPLEFT")
                         end
                     elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0 or
-                        ConditionerAddOn_SavedVariables.Options.AnchorDirection == 2) then
+                            ConditionerAddOn_SavedVariables.Options.AnchorDirection == 2) then
                         ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT", newTrackerFrame,
                             "TOPLEFT")
                         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT", newTrackerFrame,
@@ -1208,11 +1209,11 @@ function ConditionerAddOn:GetConditions(frame, withoutKeybinds)
     local boolStringShort = ConditionerAddOn:EncodeToMask({ frame.Conditions.cooldownRemainingIsItemID,
         frame.Conditions.onlyInRange, frame.Conditions.onlyDuringCC,
         frame.Conditions.showInAoeRotation, -- 4
-        frame.Conditions.hideWhileCasting, -- 5
+        frame.Conditions.hideWhileCasting,  -- 5
         frame.Conditions.canCast }, true)
     local encoded_resourceTypeEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.resourceTypeEnum, true)
     local encoded_resourceConditionalEnum =
-    ConditionerAddOn:EncodeToMask(frame.Conditions.resourceConditionalEnum, true)
+        ConditionerAddOn:EncodeToMask(frame.Conditions.resourceConditionalEnum, true)
     local encoded_alternateResourceTypeEnum = ConditionerAddOn:EncodeToMask(frame.Conditions.alternateResourceTypeEnum,
         true)
     local encoded_alternateResourceConditionalEnum = ConditionerAddOn:EncodeToMask(frame.Conditions
@@ -1428,7 +1429,7 @@ end
 function ConditionerAddOn:InitSavedVars()
     ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
     ConditionerAddOn_SavedVariables.Options.NumTrackedFrames =
-    ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
+        ConditionerAddOn_SavedVariables.Options.NumTrackedFrames or 5
     ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
     ConditionerAddOn_SavedVariables.Options.ClipGCD = ConditionerAddOn_SavedVariables.Options.ClipGCD or 0
     ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX = ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX
@@ -1436,9 +1437,9 @@ function ConditionerAddOn:InitSavedVars()
     ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY = ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY
         or 0
     ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames =
-    ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames or 5
+        ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames or 5
     ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames =
-    ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames or 5
+        ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames or 5
 end
 
 function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, max_Value, sliderText, initValue, key,
@@ -1588,7 +1589,7 @@ end
 function ConditionerAddOn:UpdateTrackerPoints()
     ConditionerAddOn.TrackingFrames = ConditionerAddOn.TrackingFrames or {}
     ConditionerAddOn_SavedVariables.Options.AnchorDirection =
-    ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
+        ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
     for k, v in ipairs(ConditionerAddOn.TrackingFrames) do
         if (v.parentNode ~= ConditionerAddOn.TrackedFrameDragAnchor) then
             v:ClearAllPoints()
@@ -1625,7 +1626,7 @@ end
 function ConditionerAddOn:ResizeTrackers()
     ConditionerAddOn.TrackingFrames = ConditionerAddOn.TrackingFrames or {}
     ConditionerAddOn_SavedVariables.Options.TrackedFrameSize =
-    ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
+        ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
     ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
     ConditionerAddOn_SavedVariables.Options.Opacity = ConditionerAddOn_SavedVariables.Options.Opacity or 100
     local modAmount = ConditionerAddOn_SavedVariables.Options.TrackedFrameSize
@@ -1786,7 +1787,7 @@ function ConditionerAddOn:GetCooldownList()
     local found = {}
     for k, v in ipairs(ConditionerAddOn.PriorityButtons) do
         local spellTimeRemaining, spellGCD, s, d, inRange, auraTexture, auraDuration, auraTimestamp, isMouseover, isAoe =
-        ConditionerAddOn:CheckCondition(v)
+            ConditionerAddOn:CheckCondition(v)
         local id = v.Data.spellID
         if (spellTimeRemaining) and (not found[id]) then
             found[id] = true
@@ -1933,7 +1934,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     if (targetUnitEnum == 1) then
         targetUnitToken = "player"
     elseif (
-        targetUnitEnum == 2 or targetUnitEnum == 3 or targetUnitEnum == 4 or targetUnitEnum == 13 or targetUnitEnum ==
+            targetUnitEnum == 2 or targetUnitEnum == 3 or targetUnitEnum == 4 or targetUnitEnum == 13 or targetUnitEnum ==
             14 or targetUnitEnum == 15) then
         targetUnitToken = "target"
     elseif (targetUnitEnum == 5 or targetUnitEnum == 6 or targetUnitEnum == 7) then
@@ -2116,9 +2117,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- is interrupt
     if (Conditions.isInterruptBool) then
         local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
-        UnitCastingInfo(targetUnitToken == "player" and "target" or targetUnitToken)
+            UnitCastingInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         local channelSpellName, _, channelSpellTexture, channelStart, channelEnd, _, notInterruptible, channelSpellID =
-        UnitChannelInfo(targetUnitToken == "player" and "target" or targetUnitToken)
+            UnitChannelInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         if (castSpellName) or (channelSpellName) then
             if (uninterruptable or notInterruptible) then
                 -- print("FAILED - UNINTERRUPTABLE")
@@ -2146,8 +2147,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     _, _, _, auraTimeMod = ConditionerAddOn.DebuffExists(targetUnitToken, activeAuraName, "PLAYER")
     if (not auraName) then
         auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _, _, _
-            , _, auraTimeMod =
-        ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, "PLAYER")
+        , _, auraTimeMod =
+            ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, "PLAYER")
     end
 
     -- check for my active aura
@@ -2322,7 +2323,7 @@ function ConditionerAddOn:GetAvailableTrackingFrame()
         trackingFrame:SetPoint("CENTER", ConditionerAddOn.TrackedFrameDragAnchor, "CENTER")
     else
         ConditionerAddOn_SavedVariables.Options.AnchorDirection =
-        ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
+            ConditionerAddOn_SavedVariables.Options.AnchorDirection or 0
         if (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0) then
             trackingFrame:SetPoint("BOTTOMRIGHT", trackingFrame.parentNode, "BOTTOMLEFT", -2, 0)
         elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 1) then
@@ -2335,7 +2336,7 @@ function ConditionerAddOn:GetAvailableTrackingFrame()
         trackingFrame.Keybind:SetPoint("RIGHT", trackingFrame, "RIGHT")
     end
     ConditionerAddOn_SavedVariables.Options.TrackedFrameSize =
-    ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
+        ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
     ConditionerAddOn_SavedVariables.Options.TaperSize = ConditionerAddOn_SavedVariables.Options.TaperSize or 80
     local mult = math.pow(ConditionerAddOn_SavedVariables.Options.TaperSize / 100, #ConditionerAddOn.TrackingFrames)
     table.insert(ConditionerAddOn.TrackingFrames, trackingFrame)
@@ -2951,7 +2952,7 @@ function ConditionerAddOn:StoreCurrentLoadout()
     if (currentSpecID) then
         local currentSpec = GetSpecializationInfo(currentSpecID)
         ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpec] =
-        ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice or 0
+            ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice or 0
         if (ConditionerAddOn:LoadoutIsDirty()) then
             ConditionerAddOn.LoadoutFrame.OverWrite:Enable()
             if (ConditionerAddOn.LoadoutFrame) then
@@ -3052,7 +3053,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.TrackedFrameDragAnchor:SetScript("OnMouseUp", function(self, button)
         if (button == "RightButton") then
             ConditionerAddOn_SavedVariables.Options.AnchorDirection =
-            (ConditionerAddOn_SavedVariables.Options.AnchorDirection + 1) % 4
+                (ConditionerAddOn_SavedVariables.Options.AnchorDirection + 1) % 4
             ConditionerAddOn:UpdateTrackerPoints()
         end
     end)
@@ -3085,7 +3086,7 @@ function ConditionerAddOn:Init()
         0.25)
     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetSize(10, 10)
     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer =
-    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
+        ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
 
     -- ==================================================================================================--
     --------------------------------------MAIN TRACKING FRAME ANCHOR--------------------------------------
@@ -3097,7 +3098,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.Background = CreateFrame("Frame", nil,
         ConditionerAddOn.SharedConditionerFrame)
     ConditionerAddOn.SharedConditionerFrame.Background.Texture =
-    ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.Background.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.Background)
     ConditionerAddOn.SharedConditionerFrame.Background.Texture:SetTexture("Interface\\FrameGeneral\\UI-Background-Rock")
@@ -3146,21 +3147,21 @@ function ConditionerAddOn:Init()
             "Fury",
             "Pain",
             "Essence",
-            "Placeholder", -- 21
-            "Placeholder", -- 22
-            "Placeholder", -- 23
-            "Placeholder", -- 24
-            "Placeholder", -- 25
-            "Placeholder", -- 26
-            "Placeholder", -- 27
-            "Placeholder", -- 28
-            "Placeholder", -- 29
-            "Target Unit's Health", -- 30
-            "Focus Target's Health", -- 31
+            "Placeholder",               -- 21
+            "Placeholder",               -- 22
+            "Placeholder",               -- 23
+            "Placeholder",               -- 24
+            "Placeholder",               -- 25
+            "Placeholder",               -- 26
+            "Placeholder",               -- 27
+            "Placeholder",               -- 28
+            "Placeholder",               -- 29
+            "Target Unit's Health",      -- 30
+            "Focus Target's Health",     -- 31
             "Target of Target's Health", -- 32
-            "My Pet's Health", -- 33
-            "Target's Health", -- 34
-            "My Health" -- 35
+            "My Pet's Health",           -- 33
+            "Target's Health",           -- 34
+            "My Health"                  -- 35
         },
         conditionalOperatorEnum = {
             [0] = "Choose Operator",
@@ -3287,9 +3288,9 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1].tooltip =
     "Check this button if you would like this resource condition to be percentage based instead of a flat value."
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[1].linkedPercentBox =
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1]
+        ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1]
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[1].linkedEditBox =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[1]
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[1]
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[1]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[1], "LEFT")
 
@@ -3325,9 +3326,9 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2].tooltip =
     "Check this button if you would like this resource condition to be percentage based instead of a flat value."
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[2].linkedPercentBox =
-    ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2]
+        ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2]
     ConditionerAddOn.SharedConditionerFrame.CheckBoxes[2].linkedEditBox =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[2]
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[2]
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[2]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[2], "LEFT")
     -- aura name
@@ -3349,8 +3350,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:SetPoint("RIGHT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[3], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:CreateFontString(nil, "OVERLAY",
-        "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:CreateFontString(nil, "OVERLAY",
+            "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "TOP", 0, -6)
@@ -3374,7 +3375,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.ResultsBox:SetPoint("TOPRIGHT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "BOTTOMRIGHT")
     ConditionerAddOn.SharedConditionerFrame.ResultsBox.Texture =
-    ConditionerAddOn.SharedConditionerFrame.ResultsBox:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.ResultsBox.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.ResultsBox)
     ConditionerAddOn.SharedConditionerFrame.ResultsBox.Texture:SetTexture(
@@ -3492,8 +3493,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4]:SetPoint("RIGHT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[4]:CreateFontString(nil, "OVERLAY",
-        "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[4]:CreateFontString(nil, "OVERLAY",
+            "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[4].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4], "TOP", 0, -6)
@@ -3522,8 +3523,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[1], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[5]:CreateFontString(nil, "OVERLAY",
-        "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[5]:CreateFontString(nil, "OVERLAY",
+            "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[5].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[7], "TOP", 0, -10)
@@ -3553,8 +3554,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:SetPoint("RIGHT", ConditionerAddOn.SharedConditionerFrame
         .CheckBoxes[2], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:CreateFontString(nil, "OVERLAY",
-        "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[6]:CreateFontString(nil, "OVERLAY",
+            "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[6].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[8], "TOP", 0, -10)
@@ -3587,8 +3588,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7]:SetPoint("TOPLEFT", ConditionerAddOn.SharedConditionerFrame
         .DropDowns[8]:GetName() .. "Middle", "BOTTOMLEFT", 0, 8)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[7]:CreateFontString(nil, "OVERLAY",
-        "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[7]:CreateFontString(nil, "OVERLAY",
+            "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[7].text:SetPoint("LEFT", ConditionerAddOn.SharedConditionerFrame
         .EditBoxes[7], "RIGHT")
@@ -3682,7 +3683,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Anchor)
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu:SetFrameStrata("BACKGROUND")
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Texture =
-    ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu)
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Texture:SetTexture(
@@ -3761,7 +3762,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner:SetPoint("BOTTOMLEFT",
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[7], "BOTTOMLEFT")
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner.Texture =
-    ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner)
     ConditionerAddOn.SharedConditionerFrame.DispelFilterButton.Menu.Banner.Texture:SetTexture(
@@ -3813,14 +3814,14 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.CheckBoxes[6], "BOTTOM", 0, 6)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:SetSize(50, 50)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture =
-    ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.Texture:SetTexture(
         "Interface\\FrameGeneral\\UI-Background-Marble")
     ConditionerAddOn:AddBorder(ConditionerAddOn.SharedConditionerFrame.CooldownRemaining)
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.HighlightTexture =
-    ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.CooldownRemaining:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.HighlightTexture:Hide()
     ConditionerAddOn.SharedConditionerFrame.CooldownRemaining.HighlightTexture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining)
@@ -3889,8 +3890,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8]:SetPoint("LEFT",
         ConditionerAddOn.SharedConditionerFrame.DropDowns[9], "RIGHT")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[8]:CreateFontString(nil, "OVERLAY",
-        "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[8]:CreateFontString(nil, "OVERLAY",
+            "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[8].text:SetPoint("TOPLEFT",
         ConditionerAddOn.SharedConditionerFrame.CooldownRemaining, "TOPRIGHT", 4, 0)
@@ -3977,8 +3978,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:SetPoint("TOPRIGHT",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[4], "BOTTOMRIGHT", 0, activeAuraOffset)
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text =
-    ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:CreateFontString(nil, "OVERLAY",
-        "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:CreateFontString(nil, "OVERLAY",
+            "SystemFont_NamePlateCastBar")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].text:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[9], "TOP", 0, -6)
@@ -4013,7 +4014,7 @@ function ConditionerAddOn:Init()
         closeResultsBox2 = true
     end)
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture =
-    ConditionerAddOn.SharedConditionerFrame.ResultsBox2:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.ResultsBox2:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture:SetAllPoints(
         ConditionerAddOn.SharedConditionerFrame.ResultsBox2)
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2.Texture:SetTexture(
@@ -4132,15 +4133,15 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3], "RIGHT", 12, 0)
     ConditionerAddOn:AddBorder(ConditionerAddOn.SharedConditionerFrame.Background)
     ConditionerAddOn.SharedConditionerFrame.Background.Title =
-    ConditionerAddOn.SharedConditionerFrame.Background:CreateFontString(nil, "OVERLAY",
-        "SystemFont_OutlineThick_Huge2")
+        ConditionerAddOn.SharedConditionerFrame.Background:CreateFontString(nil, "OVERLAY",
+            "SystemFont_OutlineThick_Huge2")
     ConditionerAddOn.SharedConditionerFrame.Background.Title:SetTextColor(0, 1, 1, 1)
     ConditionerAddOn.SharedConditionerFrame.Background.Title:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame
         .Background, "TOP")
     ConditionerAddOn.SharedConditionerFrame.Background.Title:SetText("DEFAULT")
     ConditionerAddOn.SharedConditionerFrame.Background.Title.Texture =
-    ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
+        ConditionerAddOn.SharedConditionerFrame.Background:CreateTexture()
     ConditionerAddOn.SharedConditionerFrame.Background.Title.Texture:SetPoint("BOTTOM",
         ConditionerAddOn.SharedConditionerFrame.Background, "TOP")
     ConditionerAddOn.SharedConditionerFrame.Background.Title.Texture:SetBlendMode("ADD")
@@ -4313,7 +4314,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.ImportExport.Background:SetPoint("RIGHT", ConditionerAddOn.LoadoutFrame.ImportExport,
         "RIGHT", 10, 0)
     ConditionerAddOn.LoadoutFrame.ImportExport.Texture =
-    ConditionerAddOn.LoadoutFrame.ImportExport.Background:CreateTexture()
+        ConditionerAddOn.LoadoutFrame.ImportExport.Background:CreateTexture()
     ConditionerAddOn.LoadoutFrame.ImportExport.Texture:SetDrawLayer("BACKGROUND")
     ConditionerAddOn.LoadoutFrame.ImportExport.Texture:SetAllPoints(
         ConditionerAddOn.LoadoutFrame.ImportExport.Background)
@@ -4400,7 +4401,7 @@ function ConditionerAddOn:Init()
         "RIGHT", 10, 0)
     ConditionerAddOn.LoadoutFrame.InputName.Background:SetFrameStrata("MEDIUM")
     ConditionerAddOn.LoadoutFrame.InputName.Background.Texture =
-    ConditionerAddOn.LoadoutFrame.InputName.Background:CreateTexture()
+        ConditionerAddOn.LoadoutFrame.InputName.Background:CreateTexture()
     ConditionerAddOn.LoadoutFrame.InputName.Background.Texture:SetAllPoints(
         ConditionerAddOn.LoadoutFrame.InputName.Background)
     ConditionerAddOn.LoadoutFrame.InputName.Background.Texture:SetTexture(
@@ -4411,11 +4412,11 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.SpecializationInfo = CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo:SetSize(50, 50)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.Texture =
-    ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateTexture()
+        ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateTexture()
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.Texture:SetAllPoints(ConditionerAddOn.LoadoutFrame
         .SpecializationInfo)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName =
-    ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
+        ConditionerAddOn.LoadoutFrame.SpecializationInfo:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
     ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName:SetTextColor(0, 1, 1)
     ConditionerAddOn.LoadoutFrame.SpecializationInfo:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame, "TOPRIGHT", 6, 0)
 
@@ -4438,7 +4439,7 @@ function ConditionerAddOn:Init()
     CONDITIONERDROPDOWNMENU_SetWidth(ConditionerAddOn.LoadoutFrame.DropDown, 150)
     ConditionerAddOn.LoadoutFrame.DropDown:SetScript("OnShow", function(self)
         local currentSpecID, specName, specDesc, specIcon, specBackground, specRole, specPrimaryStat =
-        GetSpecializationInfo(GetSpecialization())
+            GetSpecializationInfo(GetSpecialization())
         local _, classFileName = UnitClass("player")
         local color = (RAID_CLASS_COLORS) and RAID_CLASS_COLORS[classFileName] or {
             r = 0,
@@ -4449,17 +4450,17 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName:SetTextColor(color.r, color.g, color.b)
         ConditionerAddOn.LoadoutFrame.SpecializationInfo.SpecName:SetText(specName)
         ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice =
-        ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpecID] or 0
+            ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpecID] or 0
         -- is the currentChoice still valid? we might have deleted it on a diff char or even overwritten the slot with a diff spec's loadout
         if (not ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice]) or
             (
-            ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].spec ~=
+                ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].spec ~=
                 currentSpecID) then
             ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpecID] = 0
             ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = 0
         end
         local textValue = ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown
-            .CurrentChoice].name
+        .CurrentChoice].name
         if (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice == -1) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffFFff00%s|r", textValue)
@@ -4517,7 +4518,7 @@ function ConditionerAddOn:Init()
         end
         ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice = newValue
         local textValue = ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown
-            .CurrentChoice].name
+        .CurrentChoice].name
         if (newValue == -1) then
             ConditionerAddOn.LoadoutFrame.SaveLoadout:LockHighlight()
             textValue = string.format("|cffFFff00%s|r", textValue)
@@ -4534,7 +4535,7 @@ function ConditionerAddOn:Init()
         ConditionerCloseDropDownMenus()
         ConditionerAddOn:ClearCurrentLoadout()
         local savedPackage =
-        ConditionerAddOn:GetLoadoutPackageByID(ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice)
+            ConditionerAddOn:GetLoadoutPackageByID(ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice)
         if (savedPackage) then
             ConditionerAddOn:ApplyLoadout(savedPackage)
         end
@@ -4599,7 +4600,7 @@ function ConditionerAddOn:Init()
         if (ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice > 0) then
             local overwriteString = ConditionerAddOn:CreateLoadoutString()
             ConditionerAddOn.LoadoutFrame.DropDown.Choices[ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice].value =
-            overwriteString
+                overwriteString
             ConditionerAddOn.LoadoutFrame.OverWrite:Disable()
             ConditionerAddOn.LoadoutFrame.OverWrite:UnlockHighlight()
             ConditionerAddOn.LoadoutFrame.OverWrite:SetText("Saved")
@@ -4673,20 +4674,20 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.BackgroundFrame = CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame, "TOPRIGHT", 0, 6)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture =
-    ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateTexture()
+        ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateTexture()
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture:SetAllPoints(ConditionerAddOn.LoadoutFrame.BackgroundFrame)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture:SetTexture("Interface\\FrameGeneral\\UI-Background-Marble")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Texture:SetDrawLayer("BACKGROUND")
     ConditionerAddOn:AddBorder(ConditionerAddOn.LoadoutFrame.BackgroundFrame)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature =
-    ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
+        ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_NamePlateCastBar")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature:SetTextColor(0.2, 0.2, 0.2, 0.2)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature:SetPoint("TOPRIGHT",
         ConditionerAddOn.LoadoutFrame.BackgroundFrame, "TOPRIGHT", 0, -4)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Signature:SetText("Developed By: Tony Allain")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame:SetPoint("RIGHT", ConditionerAddOn.LoadoutFrame.TrashCan, "RIGHT")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title =
-    ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_OutlineThick_WTF")
+        ConditionerAddOn.LoadoutFrame.BackgroundFrame:CreateFontString(nil, "OVERLAY", "SystemFont_OutlineThick_WTF")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetTextColor(0, 1, 1)
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetText("Conditioner")
     ConditionerAddOn.LoadoutFrame.BackgroundFrame.Title:SetPoint("BOTTOMLEFT",
@@ -4759,9 +4760,9 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.AoeRotation = CreateFrame("Frame", nil, SpellBookFrame)
     ConditionerAddOn.AoeRotation.Pool = {}
     ConditionerAddOn.AoeRotation.x =
-    ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.x or UIParent:GetWidth() / 2
+        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.x or UIParent:GetWidth() / 2
     ConditionerAddOn.AoeRotation.y =
-    ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.y or UIParent:GetHeight() / 2
+        ConditionerAddOn_SavedVariables.Options.AoeRotationAnchor.y or UIParent:GetHeight() / 2
     ConditionerAddOn.AoeRotation:SetFrameStrata("HIGH")
     ConditionerAddOn.AoeRotation:SetPoint("CENTER", UIParent, "BOTTOMLEFT", ConditionerAddOn.AoeRotation.x,
         ConditionerAddOn.AoeRotation.y)
@@ -4925,7 +4926,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
         "UICheckButtonTemplate")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text =
-    ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:CreateFontString(nil, "OVERLAY")
+        ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:CreateFontString(nil, "OVERLAY")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetText("Show Target Cast Bar")
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetJustifyH("LEFT")
@@ -4959,7 +4960,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
         "UICheckButtonTemplate")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text =
-    ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:CreateFontString(nil, "OVERLAY")
+        ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor:CreateFontString(nil, "OVERLAY")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetText("Show Mouseover Rotation")
     ConditionerAddOn.LoadoutFrame.ShowMouseoverAtCursor.text:SetJustifyH("LEFT")
@@ -5058,10 +5059,10 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.DancingManShoes:SetScript("OnUpdate", function(self, elapsed)
         if (ConditionerAddOn.LoadoutFrame.DancingMan.Wounds) and (ConditionerAddOn.LoadoutFrame.DancingMan.Wounds > 0) then
             ConditionerAddOn.LoadoutFrame.DancingMan.Wounds =
-            ConditionerAddOn.LoadoutFrame.DancingMan.Wounds - elapsed / 2
+                ConditionerAddOn.LoadoutFrame.DancingMan.Wounds - elapsed / 2
             if (ConditionerAddOn.LoadoutFrame.DancingMan.isDead) then
                 ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration =
-                ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration * (1 + elapsed)
+                    ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration * (1 + elapsed)
                 local percentFade = math.max((ConditionerAddOn.LoadoutFrame.DancingMan.Wounds - elapsed *
                     ConditionerAddOn.LoadoutFrame.DancingMan.Acceleration) / 10, 0)
                 ConditionerAddOn.LoadoutFrame.DancingMan:SetAlpha(math.min(1, percentFade))
@@ -5075,14 +5076,14 @@ function ConditionerAddOn:Init()
             end
         else
             ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer =
-            ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer or math.random(4, 8)
+                ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer or math.random(4, 8)
             ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer =
-            (ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer or
-                -ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer) + elapsed
+                (ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer or
+                    -ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer) + elapsed
             if (ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer >
-                ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer) then
+                    ConditionerAddOn.LoadoutFrame.DancingManShoes.RandomTimer) then
                 ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction =
-                not ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction
+                    not ConditionerAddOn.LoadoutFrame.DancingManShoes.Direction
                 ConditionerAddOn.LoadoutFrame.DancingManShoes.Timer = -(math.random(4, 8))
                 ConditionerAddOn.LoadoutFrame.DancingMan:SetRotation(0.85 *
                     (ConditionerAddOn.LoadoutFrame.DancingManShoes
@@ -5122,10 +5123,10 @@ function ConditionerAddOn:Init()
             if (ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue) and
                 (#ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue > 0) then
                 local nextAnim = ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue[#ConditionerAddOn.LoadoutFrame
-                    .DancingMan.AnimQueue]
+                .DancingMan.AnimQueue]
                 ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(nextAnim)
                 ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue[#ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue] =
-                nil
+                    nil
                 if (not ConditionerAddOn.LoadoutFrame.DancingMan.isDead) then
                     ConditionerAddOn.LoadoutFrame.DancingMan.Wounds = 0
                     ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(
@@ -5135,7 +5136,7 @@ function ConditionerAddOn:Init()
         end
     end)
     ConditionerAddOn.LoadoutFrame.DancingMan.Hitbox =
-    CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame.DancingMan)
+        CreateFrame("Frame", nil, ConditionerAddOn.LoadoutFrame.DancingMan)
     ConditionerAddOn.LoadoutFrame.DancingMan.Hitbox:SetPoint("CENTER", ConditionerAddOn.LoadoutFrame.DancingMan,
         "CENTER")
     ConditionerAddOn.LoadoutFrame.DancingMan.Hitbox:SetSize(20, 50)
@@ -5151,7 +5152,7 @@ function ConditionerAddOn:Init()
         else
             ConditionerAddOn.LoadoutFrame.DancingMan:SetAnimation(8)
             ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue =
-            ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue or {}
+                ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue or {}
             table.insert(ConditionerAddOn.LoadoutFrame.DancingMan.AnimQueue,
                 ConditionerAddOn.LoadoutFrame.DancingMan.CurrentAnim)
         end
