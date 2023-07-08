@@ -3364,7 +3364,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].title = "Active Aura"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].tooltip =
-    "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit. This field can interact with the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
+    "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit. This field can interact with the Aura Seconds Remaining option. Spell ID numbers are supported.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- aura search box
     ConditionerAddOn.SharedConditionerFrame.ResultsBox = CreateFrame("Frame", nil,
@@ -3992,7 +3992,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[9]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].title = "My Active Aura"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[9].tooltip =
-    "Check that a specific aura is active on YOURSELF. This is NOT related to the Aura Seconds Remaining option.\n\n|cffFFff00Right click to empty input box.|r"
+    "Check that a specific aura is active on YOURSELF. This is NOT related to the Aura Seconds Remaining option. Spell ID numbers are supported.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- second aura search box
     ConditionerAddOn.SharedConditionerFrame.ResultsBox2 = CreateFrame("Frame", nil,
