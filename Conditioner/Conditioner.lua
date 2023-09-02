@@ -1,6 +1,38 @@
 -- ==============================================CONDITIONER==================================================--
 -- By Tony Allain
 -- ===========================================================================================================--
+-- classic fixups
+local currentCastingInfo = {}
+local function isClassic()
+    return LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_CLASSIC
+end
+
+if (isClassic()) then
+    GetSpecialization = _G.GetSpecialization or function() return 1 end
+    GetSpecializationInfo = _G.GetSpecializationInfo or
+        function(specId)
+            return specId, "default", "default specialization",
+                "Interface\\FrameGeneral\\UI-Background-Marble"
+        end
+    C_SpellBook.GetOverrideSpell = C_SpellBook.GetOverrideSpell or function(spellId) return spellId end
+    TransmogUtil = TransmogUtil or {
+        GetTransmogLocation = function() end
+    }
+    C_Transmog = C_Transmog or {
+        GetSlotInfo = function() end
+    }
+    IsSpellOverlayed = IsSpellOverlayed or function() return false end
+    UnitCastingInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or _G.UnitCastingInfo
+    UnitChannelInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or _G.UnitChannelInfo
+    function ClearCastingInfo(castGuid)
+        if (castGuid == currentCastingInfo[10]) then
+            currentCastingInfo = {}
+        end
+    end
+end
+
+
+-- ===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
 local closeResultsBox = false
 local closeResultsBox2 = false
@@ -673,7 +705,8 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
                 if (castSpellName) then
                     mult = 1 - mult
                 end
-                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetWidth(mult * mainTrackedFrame:GetWidth())
+                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetWidth(math.min(mult * mainTrackedFrame:GetWidth(),
+                    mainTrackedFrame:GetWidth()))
                 ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Background:SetWidth(mainTrackedFrame:GetWidth() -
                     ConditionerAddOn.TrackedFrameDragAnchor
                     .CastingBar:GetWidth())
@@ -3141,7 +3174,7 @@ function ConditionerAddOn:Init()
             "Maelstrom",
             "Chi",
             "Insanity",
-            "Obsolete",
+            "Combo Points", -- old combo points
             "Obsolete2",
             "Arcane Charges",
             "Fury",
@@ -5176,21 +5209,25 @@ function ConditionerAddOn.EventHandler:PLAYER_ENTERING_WORLD(...)
     ConditionerAddOn:CacheCurrentSpecSpells()
 end
 
-function ConditionerAddOn.EventHandler:PLAYER_SPECIALIZATION_CHANGED(...)
-    if (select(1, ...) == "player") then
-        ConditionerAddOn:ClearCurrentLoadout()
-        local currentPackage = ConditionerAddOn:GetLoadoutPackageByID()
-        ConditionerAddOn:ApplyLoadout(currentPackage)
-        ConditionerAddOn.LoadoutFrame.DropDown:Hide()
-        ConditionerAddOn.LoadoutFrame.DropDown:Show()
-        ConditionerAddOn.SharedConditionerFrame:Hide()
-        if (ConditionerAddOn.CurrentPriorityButton) then
-            -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+if (not isClassic()) then
+    function ConditionerAddOn.EventHandler:PLAYER_SPECIALIZATION_CHANGED(...)
+        if (select(1, ...) == "player") then
+            ConditionerAddOn:ClearCurrentLoadout()
+            local currentPackage = ConditionerAddOn:GetLoadoutPackageByID()
+            ConditionerAddOn:ApplyLoadout(currentPackage)
+            ConditionerAddOn.LoadoutFrame.DropDown:Hide()
+            ConditionerAddOn.LoadoutFrame.DropDown:Show()
+            ConditionerAddOn.SharedConditionerFrame:Hide()
+            if (ConditionerAddOn.CurrentPriorityButton) then
+                -- ActionButton_HideOverlayGlow(ConditionerAddOn.CurrentPriorityButton)
+            end
+            SetPortraitTexture(ConditionerAddOn.LoadoutFrame.DragTexture, "player")
+            ConditionerAddOn:CacheCurrentSpecSpells()
         end
-        SetPortraitTexture(ConditionerAddOn.LoadoutFrame.DragTexture, "player")
-        ConditionerAddOn:CacheCurrentSpecSpells()
     end
 end
+
+
 
 function ConditionerAddOn.EventHandler:ADDON_LOADED(...)
     local AddOnName = select(1, ...)
@@ -5236,9 +5273,107 @@ function ConditionerAddOn.EventHandler:ADDON_LOADED(...)
     end
 end
 
+if (isClassic()) then
+    ConditionerAddOn.castInfo = {}
+    ConditionerAddOn.currentTargetGuid = nil
+
+    function ConditionerAddOn:FindSpellIdByName(name)
+        if (not ConditionerAddOn.castInfo[name]) then
+            for i = 1, 999999, 1 do
+                local spellName, _ = GetSpellInfo(i)
+                if (name == spellName) then
+                    ConditionerAddOn.castInfo[name] = i
+                    return ConditionerAddOn.castInfo[name]
+                end
+            end
+        else
+            return ConditionerAddOn.castInfo[name]
+        end
+    end
+
+    function ConditionerAddOn:HandleCastBars(...)
+        if (select(1, ...) == "target") then
+            local spellName, _, spellIcon, castTime, _, _, spellId = GetSpellInfo(select(3, ...))
+            local castStart = GetTime() * 1000
+            local castEnd = castStart + castTime
+
+            currentCastingInfo[1] = spellName
+            currentCastingInfo[3] = spellIcon
+            currentCastingInfo[4] = castStart
+            currentCastingInfo[5] = castEnd
+            currentCastingInfo[8] = false
+            currentCastingInfo[9] = spellId
+            currentCastingInfo[10] = UnitGUID(select(1, ...))
+        end
+    end
+
+    function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_SENT(...)
+        if (isClassic()) then
+            local spellId = select(4, ...)
+            local spellName = GetSpellInfo(spellId)
+            if (not ConditionerAddOn.castInfo[spellName]) then
+                ConditionerAddOn.castInfo[spellName] = spellId
+            end
+        end
+    end
+
+    function ConditionerAddOn.EventHandler:PLAYER_TARGET_CHANGED(...)
+        ClearCastingInfo(ConditionerAddOn.currentTargetGuid)
+        ConditionerAddOn.currentTargetGuid = UnitGUID("target")
+    end
+
+    function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_START(...)
+        if (isClassic()) then
+            ConditionerAddOn:HandleCastBars(...)
+        end
+    end
+
+    function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_STOP(...)
+        if (isClassic()) then
+            ClearCastingInfo(UnitGUID(select(1, ...)))
+        end
+    end
+
+    function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_CHANNEL_START(...)
+        if (isClassic()) then
+            ConditionerAddOn:HandleCastBars(...)
+        end
+    end
+
+    function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_CHANNEL_STOP(...)
+        if (isClassic()) then
+            ClearCastingInfo(select(1, ...))
+        end
+    end
+end
+
+function ConditionerAddOn:ClassicCastBars()
+    if (isClassic() and CombatLogGetCurrentEventInfo) then
+        local eventArgs = { CombatLogGetCurrentEventInfo() }
+        local subEvent = eventArgs[2]
+        local attackerGuid = eventArgs[4]
+        local spellName = eventArgs[13]
+
+        if (subEvent == "SPELL_INTERRUPT" and attackerGuid == UnitGUID("player")) then
+            ClearCastingInfo(UnitGUID("target"))
+        end
+        if (subEvent == "SPELL_CAST_STOP" or subEvent == "SPELL_CAST_SUCCESS") then
+            ConditionerAddOn:FindSpellIdByName(spellName)
+            ClearCastingInfo(attackerGuid)
+        end
+        if (subEvent == "SPELL_CAST_START" and ConditionerAddOn.currentTargetGuid == attackerGuid) then
+            if (ConditionerAddOn:FindSpellIdByName(spellName)) then
+                -- this is the thing I am targeting
+                ConditionerAddOn:HandleCastBars("target", _, ConditionerAddOn.castInfo[spellName])
+            end
+        end
+    end
+end
+
 function ConditionerAddOn.EventHandler:COMBAT_LOG_EVENT_UNFILTERED(...)
     ConditionerAddOn:SpellCacheWatcher(...)
     ConditionerAddOn:HandleSwingTimerMelee(...)
+    ConditionerAddOn:ClassicCastBars()
 end
 
 function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_SUCCEEDED(...)
