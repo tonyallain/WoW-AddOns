@@ -8,22 +8,24 @@ local function isClassic()
 end
 
 if (isClassic()) then
-    GetSpecialization = _G.GetSpecialization or function() return 1 end
-    GetSpecializationInfo = _G.GetSpecializationInfo or
+    ConditionerGetSpecialization = _G.GetSpecialization or function() return 1 end
+    ConditionerGetSpecializationInfo = _G.GetSpecializationInfo or
         function(specId)
             return specId, "default", "default specialization",
                 "Interface\\FrameGeneral\\UI-Background-Marble"
         end
-    C_SpellBook.GetOverrideSpell = C_SpellBook.GetOverrideSpell or function(spellId) return spellId end
-    TransmogUtil = TransmogUtil or {
+    ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(spellId) return spellId end
+    ConditionerTransmogUtil = _G.TransmogUtil or {
         GetTransmogLocation = function() end
     }
-    C_Transmog = C_Transmog or {
+    ConditionerTransmog = _G.C_Transmog or {
         GetSlotInfo = function() end
     }
-    IsSpellOverlayed = IsSpellOverlayed or function() return false end
-    UnitCastingInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or _G.UnitCastingInfo
-    UnitChannelInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or _G.UnitChannelInfo
+    ConditionerIsSpellOverlayed = _G.IsSpellOverlayed or function() return false end
+    ConditionerUnitCastingInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or
+        _G.UnitCastingInfo
+    ConditionerUnitChannelInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or
+        _G.UnitChannelInfo
     function ClearCastingInfo(castGuid)
         if (castGuid == currentCastingInfo[10]) then
             currentCastingInfo = {}
@@ -677,9 +679,9 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
             ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(
                 0.5 * mainTrackedFrame:GetHeight() / 5), "OUTLINE, NORMAL")
             local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
-                UnitCastingInfo("target")
+                ConditionerUnitCastingInfo("target")
             local channelSpellName, _, channelSpellTexture, channelStart, channelEnd, _, notInterruptible,
-            channelSpellID = UnitChannelInfo("target")
+            channelSpellID = ConditionerUnitChannelInfo("target")
             local texture = castSpellTexture or channelSpellTexture
             local castName = castSpellName or channelSpellName
             local timeLeft = castEnd or channelEnd
@@ -917,9 +919,10 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
             ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(0.6 * h),
                 "OUTLINE, NORMAL")
             if (MH) then
-                local transmogSlot = TransmogUtil.GetTransmogLocation("MAINHANDSLOT", Enum.TransmogType.Appearance,
+                local transmogSlot = ConditionerTransmogUtil.GetTransmogLocation("MAINHANDSLOT",
+                    Enum.TransmogType.Appearance,
                     Enum.TransmogModification.Main)
-                local _, _, _, _, _, _, _, textureId = C_Transmog.GetSlotInfo(transmogSlot)
+                local _, _, _, _, _, _, _, textureId = ConditionerTransmog.GetSlotInfo(transmogSlot)
                 textureId = textureId or GetInventoryItemTexture("player", INVSLOT_MAINHAND or 16)
                 local progress = w * elapsed / MH
                 local newWidth = ConditionerAddOn.TrackedFrameDragAnchor.MainHand:GetWidth() + progress
@@ -934,9 +937,9 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
             end
 
             if (OH) then
-                local transmogSlotOH = TransmogUtil.GetTransmogLocation("SECONDARYHANDSLOT",
+                local transmogSlotOH = ConditionerTransmogUtil.GetTransmogLocation("SECONDARYHANDSLOT",
                     Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
-                local _, _, _, _, _, _, _, textureIdOH = C_Transmog.GetSlotInfo(transmogSlotOH)
+                local _, _, _, _, _, _, _, textureIdOH = ConditionerTransmog.GetSlotInfo(transmogSlotOH)
                 textureIdOH = textureIdOH or GetInventoryItemTexture("player", INVSLOT_OFFHAND or 17)
                 local progressOH = w * elapsed / OH
                 local newWidthOH = ConditionerAddOn.TrackedFrameDragAnchor.OffHand:GetWidth() + progressOH
@@ -1909,7 +1912,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         return false
     end
     -- bug fix override spells
-    spellID = C_SpellBook.GetOverrideSpell(spellID)
+    spellID = ConditionerGetOverrideSpell(spellID)
 
     -- the player doesn't know the spell or it isn't in their spellbooks or they don't have any more of that item
     -- more override nonsense
@@ -1936,7 +1939,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         return false
     end
     -- only when highlighted, can't work with items, so they have to turn it off
-    if (Conditions.highlightOnlyBool) and (not IsSpellOverlayed(spellID)) then
+    if (Conditions.highlightOnlyBool) and (not ConditionerIsSpellOverlayed(spellID)) then
         -- print("FAILED - HIGHLIGHTED")
         return false
     end
@@ -2056,8 +2059,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- hideWhileCasting
     -- repurposed inStealth for casters
     if (Conditions.hideWhileCasting) then
-        local _, _, _, _, _, _, _, _, myCastSpellID = UnitCastingInfo("player")
-        local _, _, _, _, _, _, _, myChannelSpellID = UnitChannelInfo("player")
+        local _, _, _, _, _, _, _, _, myCastSpellID = ConditionerUnitCastingInfo("player")
+        local _, _, _, _, _, _, _, myChannelSpellID = ConditionerUnitChannelInfo("player")
         -- am I casting the spell already?
         if (spellID == myCastSpellID) or (spellID == myChannelSpellID) then
             return false
@@ -2150,9 +2153,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- is interrupt
     if (Conditions.isInterruptBool) then
         local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
-            UnitCastingInfo(targetUnitToken == "player" and "target" or targetUnitToken)
+            ConditionerUnitCastingInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         local channelSpellName, _, channelSpellTexture, channelStart, channelEnd, _, notInterruptible, channelSpellID =
-            UnitChannelInfo(targetUnitToken == "player" and "target" or targetUnitToken)
+            ConditionerUnitChannelInfo(targetUnitToken == "player" and "target" or targetUnitToken)
         if (castSpellName) or (channelSpellName) then
             if (uninterruptable or notInterruptible) then
                 -- print("FAILED - UNINTERRUPTABLE")
@@ -2831,9 +2834,9 @@ function ConditionerAddOn:GetLoadoutPackageByID(loadoutID)
     if (loadoutID) then
         -- get default if -1
         if (loadoutID == -1) then
-            local currentSpecID = GetSpecialization()
+            local currentSpecID = ConditionerGetSpecialization()
             if (currentSpecID) then
-                local currentSpec = GetSpecializationInfo(currentSpecID)
+                local currentSpec = ConditionerGetSpecializationInfo(currentSpecID)
                 local basicLoadString = ConditionerAddOn.DefaultLoadouts[currentSpec]
                 if (basicLoadString) then
                     local basicPackage = {
@@ -2847,9 +2850,9 @@ function ConditionerAddOn:GetLoadoutPackageByID(loadoutID)
                 end
             end
         else
-            local currentSpecID = GetSpecialization()
+            local currentSpecID = ConditionerGetSpecialization()
             if (currentSpecID) then
-                local currentSpec = GetSpecializationInfo(currentSpecID)
+                local currentSpec = ConditionerGetSpecializationInfo(currentSpecID)
                 if (ConditionerAddOn_SavedVariables_Loadouts[loadoutID]) and
                     (ConditionerAddOn_SavedVariables_Loadouts[loadoutID].spec == currentSpec) then
                     return ConditionerAddOn_SavedVariables_Loadouts[loadoutID]
@@ -2859,9 +2862,9 @@ function ConditionerAddOn:GetLoadoutPackageByID(loadoutID)
             end
         end
     else
-        local currentSpecID = GetSpecialization()
+        local currentSpecID = ConditionerGetSpecialization()
         if (currentSpecID) then
-            local currentSpec = GetSpecializationInfo(currentSpecID)
+            local currentSpec = ConditionerGetSpecializationInfo(currentSpecID)
             local packageID = ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpec] or 0
             if (packageID) then
                 if (packageID == -1) then
@@ -2981,9 +2984,9 @@ function ConditionerAddOn:WarningCreateNewLoadout(frame, shouldHide)
 end
 
 function ConditionerAddOn:StoreCurrentLoadout()
-    local currentSpecID = GetSpecialization()
+    local currentSpecID = ConditionerGetSpecialization()
     if (currentSpecID) then
-        local currentSpec = GetSpecializationInfo(currentSpecID)
+        local currentSpec = ConditionerGetSpecializationInfo(currentSpecID)
         ConditionerAddOn_SavedVariables.CurrentLoadouts[currentSpec] =
             ConditionerAddOn.LoadoutFrame.DropDown.CurrentChoice or 0
         if (ConditionerAddOn:LoadoutIsDirty()) then
@@ -4290,7 +4293,7 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.InputName.SubmitButton:SetHeight(32)
     ConditionerAddOn.LoadoutFrame.InputName.SubmitButton:SetScript("OnClick", function(self)
         PlaySound(1115)
-        local currentSpecID = GetSpecializationInfo(GetSpecialization())
+        local currentSpecID = ConditionerGetSpecializationInfo(ConditionerGetSpecialization())
         local loadoutName = ConditionerAddOn.LoadoutFrame.InputName:GetText()
         local loadoutString = ConditionerAddOn:CreateLoadoutString()
         if (loadoutString) then
@@ -4472,7 +4475,7 @@ function ConditionerAddOn:Init()
     CONDITIONERDROPDOWNMENU_SetWidth(ConditionerAddOn.LoadoutFrame.DropDown, 150)
     ConditionerAddOn.LoadoutFrame.DropDown:SetScript("OnShow", function(self)
         local currentSpecID, specName, specDesc, specIcon, specBackground, specRole, specPrimaryStat =
-            GetSpecializationInfo(GetSpecialization())
+            ConditionerGetSpecializationInfo(ConditionerGetSpecialization())
         local _, classFileName = UnitClass("player")
         local color = (RAID_CLASS_COLORS) and RAID_CLASS_COLORS[classFileName] or {
             r = 0,
@@ -4727,7 +4730,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.LoadoutFrame.BackgroundFrame, "TOPLEFT")
 
     -- Icon At Mouse Icon Tracker
-    ConditionerAddOn.MouseIconTracker = CreateFrame("Frame")
+    ConditionerAddOn.MouseIconTracker = CreateFrame("Frame", nil, UIParent)
     ConditionerAddOn.MouseIconTracker.Pool = {}
     function ConditionerAddOn:HideTrackerPool(pool)
         for i, v in ipairs(pool) do
