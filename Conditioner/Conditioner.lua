@@ -2007,19 +2007,35 @@ function ConditionerAddOn:CheckCondition(priorityButton)
 
     -- I Am Tanking Elite+ 22
     if (targetUnitEnum == 22) then
-        local isTanking = UnitDetailedThreatSituation("player", "anyenemy")
-        local isElite = ConditionerAddOn:IsEliteOrHigher("anyenemy")
+        local isTanking = UnitDetailedThreatSituation("player", "target")
+        local isElite = ConditionerAddOn:IsEliteOrHigher("target")
 
-        if (not isElite) or (UnitExists("anyenemy") and not isTanking) then
+        if (not isElite) or (UnitExists("target") and not isTanking) then
             return false
         end
     end
 
     -- I Am Not Tanking Elite+ 23
     if (targetUnitEnum == 23) then
-        local isTanking = UnitDetailedThreatSituation("player", "anyenemy")
-        local isElite = ConditionerAddOn:IsEliteOrHigher("anyenemy")
-        if (not isElite) or (UnitExists("anyenemy") and isTanking) then
+        local isTanking = UnitDetailedThreatSituation("player", "target")
+        local isElite = ConditionerAddOn:IsEliteOrHigher("target")
+        if (not isElite) or (UnitExists("target") and isTanking) then
+            return false
+        end
+    end
+
+    -- I Am Tanking anything 24
+    if (targetUnitEnum == 24) then
+        local targetingMe = UnitGUID("player") == UnitGUID("targettarget")
+        if (not targetingMe or not UnitExists("target")) then
+            return false
+        end
+    end
+
+    -- I Am Not Tanking anything 25
+    if (targetUnitEnum == 25) then
+        local targetingMe = UnitGUID("player") == UnitGUID("targettarget")
+        if (targetingMe or not UnitExists("target")) then
             return false
         end
     end
@@ -3232,7 +3248,9 @@ function ConditionerAddOn:Init()
             "Soft - Friend", -- 20
             "Soft - Interact",
             "I Am Tanking Elite+",
-            "I Am Not Tanking Elite+"
+            "I Am Not Tanking Elite+",
+            "I Have Aggro",
+            "I Do Not Have Aggro"
         },
         shapeShiftChoicesEnum = {
             [0] = "None",
@@ -4747,7 +4765,7 @@ function ConditionerAddOn:Init()
             end
         end
 
-        local frame = CreateFrame("Frame")
+        local frame = CreateFrame("Frame", nil, UIParent)
         frame:SetFrameLevel(UIParent:GetFrameLevel() + 5) -- some arbitrary amount higher than parent
         frame.available = true
         frame:Hide()
