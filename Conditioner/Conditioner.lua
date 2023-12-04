@@ -17,9 +17,9 @@ if (isClassic()) then
     ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(spellId)
         -- is this a rune?
         if (C_Engraving and C_Engraving.GetRuneForEquipmentSlot) then
-            local runeSpellName, _ = GetSpellInfo(spellId)                    -- gives the spell like Hands/Legs/Chest Rune Ability
-            local _, _, _, _, _, _, runeSpellID = GetSpellInfo(runeSpellName) -- by name gives the spell that is currently overriding it
-            if (runeSpellID) then
+            local runeSpellName, _ = GetSpellInfo(spellId)                                    -- gives the spell like Hands/Legs/Chest Rune Ability
+            local overrideSpellName, _, _, _, _, _, runeSpellID = GetSpellInfo(runeSpellName) -- by name gives the spell that is currently overriding it
+            if (runeSpellID and runeSpellName ~= overrideSpellName) then
                 return runeSpellID
             end
         end
