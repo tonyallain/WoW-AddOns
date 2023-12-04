@@ -14,7 +14,18 @@ if (isClassic()) then
             return specId, "default", "default specialization",
                 "Interface\\FrameGeneral\\UI-Background-Marble"
         end
-    ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(spellId) return spellId end
+    ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(spellId)
+        -- is this a rune?
+        if (C_Engraving and C_Engraving.GetRuneForEquipmentSlot) then
+            local runeSpellName, _ = GetSpellInfo(spellId)                    -- gives the spell like Hands/Legs/Chest Rune Ability
+            local _, _, _, _, _, _, runeSpellID = GetSpellInfo(runeSpellName) -- by name gives the spell that is currently overriding it
+            if (runeSpellID) then
+                return runeSpellID
+            end
+        end
+
+        return spellId
+    end
     ConditionerTransmogUtil = _G.TransmogUtil or {
         GetTransmogLocation = function() end
     }
