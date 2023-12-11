@@ -906,6 +906,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:Hide()
         ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Hide()
         ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Hide()
+        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Hide()
         return
     end
     if (UnitHasVehicleUI("player")) or (InCinematic()) or
@@ -974,7 +975,8 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                     local shotProgress = w * elapsed / shotTimer
                     local newShotWidth = ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:GetWidth() + shotProgress
                     ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth((newShotWidth >= w) and w or newShotWidth)
-                    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast.Background:SetWidth(w - newShotWidth)
+                else
+                    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(0.1)
                 end
                 ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetSize((newWidthRH >= w) and w or newWidthRH, h)
                 ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Background:SetWidth(w - newWidthRH)
@@ -997,8 +999,8 @@ end
 function ConditionerAddOn:HandleSwingTimerRanged(...)
     -- local autoShotSpellID = 75
     if (select(1, ...) == "player") and ((select(3, ...) == 75) or (select(3, ...) == 7918) or (select(3, ...) == 7919)) and (ConditionerAddOn.TrackedFrameDragAnchor.Ranged) then
-        ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetWidth(1)
-        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(1)
+        ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetWidth(0.1)
+        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(0.1)
     end
 end
 
