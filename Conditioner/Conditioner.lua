@@ -7,47 +7,44 @@ local function isClassic()
     return LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_CLASSIC
 end
 
-if (isClassic()) then
-    ConditionerGetSpecialization = _G.GetSpecialization or function()
-        -- previous implementation stored everyone under WARRIOR
-        local _, _, classId = UnitClass("player")
-        return classId
+local ConditionerGetSpecialization = _G.GetSpecialization or function()
+    -- previous implementation stored everyone under WARRIOR
+    local _, _, classId = UnitClass("player")
+    return classId
+end
+local ConditionerGetSpecializationInfo = _G.GetSpecializationInfo or
+    function(specId)
+        return specId, "default", "default specialization",
+            "Interface\\FrameGeneral\\UI-Background-Marble"
     end
-    ConditionerGetSpecializationInfo = _G.GetSpecializationInfo or
-        function(specId)
-            return specId, "default", "default specialization",
-                "Interface\\FrameGeneral\\UI-Background-Marble"
+local ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(spellId)
+    -- is this a rune?
+    if (C_Engraving and C_Engraving.GetRuneForEquipmentSlot) then
+        local runeSpellName, _ = GetSpellInfo(spellId)                                    -- gives the spell like Hands/Legs/Chest Rune Ability
+        local overrideSpellName, _, _, _, _, _, runeSpellID = GetSpellInfo(runeSpellName) -- by name gives the spell that is currently overriding it
+        if (runeSpellID and runeSpellName ~= overrideSpellName) then
+            return runeSpellID
         end
-    ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(spellId)
-        -- is this a rune?
-        if (C_Engraving and C_Engraving.GetRuneForEquipmentSlot) then
-            local runeSpellName, _ = GetSpellInfo(spellId)                                    -- gives the spell like Hands/Legs/Chest Rune Ability
-            local overrideSpellName, _, _, _, _, _, runeSpellID = GetSpellInfo(runeSpellName) -- by name gives the spell that is currently overriding it
-            if (runeSpellID and runeSpellName ~= overrideSpellName) then
-                return runeSpellID
-            end
-        end
+    end
 
-        return spellId
-    end
-    ConditionerTransmogUtil = _G.TransmogUtil or {
-        GetTransmogLocation = function() end
-    }
-    ConditionerTransmog = _G.C_Transmog or {
-        GetSlotInfo = function() end
-    }
-    ConditionerIsSpellOverlayed = _G.IsSpellOverlayed or function() return false end
-    ConditionerUnitCastingInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or
-        _G.UnitCastingInfo
-    ConditionerUnitChannelInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or
-        _G.UnitChannelInfo
-    function ClearCastingInfo(castGuid)
-        if (castGuid == currentCastingInfo[10]) then
-            currentCastingInfo = {}
-        end
+    return spellId
+end
+local ConditionerTransmogUtil = _G.TransmogUtil or {
+    GetTransmogLocation = function() end
+}
+local ConditionerTransmog = _G.C_Transmog or {
+    GetSlotInfo = function() end
+}
+local ConditionerIsSpellOverlayed = _G.IsSpellOverlayed or function() return false end
+local ConditionerUnitCastingInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or
+    _G.UnitCastingInfo
+local ConditionerUnitChannelInfo = isClassic() and function(junk) return unpack(currentCastingInfo) end or
+    _G.UnitChannelInfo
+function ClearCastingInfo(castGuid)
+    if (castGuid == currentCastingInfo[10]) then
+        currentCastingInfo = {}
     end
 end
-
 
 -- ===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
