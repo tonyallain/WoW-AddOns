@@ -8,7 +8,11 @@ local function isClassic()
 end
 
 if (isClassic()) then
-    ConditionerGetSpecialization = _G.GetSpecialization or function() return 1 end
+    ConditionerGetSpecialization = _G.GetSpecialization or function()
+        -- previous implementation stored everyone under WARRIOR
+        local _, _, classId = UnitClass("player")
+        return classId
+    end
     ConditionerGetSpecializationInfo = _G.GetSpecializationInfo or
         function(specId)
             return specId, "default", "default specialization",
@@ -686,7 +690,7 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
         if (ConditionerAddOn.TrackedFrameDragAnchor.CastingBar) and (ConditionerAddOn.TrackingFrames) and
             (ConditionerAddOn.TrackingFrames[1]) and (ConditionerAddOn.TrackingFrames[1]:IsShown()) then
             local mainTrackedFrame = ConditionerAddOn.TrackingFrames[1]
-            ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetHeight(mainTrackedFrame:GetHeight() / 5)
+            ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetHeight(mainTrackedFrame:GetHeight() / 6)
             ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(
                 0.5 * mainTrackedFrame:GetHeight() / 5), "OUTLINE, NORMAL")
             local castSpellName, _, castSpellTexture, castStart, castEnd, _, _, uninterruptable, castSpellID =
@@ -803,49 +807,38 @@ function ConditionerAddOn:OnUpdate(elapsed)
                 ((not usingAoE) or (usingAoE and not v.isAoe)) then
                 numTracked = numTracked + 1
                 local newTrackerFrame = ConditionerAddOn:GetAvailableTrackingFrame()
+                local swingFrameHeight = newTrackerFrame:GetHeight() / 6
                 if (numTracked == 1) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
-                    ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetHeight(newTrackerFrame:GetHeight() / 6)
-                    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetHeight(newTrackerFrame:GetHeight() / 6)
+                    ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetHeight(swingFrameHeight)
+                    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetHeight(swingFrameHeight)
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetHeight(swingFrameHeight)
                     ConditionerAddOn.TrackedFrameDragAnchor.MainHand:ClearAllPoints()
-                    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:ClearAllPoints()
+                    local MH_shown = ConditionerAddOn.TrackedFrameDragAnchor.MainHand:IsShown() and 1 or 0
+                    local OH_shown = ConditionerAddOn.TrackedFrameDragAnchor.OffHand:IsShown() and 1 or 0
+                    local RH_shown = ConditionerAddOn.TrackedFrameDragAnchor.Ranged:IsShown() and 1 or 0
+                    local castBarShown = ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:IsShown() and 1 or 0
+
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetPoint("TOPLEFT",
+                        ConditionerAddOn.TrackedFrameDragAnchor.OffHand,
+                        "BOTTOMLEFT", 0, swingFrameHeight * (1 - OH_shown))
+
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:ClearAllPoints()
                     if (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 3) then
-                        if (ConditionerAddOn.TrackedFrameDragAnchor.OffHand:IsShown()) then
-                            ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("BOTTOMLEFT", newTrackerFrame,
-                                "TOPLEFT")
-                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("BOTTOMLEFT",
-                                ConditionerAddOn.TrackedFrameDragAnchor.OffHand, "TOPLEFT")
-                        else
-                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("BOTTOMLEFT", newTrackerFrame,
-                                "TOPLEFT")
-                        end
-                        if (ConditionerAddOn.TrackedFrameDragAnchor.MainHand:IsShown()) then
-                            ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT",
-                                ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "TOPLEFT")
-                        else
-                            ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT", newTrackerFrame,
-                                "TOPLEFT")
-                        end
+                        ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("BOTTOMLEFT", newTrackerFrame,
+                            "TOPLEFT", 0, swingFrameHeight * (castBarShown + OH_shown + RH_shown))
+                        ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT",
+                            newTrackerFrame, "TOPLEFT")
                     elseif (ConditionerAddOn_SavedVariables.Options.AnchorDirection == 0 or
                             ConditionerAddOn_SavedVariables.Options.AnchorDirection == 2) then
                         ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("BOTTOMLEFT", newTrackerFrame,
                             "TOPLEFT")
                         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT", newTrackerFrame,
                             "BOTTOMLEFT")
-                        ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("TOPLEFT",
-                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "BOTTOMLEFT")
                     else
                         ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetPoint("TOPLEFT", newTrackerFrame,
                             "BOTTOMLEFT")
-                        if (ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:IsShown()) then
-                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT",
-                                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar, "BOTTOMLEFT")
-                        else
-                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT", newTrackerFrame,
-                                "BOTTOMLEFT")
-                        end
-                        ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("TOPLEFT",
-                            ConditionerAddOn.TrackedFrameDragAnchor.MainHand, "BOTTOMLEFT")
+                        ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetPoint("TOPLEFT",
+                            newTrackerFrame, "BOTTOMLEFT", 0, -swingFrameHeight * castBarShown)
                     end
 
                     ConditionerAddOn.ShowCastBar = ConditionerAddOn.PriorityButtons[v.priority].Conditions
@@ -912,6 +905,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
     if (not parent) or (not parent:IsShown()) then
         ConditionerAddOn.TrackedFrameDragAnchor.MainHand:Hide()
         ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Hide()
+        ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Hide()
         return
     end
     if (UnitHasVehicleUI("player")) or (InCinematic()) or
@@ -924,6 +918,9 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
     if (ConditionerAddOn_SavedVariables.Options.ShowSwingTimers) then
         if (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
             local MH, OH = UnitAttackSpeed("player")
+            local RH, _ = UnitRangedDamage and UnitRangedDamage("player") or nil, nil
+            local rangedHaste = GetRangedHaste and GetRangedHaste() or 0
+            local shotTimer = 0.5 * (1 / (1 + rangedHaste / 100))
             local w, h = parent:GetWidth(), parent:GetHeight() / 6
             ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(0.6 * h),
                 "OUTLINE, NORMAL")
@@ -937,7 +934,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                 textureId = textureId or GetInventoryItemTexture("player", INVSLOT_MAINHAND or 16)
                 local progress = w * elapsed / MH
                 local newWidth = ConditionerAddOn.TrackedFrameDragAnchor.MainHand:GetWidth() + progress
-                ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetSize((newWidth > w) and w or newWidth, h)
+                ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetSize((newWidth >= w) and w or newWidth, h)
                 ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Background:SetWidth(w - newWidth)
                 ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Slot:SetWidth(
                     ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Slot.Icon:GetHeight())
@@ -954,7 +951,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                 textureIdOH = textureIdOH or GetInventoryItemTexture("player", INVSLOT_OFFHAND or 17)
                 local progressOH = w * elapsed / OH
                 local newWidthOH = ConditionerAddOn.TrackedFrameDragAnchor.OffHand:GetWidth() + progressOH
-                ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetSize((newWidthOH > w) and w or newWidthOH, h)
+                ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetSize((newWidthOH >= w) and w or newWidthOH, h)
                 ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Background:SetWidth(w - newWidthOH)
                 ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Slot:SetWidth(
                     ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Slot.Icon:GetHeight())
@@ -962,6 +959,33 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                 ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Show()
             else
                 ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Hide()
+            end
+
+            if (RH and RH > 0 and not ConditionerAddOn_SavedVariables.Options.HideRangedSwingTimer) then
+                local transmogSlotRH = ConditionerTransmogUtil.GetTransmogLocation("RANGEDSLOT",
+                    Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
+                local _, _, _, _, _, _, _, textureIdRH = ConditionerTransmog.GetSlotInfo(transmogSlotRH)
+                textureIdRH = textureIdRH or GetInventoryItemTexture("player", INVSLOT_RANGED or 18)
+                local progressRH = w * elapsed / (RH - shotTimer)
+                local newWidthRH = ConditionerAddOn.TrackedFrameDragAnchor.Ranged:GetWidth() + progressRH
+
+                if ((IsCurrentSpell(75) or IsCurrentSpell(7918) or IsCurrentSpell(7919)) and newWidthRH >= w) then
+                    -- add to the shot timer
+                    local shotProgress = w * elapsed / shotTimer
+                    local newShotWidth = ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:GetWidth() + shotProgress
+                    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth((newShotWidth >= w) and w or newShotWidth)
+                    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast.Background:SetWidth(w - newShotWidth)
+                end
+                ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetSize((newWidthRH >= w) and w or newWidthRH, h)
+                ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Background:SetWidth(w - newWidthRH)
+                ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot:SetWidth(
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:GetHeight())
+                ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:SetTexture(textureIdRH)
+                ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Show()
+                ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Show()
+            else
+                ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Hide()
+                ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Hide()
             end
         end
     else
@@ -972,8 +996,9 @@ end
 
 function ConditionerAddOn:HandleSwingTimerRanged(...)
     -- local autoShotSpellID = 75
-    if (select(1, ...) == "player") and (select(3, ...) == 75) and (ConditionerAddOn.TrackedFrameDragAnchor.MainHand) then
-        ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetWidth(0)
+    if (select(1, ...) == "player") and ((select(3, ...) == 75) or (select(3, ...) == 7918) or (select(3, ...) == 7919)) and (ConditionerAddOn.TrackedFrameDragAnchor.Ranged) then
+        ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetWidth(1)
+        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(1)
     end
 end
 
@@ -3141,13 +3166,31 @@ function ConditionerAddOn:Init()
         1)
     ConditionerAddOn.TrackedFrameDragAnchor.OffHand = ConditionerAddOn:CreateSwingFrame("Off Hand",
         ConditionerAddOn.TrackedFrameDragAnchor.MainHand, 1, 0, 1)
-    ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetSize(10, 10)
-    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetSize(10, 10)
+    ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetSize(100, 10)
+    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetSize(100, 10)
+
+    ConditionerAddOn.TrackedFrameDragAnchor.Ranged = ConditionerAddOn:CreateSwingFrame("Ranged", UIParent, 0.5, 0,
+        0.5)
+    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetSize(100, 10)
+
+    -- always set main/offhand/ranged together
+    ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetPoint("TOPLEFT", ConditionerAddOn.TrackedFrameDragAnchor.MainHand,
+        "BOTTOMLEFT")
+    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetPoint("TOPLEFT", ConditionerAddOn.TrackedFrameDragAnchor.OffHand,
+        "BOTTOMLEFT")
+
+    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast = ConditionerAddOn:CreateSwingFrame("",
+        ConditionerAddOn.TrackedFrameDragAnchor.Ranged, 0, 1,
+        0)
+    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetPoint("BOTTOMLEFT", ConditionerAddOn.TrackedFrameDragAnchor
+        .Ranged, "BOTTOMLEFT")
+    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetSize(1, 2)
+
 
     -- can piggyback to make casting bar
     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar = ConditionerAddOn:CreateSwingFrame("CASTBAR", UIParent, 1, 1,
         0.25)
-    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetSize(10, 10)
+    ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetSize(1, 10)
     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer =
         ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:CreateFontString(nil, "OVERLAY", "SystemFont_Huge1_Outline")
 
@@ -4987,6 +5030,41 @@ function ConditionerAddOn:Init()
         self:SetChecked(ConditionerAddOn_SavedVariables.Options.ShowSwingTimers)
     end)
 
+    -- HIDE RANGED SWING TIMER
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
+        "UICheckButtonTemplate")
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer.text = ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer
+        :CreateFontString(
+            nil, "OVERLAY")
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE, THICK")
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer.text:SetText("Hide My Ranged Shot Timer")
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer.text:SetJustifyH("LEFT")
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer.text:SetTextColor(0.1, 0.9, 1, 1)
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer.text:SetPoint("LEFT",
+        ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer,
+        "RIGHT")
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame.ShowSwingTimers,
+        "BOTTOMLEFT", 0, 0)
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
+        GameTooltip:SetText("Hide Ranged Shot Timer", 0, 0.75, 1)
+        GameTooltip:AddLine(
+            "Check this option to hide your Ranged shot swing timer if you have Show Swing Timers enabled.", 1, 1, 1,
+            true)
+        GameTooltip:SetMinimumWidth(150)
+        GameTooltip:Show()
+    end)
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer:SetScript("OnClick", function(self)
+        PlaySound(1115)
+        ConditionerAddOn_SavedVariables.Options.HideRangedSwingTimer = self:GetChecked()
+    end)
+    ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer:SetScript("OnShow", function(self)
+        self:SetChecked(ConditionerAddOn_SavedVariables.Options.HideRangedSwingTimer)
+    end)
+
     -- show cast bar
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
         "UICheckButtonTemplate")
@@ -4998,7 +5076,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetTextColor(0.1, 0.9, 1, 1)
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar.text:SetPoint("LEFT",
         ConditionerAddOn.LoadoutFrame.ShowTargetCastBar, "RIGHT")
-    ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:SetPoint("TOPLEFT", ConditionerAddOn.LoadoutFrame.ShowSwingTimers,
+    ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:SetPoint("TOPLEFT",
+        ConditionerAddOn.LoadoutFrame.HideRangedSwingTimer,
         "BOTTOMLEFT", 0, 0)
     ConditionerAddOn.LoadoutFrame.ShowTargetCastBar:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
@@ -5291,6 +5370,7 @@ function ConditionerAddOn.EventHandler:ADDON_LOADED(...)
             NumTrackedFrames = 5,
             Opacity = 100,
             ShowSwingTimers = false,
+            HideRangedSwingTimer = false,
             OnlyDisplayInCombat = false
         }
         -- new options
