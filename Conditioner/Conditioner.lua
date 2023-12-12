@@ -904,6 +904,10 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
         ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Hide()
         ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Hide()
         ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Hide()
+        ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetWidth(100)
+        ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetWidth(100)
+        ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetWidth(100)
+        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(100)
         return
     end
     if (UnitHasVehicleUI("player")) or (InCinematic()) or
@@ -4854,12 +4858,12 @@ function ConditionerAddOn:Init()
     ConditionerAddOn:InitSavedVars()
     ConditionerAddOn.MouseIconTracker:SetScript("OnUpdate", function(self, elapsed)
         local x, y = GetCursorPosition()
-        local scale = UIParent:GetScale() * 0.5
+        local scale = UIParent:GetScale()
         local size = ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
-        local width = size * scale
+        local width = size * scale * 0.5
         ConditionerAddOn.MouseIconTracker:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT",
-            (x - width) + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX,
-            y + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY)
+            (x / scale - width) + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX,
+            y / scale + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY)
         ConditionerAddOn.MouseIconTracker:SetSize(width, width)
     end)
 
