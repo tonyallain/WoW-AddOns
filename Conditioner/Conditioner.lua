@@ -2113,7 +2113,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local _, _, _, _, _, _, _, _, myCastSpellID = ConditionerUnitCastingInfo("player")
         local _, _, _, _, _, _, _, myChannelSpellID = ConditionerUnitChannelInfo("player")
         -- am I casting the spell already?
-        if (spellID == myCastSpellID) or (spellID == myChannelSpellID) then
+        if (spellID == myCastSpellID) or (spellID == myChannelSpellID) or IsCurrentSpell(spellID) then
             return false
         end
     end
