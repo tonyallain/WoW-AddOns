@@ -608,7 +608,7 @@ function ConditionerAddOn:IsValidShapeshift(id)
         return true
     elseif (classID == 4) and (id == 9) then
         return true
-    elseif (id == 0) then
+    elseif (id == 0 or id == 10) then
         return true
     else
         return false
@@ -1511,6 +1511,9 @@ function ConditionerAddOn:InitSavedVars()
         or 0
     ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY = ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY
         or 0
+    ConditionerAddOn_SavedVariables.Options.MouseOverIconScale = ConditionerAddOn_SavedVariables.Options
+        .MouseOverIconScale
+        or 50
     ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames =
         ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames or 5
     ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames =
@@ -2105,7 +2108,12 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     -- shapeShiftEnum
     if (Conditions.shapeShiftEnum > 0) then
         local shapeShiftChoice = ConditionerAddOn.Enums.shapeShiftChoicesEnum[Conditions.shapeShiftEnum]
-        if (not ConditionerAddOn.BuffExists("player", shapeShiftChoice)) then
+        local noForm = shapeShiftChoice == "No Form"
+        local currentForm = GetShapeshiftForm and GetShapeshiftForm() or -1
+        if (noForm and currentForm ~= 0) then
+            return false
+        end
+        if (not noForm and not ConditionerAddOn.BuffExists("player", shapeShiftChoice)) then
             -- print("FAILED - SHAPESHIFT")
             return false
         end
@@ -3319,7 +3327,8 @@ function ConditionerAddOn:Init()
             "Voidform",
             "Shadowform",
             "Enrage",
-            "Shadow Dance"
+            "Shadow Dance",
+            "No Form"
         }
     }
     ConditionerAddOn.SharedConditionerFrame.DropDowns = {}
@@ -4860,7 +4869,7 @@ function ConditionerAddOn:Init()
         local x, y = GetCursorPosition()
         local scale = UIParent:GetScale()
         local size = ConditionerAddOn_SavedVariables.Options.TrackedFrameSize or 100
-        local width = size * scale * 0.5
+        local width = size * scale * (ConditionerAddOn_SavedVariables.Options.MouseOverIconScale / 100)
         ConditionerAddOn.MouseIconTracker:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT",
             (x / scale - width) + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetX,
             y / scale + ConditionerAddOn_SavedVariables.Options.MouseOverOffsetY)
@@ -4965,8 +4974,14 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.LoadoutFrame.MouseOverOffsetY:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.MouseOverOffsetX,
         "BOTTOM", 0,
         -25)
+    -- MOUSEOVER SCALE
+    ConditionerAddOn.LoadoutFrame.MouseOverIconScale = ConditionerAddOn:NewSlider(ConditionerAddOn.LoadoutFrame,
+        "ConditionerMouseOverIconScale", "10%", "200%", 10, 200, "Mouseover Scale", 50, "MouseOverIconScale", true)
+    ConditionerAddOn.LoadoutFrame.MouseOverIconScale:SetPoint("TOP", ConditionerAddOn.LoadoutFrame.MouseOverOffsetY,
+        "BOTTOM", 0,
+        -25)
 
-    local lastFrameToStretchTo = ConditionerAddOn.LoadoutFrame.MouseOverOffsetY
+    local lastFrameToStretchTo = ConditionerAddOn.LoadoutFrame.MouseOverIconScale
 
     -- ONLY IN COMBAT
     ConditionerAddOn.LoadoutFrame.AlwaysShow = CreateFrame("CheckButton", nil, ConditionerAddOn.LoadoutFrame,
