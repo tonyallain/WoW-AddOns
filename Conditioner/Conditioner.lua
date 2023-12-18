@@ -48,6 +48,24 @@ end
 
 -- ===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
+-- stance things
+function ConditionerAddOn:GetShapeshiftName(index)
+    local stanceId = index - 10
+    if (stanceId < 1) then
+        return ""
+    end
+    if (GetShapeshiftFormInfo) then
+        local icon, active, castable, spellId = GetShapeshiftFormInfo(stanceId)
+        -- print("checking", stanceId, GetShapeshiftFormInfo(stanceId))
+        if (spellId) then
+            local spellName, _ = GetSpellInfo(spellId)
+            return spellName
+        end
+    end
+
+    return ""
+end
+
 local closeResultsBox = false
 local closeResultsBox2 = false
 local cropAmount = 0.075
@@ -610,7 +628,7 @@ function ConditionerAddOn:IsValidShapeshift(id)
         return true
     elseif (id == 0 or id == 10) then
         return true
-    elseif (id > 10 and ConditionerAddOn.Enums.shapeShiftChoicesEnum[id] ~= "") then
+    elseif (id > 10 and ConditionerAddOn:GetShapeshiftName(id) ~= "") then
         return true
     else
         return false
@@ -2592,6 +2610,9 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
     CONDITIONERDROPDOWNMENU_SetWidth(o, width)
     function o:Update()
         local text = choices[ConditionerAddOn.CurrentPriorityButton.Conditions[key]]
+        if (ConditionerAddOn.CurrentPriorityButton.Conditions[key] > 10 and key == "shapeShiftEnum") then
+            text = ConditionerAddOn:GetShapeshiftName(ConditionerAddOn.CurrentPriorityButton.Conditions[key])
+        end
         if (ConditionerAddOn.CurrentPriorityButton.Conditions[key] == 0) then
             text = string.format("|cffd742f4%s|r", text)
         end
@@ -2622,7 +2643,7 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
                 elseif (key == "shapeShiftEnum") then
                     local validShapeshift = ConditionerAddOn:IsValidShapeshift(i)
                     if (validShapeshift) then
-                        info.text = choices[i]
+                        info.text = i > 10 and ConditionerAddOn:GetShapeshiftName(i) or choices[i]
                         info.func = self.SetValue
                         info.arg1 = i
                         info.checked = (i == ConditionerAddOn.CurrentPriorityButton.Conditions[key])
@@ -2645,6 +2666,9 @@ function ConditionerAddOn:NewDropDown(title, name, parent, width, choices, key)
         local text = choices[newValue]
         if (newValue == 0) then
             text = string.format("|cffd742f4%s|r", choices[newValue])
+        end
+        if (newValue > 10 and key == "shapeShiftEnum") then
+            text = ConditionerAddOn:GetShapeshiftName(newValue)
         end
         CONDITIONERDROPDOWNMENU_SetText(o, text)
         ConditionerCloseDropDownMenus()
@@ -3249,26 +3273,6 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.TrackedFrameDragAnchor:Show()
         ConditionerAddOn.AoeRotation:Show()
     end)
-    -- stance things
-    function ConditionerAddOn:GetShapeshiftName(index)
-        if (GetShapeshiftFormInfo) then
-            local icon, active, castable, spellId = GetShapeshiftFormInfo(index)
-            if (spellId) then
-                local spellName, _ = GetSpellInfo(spellId)
-                return spellName
-            end
-        end
-
-        return ""
-    end
-
-    local stance1 = ConditionerAddOn:GetShapeshiftName(1)
-    local stance2 = ConditionerAddOn:GetShapeshiftName(2)
-    local stance3 = ConditionerAddOn:GetShapeshiftName(3)
-    local stance4 = ConditionerAddOn:GetShapeshiftName(4)
-    local stance5 = ConditionerAddOn:GetShapeshiftName(5)
-    local stance6 = ConditionerAddOn:GetShapeshiftName(6)
-    local stance7 = ConditionerAddOn:GetShapeshiftName(7)
 
     ConditionerAddOn.Enums = {
         resourceEnum = {
@@ -3358,13 +3362,13 @@ function ConditionerAddOn:Init()
             "Enrage",
             "Shadow Dance",
             "No Form",
-            stance1,
-            stance2,
-            stance3,
-            stance4,
-            stance5,
-            stance6,
-            stance7,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
         }
     }
     ConditionerAddOn.SharedConditionerFrame.DropDowns = {}
