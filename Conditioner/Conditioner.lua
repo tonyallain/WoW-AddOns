@@ -2130,16 +2130,16 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local shapeShiftChoice = ConditionerAddOn.Enums.shapeShiftChoicesEnum[Conditions.shapeShiftEnum]
         local noForm = shapeShiftChoice == "No Form"
         local currentForm = GetShapeshiftForm and GetShapeshiftForm() or -1
-        local stanceId = Conditions.shapeShiftEnum - 10
+        local stanceId = tonumber(Conditions.shapeShiftEnum)
         local isActive = true
-        if (stanceId > 0) then
+        if (stanceId and stanceId > 0) then
             local _, active, _, _ = GetShapeshiftFormInfo(stanceId)
             isActive = active
         end
         if (noForm and currentForm ~= 0) then
             return false
         end
-        if (not noForm and not ConditionerAddOn.BuffExists("player", shapeShiftChoice) and not isActive) then
+        if (not noForm and not ConditionerAddOn.BuffExists("player", stanceId and "" or shapeShiftChoice) and not isActive) then
             -- print("FAILED - SHAPESHIFT")
             return false
         end
@@ -5569,7 +5569,6 @@ ConditionerAddOn:SetScript("OnUpdate", function(self, elapsed)
     ConditionerAddOn:OnUpdate(elapsed)
     ConditionerAddOn:UpdateSwingTimers(elapsed)
     ConditionerAddOn:UpdateCastBar(elapsed)
-
     if (closeResultsBox and ConditionerAddOn.SharedConditionerFrame.ResultsBox) then
         if (ConditionerAddOn.SharedConditionerFrame.ResultsBox:IsShown()) then
             ConditionerAddOn.SharedConditionerFrame.ResultsBox:ClearResults()
