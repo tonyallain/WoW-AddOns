@@ -610,6 +610,8 @@ function ConditionerAddOn:IsValidShapeshift(id)
         return true
     elseif (id == 0 or id == 10) then
         return true
+    elseif (id > 10 and ConditionerAddOn.Enums.shapeShiftChoicesEnum[id] ~= "") then
+        return true
     else
         return false
     end
@@ -1753,7 +1755,7 @@ function ConditionerAddOn:CollectMouseOverSpells(sortedList)
     ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
     local lastParentFrame = ConditionerAddOn.MouseIconTracker
     local found = 0
-    local scale = UIParent:GetScale() * 0.15
+    local scale = UIParent:GetScale() * 0.25
     for i, v in ipairs(sortedList) do
         if (v.isMouseover and found < ConditionerAddOn_SavedVariables.Options.MouseoverNumTrackedFrames) then
             local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
@@ -1809,7 +1811,7 @@ function ConditionerAddOn:CollectAoeSpells(sortedList)
     ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
     local lastParentFrame = ConditionerAddOn.AoeRotation.Anchor
     local found = 0
-    local scale = UIParent:GetScale() * 0.15
+    local scale = UIParent:GetScale() * 0.25
     for i, v in ipairs(sortedList) do
         if (v.isAoe and found < ConditionerAddOn_SavedVariables.Options.AoeNumTrackedFrames) then
             local keybind = ConditionerAddOn.PriorityButtons[v.priority].Conditions.keyBindingString
@@ -2110,10 +2112,16 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local shapeShiftChoice = ConditionerAddOn.Enums.shapeShiftChoicesEnum[Conditions.shapeShiftEnum]
         local noForm = shapeShiftChoice == "No Form"
         local currentForm = GetShapeshiftForm and GetShapeshiftForm() or -1
+        local stanceId = Conditions.shapeShiftEnum - 10
+        local isActive = true
+        if (stanceId > 0) then
+            local _, active, _, _ = GetShapeshiftFormInfo(stanceId)
+            isActive = active
+        end
         if (noForm and currentForm ~= 0) then
             return false
         end
-        if (not noForm and not ConditionerAddOn.BuffExists("player", shapeShiftChoice)) then
+        if (not noForm and not ConditionerAddOn.BuffExists("player", shapeShiftChoice) and not isActive) then
             -- print("FAILED - SHAPESHIFT")
             return false
         end
@@ -3241,6 +3249,27 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.TrackedFrameDragAnchor:Show()
         ConditionerAddOn.AoeRotation:Show()
     end)
+    -- stance things
+    function ConditionerAddOn:GetShapeshiftName(index)
+        if (GetShapeshiftFormInfo) then
+            local icon, active, castable, spellId = GetShapeshiftFormInfo(index)
+            if (spellId) then
+                local spellName, _ = GetSpellInfo(spellId)
+                return spellName
+            end
+        end
+
+        return ""
+    end
+
+    local stance1 = ConditionerAddOn:GetShapeshiftName(1)
+    local stance2 = ConditionerAddOn:GetShapeshiftName(2)
+    local stance3 = ConditionerAddOn:GetShapeshiftName(3)
+    local stance4 = ConditionerAddOn:GetShapeshiftName(4)
+    local stance5 = ConditionerAddOn:GetShapeshiftName(5)
+    local stance6 = ConditionerAddOn:GetShapeshiftName(6)
+    local stance7 = ConditionerAddOn:GetShapeshiftName(7)
+
     ConditionerAddOn.Enums = {
         resourceEnum = {
             [0] = "Select a Resource Type",
@@ -3328,7 +3357,14 @@ function ConditionerAddOn:Init()
             "Shadowform",
             "Enrage",
             "Shadow Dance",
-            "No Form"
+            "No Form",
+            stance1,
+            stance2,
+            stance3,
+            stance4,
+            stance5,
+            stance6,
+            stance7,
         }
     }
     ConditionerAddOn.SharedConditionerFrame.DropDowns = {}
