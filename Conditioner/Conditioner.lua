@@ -2132,15 +2132,15 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local currentForm = GetShapeshiftForm and GetShapeshiftForm() or -1
         local stanceId = tonumber(Conditions.shapeShiftEnum)
         local isActive = true
-        if (stanceId and stanceId > 0) then
-            local _, active, _, _ = GetShapeshiftFormInfo(stanceId)
+        if (stanceId and stanceId > 10) then
+            local _, active, _, _ = GetShapeshiftFormInfo(stanceId - 10)
             isActive = active
         end
         if (noForm and currentForm ~= 0) then
             return false
         end
         if (not noForm and not ConditionerAddOn.BuffExists("player", stanceId and "" or shapeShiftChoice) and not isActive) then
-            -- print("FAILED - SHAPESHIFT")
+            -- print("FAILED - SHAPESHIFT", stanceId, shapeShiftChoice, isActive)
             return false
         end
     end
