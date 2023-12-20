@@ -2268,12 +2268,18 @@ function ConditionerAddOn:CheckCondition(priorityButton)
 
     local activeAuraName = Conditions.activeAuraString
     local myActiveAuraName = Conditions.myActiveAura
+    local noFilter = string.sub(activeAuraName, 1, 1)
+    local filter = "PLAYER"
+    if (noFilter and noFilter == "~") then
+        activeAuraName = string.sub(activeAuraName, 2, #activeAuraName)
+        filter = ""
+    end
     local auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _,
-    _, _, _, auraTimeMod = ConditionerAddOn.DebuffExists(targetUnitToken, activeAuraName, "PLAYER")
+    _, _, _, auraTimeMod = ConditionerAddOn.DebuffExists(targetUnitToken, activeAuraName, filter)
     if (not auraName) then
         auraName, auraIcon, auraStacks, _, auraDuration, auraExpireTimestamp, _, auraIsStealable, _, auraSpellID, _, _, _
         , _, auraTimeMod =
-            ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, "PLAYER")
+            ConditionerAddOn.BuffExists(targetUnitToken, activeAuraName, filter)
     end
 
     -- check for my active aura
@@ -3524,7 +3530,7 @@ function ConditionerAddOn:Init()
         ConditionerAddOn.SharedConditionerFrame.EditBoxes[3]:GetHeight())
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].title = "Active Aura"
     ConditionerAddOn.SharedConditionerFrame.EditBoxes[3].tooltip =
-    "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit. This field can interact with the Aura Seconds Remaining option. Spell ID numbers are supported.\n\n|cffFFff00Right click to empty input box.|r"
+    "Type in the name of a spell you want to track.\n\nConditioner will search if the spell is an active buff or debuff on your selected Target Unit. This field can interact with the Aura Seconds Remaining option. Spell ID numbers are supported.\n\nAdd ~ before the spell name to ignore who the caster of the spell is, you may want to do this for spells like Hunter's Mark or Power Word: Fortitude for example.\n\n|cffFFff00Right click to empty input box.|r"
 
     -- aura search box
     ConditionerAddOn.SharedConditionerFrame.ResultsBox = CreateFrame("Frame", nil,
