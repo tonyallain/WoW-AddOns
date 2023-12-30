@@ -991,7 +991,7 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                 local progressRH = w * elapsed / (RH - shotTimer)
                 local newWidthRH = ConditionerAddOn.TrackedFrameDragAnchor.Ranged:GetWidth() + progressRH
 
-                if ((IsCurrentSpell(75) or IsCurrentSpell(7918) or IsCurrentSpell(7919)) and newWidthRH >= w) then
+                if ((IsCurrentSpell(75) or IsCurrentSpell(7918) or IsCurrentSpell(7919) or IsCurrentSpell(5019)) and newWidthRH >= w) then
                     -- add to the shot timer
                     local shotProgress = w * elapsed / shotTimer
                     local newShotWidth = ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:GetWidth() + shotProgress
@@ -1019,7 +1019,9 @@ end
 
 function ConditionerAddOn:HandleSwingTimerRanged(...)
     -- local autoShotSpellID = 75
-    if (select(1, ...) == "player") and ((select(3, ...) == 75) or (select(3, ...) == 7918) or (select(3, ...) == 7919)) and (ConditionerAddOn.TrackedFrameDragAnchor.Ranged) then
+    local caster = select(1, ...)
+    local spellId = select(3, ...)
+    if (caster == "player") and ((spellId == 75) or (spellId == 7918) or (spellId == 7919) or (spellId == 5019)) and (ConditionerAddOn.TrackedFrameDragAnchor.Ranged) then
         ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetWidth(0.1)
         ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(0.1)
     end
@@ -2020,6 +2022,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         if (itemID > 0) then
             _, GCDTime = GetSpellBaseCooldown(itemSpell)
         end
+        local spellName, _ = GetSpellInfo(testID)
+        testID = (itemID > 0) and itemID or spellName
         local _, isReady = testFunc(testID)
         if (isReady > GCDTime / 1000) then
             -- print("FAILED - READY")
@@ -2252,6 +2256,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
             else
                 local cdFunc = (itemID > 0) and GetItemCooldown or GetSpellCooldown
                 local cdID = (itemID > 0) and itemID or spellID
+                local spellName, _ = GetSpellInfo(cdID)
+                cdID = (itemID > 0) and itemID or spellName
                 local myStartTime, myDuration = cdFunc(cdID)
                 local myEndTime = (myDuration == 0) and 0 or (myStartTime + myDuration) * 1000
                 local enemyEndTime = castEnd or channelEnd
@@ -2422,6 +2428,8 @@ function ConditionerAddOn:CheckCondition(priorityButton)
 
     local finalFunc = (itemID > 0) and GetItemCooldown or GetSpellCooldown
     local finalID = math.max(itemID, spellID)
+    local spellName, _ = GetSpellInfo(finalID)
+    finalID = (itemID > 0) and itemID or spellName
     local finalStartTime, finalDurationTime = finalFunc(finalID)
     local finalTimeLeft = math.max((finalStartTime + finalDurationTime) - GetTime(), 0)
     local _, itemSpell = GetItemSpell(itemID)
