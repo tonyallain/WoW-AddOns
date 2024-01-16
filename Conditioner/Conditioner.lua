@@ -2431,6 +2431,9 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     local spellName, _ = GetSpellInfo(finalID)
     finalID = (itemID > 0) and itemID or spellName
     local finalStartTime, finalDurationTime = finalFunc(finalID)
+    if (finalStartTime == nil) then
+        return false
+    end
     local finalTimeLeft = math.max((finalStartTime + finalDurationTime) - GetTime(), 0)
     local _, itemSpell = GetItemSpell(itemID)
     local _, myGCD = GetSpellBaseCooldown(spellID)
