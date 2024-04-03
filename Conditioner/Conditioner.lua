@@ -2162,8 +2162,10 @@ function ConditionerAddOn:CheckCondition(priorityButton)
 
     local inRange = false
     if (itemID > 0) then
-        inRange = IsItemInRange(itemID, targetUnitToken)
-        inRange = (inRange == nil) and 1 or inRange
+        -- IsItemInRange is now restricted to Blizzard use only
+        -- inRange = IsItemInRange(itemID, targetUnitToken)
+        -- inRange = (inRange == nil) and 1 or inRange
+        inRange = true
     else
         local spellBookSlot = FindSpellBookSlotBySpellID(spellID)
         local petBookSlot = FindSpellBookSlotBySpellID(spellID, "pet")
@@ -2874,7 +2876,7 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             cooldownRemainingAmount = 0
         }
         function o:UpdateTexture()
-            o.CurrentTexture = GetItemIcon(o.Data.itemID) or GetSpellTexture(o.Data.spellID) or 0
+            o.CurrentTexture = o.Data.itemID > 0 and GetItemIcon(o.Data.itemID) or GetSpellTexture(o.Data.spellID) or 0
             if (o.CurrentTexture > 0) then
                 o.icon:SetTexture(o.CurrentTexture)
             else
