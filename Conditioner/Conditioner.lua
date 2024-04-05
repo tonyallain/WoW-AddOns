@@ -2025,7 +2025,7 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local spellName, _ = GetSpellInfo(testID)
         testID = (itemID > 0) and itemID or spellName
         local _, isReady = testFunc(testID)
-        if (isReady > GCDTime / 1000) then
+        if (isReady and GCDTime and isReady > (GCDTime / 1000)) then
             -- print("FAILED - READY")
             return false
         end
@@ -4099,6 +4099,7 @@ function ConditionerAddOn:Init()
             PlaySound(1202)
         elseif (button == "LeftButton") then
             local spellID, itemID = ConditionerAddOn:GetCursorInfo()
+            spellID = ConditionerGetOverrideSpell(spellID)
             if (spellID) then
                 ConditionerAddOn.CurrentPriorityButton.Conditions.cooldownRemainingIsItemID = (itemID > 0) and true or
                     false
