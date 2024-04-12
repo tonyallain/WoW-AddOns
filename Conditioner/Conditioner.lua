@@ -19,7 +19,7 @@ local ConditionerGetSpecializationInfo = _G.GetSpecializationInfo or
     end
 local ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(spellId)
     -- is this a rune?
-    if (C_Engraving and C_Engraving.GetRuneForEquipmentSlot) then
+    if (C_Engraving and C_Engraving.GetRuneForEquipmentSlot and spellId) then
         local runeSpellName, _ = GetSpellInfo(spellId)                                    -- gives the spell like Hands/Legs/Chest Rune Ability
         local overrideSpellName, _, _, _, _, _, runeSpellID = GetSpellInfo(runeSpellName) -- by name gives the spell that is currently overriding it
         if (runeSpellID and runeSpellName ~= overrideSpellName) then
@@ -45,6 +45,9 @@ function ClearCastingInfo(castGuid)
         currentCastingInfo = {}
     end
 end
+
+local GetItemCooldown = _G.GetItemCooldown or (C_Container and C_Container.GetItemCooldown) or
+    function() return 0, 0, 1 end
 
 -- ===========================================================================================================--
 local ConditionerAddOn = CreateFrame("Frame")
@@ -2876,7 +2879,8 @@ function ConditionerAddOn:NewPriorityButton(isPrimary)
             cooldownRemainingAmount = 0
         }
         function o:UpdateTexture()
-            o.CurrentTexture = o.Data.itemID > 0 and GetItemIcon(o.Data.itemID) or GetSpellTexture(o.Data.spellID) or 0
+            local overrideSpellID = ConditionerGetOverrideSpell(o.Data.spellID)
+            o.CurrentTexture = o.Data.itemID > 0 and GetItemIcon(o.Data.itemID) or GetSpellTexture(overrideSpellID) or 0
             if (o.CurrentTexture > 0) then
                 o.icon:SetTexture(o.CurrentTexture)
             else
