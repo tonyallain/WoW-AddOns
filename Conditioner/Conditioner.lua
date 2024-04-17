@@ -2163,12 +2163,12 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         end
     end
 
-    local inRange = false
+    local inRange
     if (itemID > 0) then
         -- IsItemInRange is now restricted to Blizzard use only
         -- inRange = IsItemInRange(itemID, targetUnitToken)
         -- inRange = (inRange == nil) and 1 or inRange
-        inRange = true
+        inRange = 1
     else
         local spellBookSlot = FindSpellBookSlotBySpellID(spellID)
         local petBookSlot = FindSpellBookSlotBySpellID(spellID, "pet")
