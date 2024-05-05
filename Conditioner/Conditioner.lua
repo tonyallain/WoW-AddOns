@@ -30,7 +30,8 @@ local ConditionerGetOverrideSpell = _G.C_SpellBook.GetOverrideSpell or function(
     return spellId
 end
 local ConditionerTransmogUtil = _G.TransmogUtil or {
-    GetTransmogLocation = function() end
+    GetTransmogLocation = function() end,
+    GetSlotID = function(s) return s end
 }
 local ConditionerTransmog = _G.C_Transmog or {
     GetSlotInfo = function() end
@@ -45,6 +46,8 @@ function ClearCastingInfo(castGuid)
         currentCastingInfo = {}
     end
 end
+
+local rangedSlotExists = true
 
 local GetItemCooldown = _G.GetItemCooldown or (C_Container and C_Container.GetItemCooldown) or
     function() return 0, 0, 1 end
@@ -952,7 +955,8 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
             ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Text:SetFont("Fonts\\FRIZQT__.TTF", math.ceil(0.6 * h),
                 "OUTLINE, NORMAL")
             if (MH) then
-                local transmogSlot = ConditionerTransmogUtil.GetTransmogLocation("MAINHANDSLOT",
+                local mhSlot = ConditionerTransmogUtil.GetSlotID("MAINHANDSLOT")
+                local transmogSlot = ConditionerTransmogUtil.GetTransmogLocation(mhSlot,
                     Enum.TransmogType.Appearance,
                     Enum.TransmogModification.Main)
                 local _, _, _, _, _, _, _, textureId = ConditionerTransmog.GetSlotInfo(transmogSlot)
@@ -970,7 +974,8 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
             end
 
             if (OH) then
-                local transmogSlotOH = ConditionerTransmogUtil.GetTransmogLocation("SECONDARYHANDSLOT",
+                local ohSlot = ConditionerTransmogUtil.GetSlotID("SECONDARYHANDSLOT")
+                local transmogSlotOH = ConditionerTransmogUtil.GetTransmogLocation(ohSlot,
                     Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
                 local _, _, _, _, _, _, _, textureIdOH = ConditionerTransmog.GetSlotInfo(transmogSlotOH)
                 textureIdOH = textureIdOH or GetInventoryItemTexture("player", INVSLOT_OFFHAND or 17)
@@ -986,29 +991,36 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                 ConditionerAddOn.TrackedFrameDragAnchor.OffHand:Hide()
             end
 
-            if (RH and RH > 0 and not ConditionerAddOn_SavedVariables.Options.HideRangedSwingTimer) then
-                local transmogSlotRH = ConditionerTransmogUtil.GetTransmogLocation("RANGEDSLOT",
-                    Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
-                local _, _, _, _, _, _, _, textureIdRH = ConditionerTransmog.GetSlotInfo(transmogSlotRH)
-                textureIdRH = textureIdRH or GetInventoryItemTexture("player", INVSLOT_RANGED or 18)
-                local progressRH = w * elapsed / (RH - shotTimer)
-                local newWidthRH = ConditionerAddOn.TrackedFrameDragAnchor.Ranged:GetWidth() + progressRH
+            if (RH and RH > 0 and not ConditionerAddOn_SavedVariables.Options.HideRangedSwingTimer and rangedSlotExists) then
+                local rSlot
+                if (pcall(ConditionerTransmogUtil.GetSlotID, "RANGEDSLOT")) then
+                    rSlot = ConditionerTransmogUtil.GetSlotID("RANGEDSLOT")
+                    local transmogSlotRH = ConditionerTransmogUtil.GetTransmogLocation(rSlot,
+                        Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
+                    local _, _, _, _, _, _, _, textureIdRH = ConditionerTransmog.GetSlotInfo(transmogSlotRH)
+                    textureIdRH = textureIdRH or GetInventoryItemTexture("player", INVSLOT_RANGED or 18)
+                    local progressRH = w * elapsed / (RH - shotTimer)
+                    local newWidthRH = ConditionerAddOn.TrackedFrameDragAnchor.Ranged:GetWidth() + progressRH
 
-                if ((IsCurrentSpell(75) or IsCurrentSpell(7918) or IsCurrentSpell(7919) or IsCurrentSpell(5019)) and newWidthRH >= w) then
-                    -- add to the shot timer
-                    local shotProgress = w * elapsed / shotTimer
-                    local newShotWidth = ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:GetWidth() + shotProgress
-                    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth((newShotWidth >= w) and w or newShotWidth)
+                    if ((IsCurrentSpell(75) or IsCurrentSpell(7918) or IsCurrentSpell(7919) or IsCurrentSpell(5019)) and newWidthRH >= w) then
+                        -- add to the shot timer
+                        local shotProgress = w * elapsed / shotTimer
+                        local newShotWidth = ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:GetWidth() + shotProgress
+                        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth((newShotWidth >= w) and w or
+                            newShotWidth)
+                    else
+                        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(0.1)
+                    end
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetSize((newWidthRH >= w) and w or newWidthRH, h)
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Background:SetWidth(w - newWidthRH)
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot:SetWidth(
+                        ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:GetHeight())
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:SetTexture(textureIdRH)
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Show()
+                    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Show()
                 else
-                    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(0.1)
+                    rangedSlotExists = false
                 end
-                ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetSize((newWidthRH >= w) and w or newWidthRH, h)
-                ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Background:SetWidth(w - newWidthRH)
-                ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot:SetWidth(
-                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:GetHeight())
-                ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:SetTexture(textureIdRH)
-                ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Show()
-                ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Show()
             else
                 ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Hide()
                 ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Hide()
@@ -2163,12 +2175,12 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         end
     end
 
-    local inRange
+    local inRange = false
     if (itemID > 0) then
         -- IsItemInRange is now restricted to Blizzard use only
         -- inRange = IsItemInRange(itemID, targetUnitToken)
         -- inRange = (inRange == nil) and 1 or inRange
-        inRange = 1
+        inRange = true
     else
         local spellBookSlot = FindSpellBookSlotBySpellID(spellID)
         local petBookSlot = FindSpellBookSlotBySpellID(spellID, "pet")

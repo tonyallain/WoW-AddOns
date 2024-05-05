@@ -1,6 +1,6 @@
 {
   "name": "conditioner",
-  "version": "10.2.6d",
+  "version": "10.2.6e",
   "description": "Combat rotation tracking AddOn for World of Warcraft",
   "main": "index.js",
   "scripts": {
