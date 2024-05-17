@@ -3263,7 +3263,8 @@ function ConditionerAddOn:Init()
     ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetPoint("BOTTOMLEFT", ConditionerAddOn.TrackedFrameDragAnchor
         .Ranged, "BOTTOMLEFT")
     ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetSize(1, 2)
-
+    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:Hide()
+    ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:Hide()
 
     -- can piggyback to make casting bar
     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar = ConditionerAddOn:CreateSwingFrame("CASTBAR", UIParent, 1, 1,
