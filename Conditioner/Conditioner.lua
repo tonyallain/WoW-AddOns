@@ -2355,9 +2355,11 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     if (Conditions.cooldownRemainingID > 0) then
         -- check this cooldown
         local testFunc = (Conditions.cooldownRemainingIsItemID) and GetItemCooldown or GetSpellCooldown
-        local trackedStart, trackedDuration = testFunc(Conditions.cooldownRemainingID)
+        local spellName, _ = GetSpellInfo(Conditions.cooldownRemainingID)
+        local finalID = (Conditions.cooldownRemainingIsItemID) and Conditions.cooldownRemainingID or spellName
+        local trackedStart, trackedDuration = testFunc(finalID)
         -- might use charges
-        local numCharges, maxCharges, chargesStart, chargesDuration = GetSpellCharges(Conditions.cooldownRemainingID)
+        local numCharges, maxCharges, chargesStart, chargesDuration = GetSpellCharges(finalID)
         local rightValue = Conditions.cooldownRemainingAmount
         if (chargesStart) then
             -- some special logic, if 0 then they want to know when numCharges > 0 otherwise, the time before a charge is ready most likely
