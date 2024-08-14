@@ -63,7 +63,9 @@ function sodFourPiece()
     local hostile = _G.UnitCanAttack("player", "target")
     if (creatureType and hostile and not isActive(creatureType)) then
       local spellName = creatureToSpell[creatureType]
-      _G.CastSpellByName(spellName)
+      if (spellName) then
+        _G.CastSpellByName(spellName, "player")
+      end
     end
   end
 end
