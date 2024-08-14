@@ -18,7 +18,6 @@ local creatureToBuff = {
   ["Undead"] = "Undead Slaying",
   ["Dragonkin"] = "Dragon Slaying"
 }
-local autoApply4Piece = true
 local toggleName = "4pieceToggle"
 local activeName = "4pieceActivate"
 local huntersMark = 132212
@@ -57,11 +56,17 @@ local function createMacros()
   end
 end
 
-function sodFourPiece()
-  if (_G.UnitCreatureType and _G.CastSpellByName and _G.UnitCanAttack) then
+function sodFourPiece(targetChanged)
+  if (_G.UnitCreatureType and _G.CastSpellByName and _G.UnitCanAttack and _G.UnitIsDead) then
     local creatureType = _G.UnitCreatureType("target")
     local hostile = _G.UnitCanAttack("player", "target")
-    if (creatureType and hostile and not isActive(creatureType)) then
+    local isAlive = not _G.UnitIsDead("target")
+    if (not targetChanged) then
+      -- allow manual macro to do the right tracking always
+      isAlive = true
+      hostile = true
+    end
+    if (isAlive and creatureType and hostile and not isActive(creatureType)) then
       local spellName = creatureToSpell[creatureType]
       if (spellName) then
         _G.CastSpellByName(spellName, "player")
@@ -71,15 +76,25 @@ function sodFourPiece()
 end
 
 function toggleFourPiece()
-  autoApply4Piece = not autoApply4Piece
-  local msg = autoApply4Piece and "Enabled" or "Disabled"
+  Hunter4Piece_SavedVariables.autoApply4Piece = not Hunter4Piece_SavedVariables.autoApply4Piece
+  local msg = Hunter4Piece_SavedVariables.autoApply4Piece and "Enabled" or "Disabled"
   print("Hunter Four Piece Bonus automation is now: " .. msg)
 end
 
 function Hunter4Piece.EventHandler:PLAYER_TARGET_CHANGED(...)
   createMacros()
-  if (autoApply4Piece) then
-    sodFourPiece()
+  if (Hunter4Piece_SavedVariables.autoApply4Piece) then
+    sodFourPiece(true)
+  end
+end
+
+function Hunter4Piece.EventHandler:ADDON_LOADED(...)
+  local AddOnName = select(1, ...)
+  if (AddOnName == "Hunter4Piece") then
+    Hunter4Piece_SavedVariables = Hunter4Piece_SavedVariables or {}
+    if (Hunter4Piece_SavedVariables.autoApply4Piece == nil) then
+      Hunter4Piece_SavedVariables.autoApply4Piece = true
+    end
   end
 end
 

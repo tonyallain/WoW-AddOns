@@ -2,4 +2,5 @@
 ## Title: Hunter 4 Piece
 ## Notes: Tiny helper to auto track enemies
 ## Author: Tony Allain
+## SavedVariables: Hunter4Piece_SavedVariables
 Hunter4Piece.lua
