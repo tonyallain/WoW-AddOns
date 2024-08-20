@@ -2370,6 +2370,10 @@ function ConditionerAddOn:CheckCondition(priorityButton)
             end
             trackedStart, trackedDuration = chargesStart, chargesDuration
         end
+        if (not trackedStart or not trackedDuration) then
+            -- print("debug: failed")
+            return false
+        end
         local leftValue = math.max((trackedStart + trackedDuration) - GetTime(), 0)
 
         local satisfied = ConditionerAddOn:CompareValues(leftValue, Conditions.cooldownRemainingEnum, rightValue)
