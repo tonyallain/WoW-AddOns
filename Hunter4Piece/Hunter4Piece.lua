@@ -57,16 +57,24 @@ local function createMacros()
 end
 
 function sodFourPiece(targetChanged)
-  if (_G.UnitCreatureType and _G.CastSpellByName and _G.UnitCanAttack and _G.UnitIsDead) then
+  if (_G.UnitCastingInfo) then
+    local isCasting = _G.UnitCastingInfo("player")
+    if (isCasting) then
+      return false
+    end
+  end
+  if (_G.UnitPlayerControlled and _G.UnitCreatureType and _G.CastSpellByName and _G.UnitCanAttack and _G.UnitIsDead) then
     local creatureType = _G.UnitCreatureType("target")
     local hostile = _G.UnitCanAttack("player", "target")
     local isAlive = not _G.UnitIsDead("target")
+    local allowPlayer = not _G.UnitPlayerControlled("target")
     if (not targetChanged) then
       -- allow manual macro to do the right tracking always
       isAlive = true
       hostile = true
+      allowPlayer = true
     end
-    if (isAlive and creatureType and hostile and not isActive(creatureType)) then
+    if (allowPlayer and isAlive and creatureType and hostile and not isActive(creatureType)) then
       local spellName = creatureToSpell[creatureType]
       if (spellName) then
         _G.CastSpellByName(spellName, "player")
