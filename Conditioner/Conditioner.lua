@@ -1559,7 +1559,7 @@ end
 
 function ConditionerAddOn:NewSlider(parent, name, minText, maxText, min_Value, max_Value, sliderText, initValue, key,
                                     hidePercent)
-    local o = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
+    local o = CreateFrame("Slider", name, parent, "ConditionerOptionsSliderTemplate")
     o.textLow = _G[name .. "Low"]
     o.textHigh = _G[name .. "High"]
     o.text = _G[name .. "Text"]
