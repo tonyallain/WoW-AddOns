@@ -18,6 +18,7 @@ local HasPetSpells = C_SpellBook.HasPetSpells
 local PickupSpell = C_Spell.PickupSpell
 local PickupSpellBookItem = C_SpellBook.PickupSpellBookItem
 local GetSpellCharges = C_Spell.GetSpellCharges
+local IsCurrentSpell = C_Spell.IsCurrentSpell
 
 local ConditionerSpellsFrame = CreateFrame("Frame", nil, UIParent)
 ConditionerSpellsFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT")
@@ -2084,7 +2085,10 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local spellName = GetSpellInfo(testID).name
         testID = (itemID > 0) and itemID or spellName
         local _, isReady = testFunc(testID)
-        if (isReady and GCDTime and isReady > (GCDTime / 1000)) then
+        if (not (itemID > 0)) then
+            isReady = testFunc(testID).startTime == 0
+        end
+        if (not isReady) then
             -- print("FAILED - READY")
             return false
         end
@@ -2314,6 +2318,10 @@ function ConditionerAddOn:CheckCondition(priorityButton)
                 local spellName = GetSpellInfo(cdID).name
                 cdID = (itemID > 0) and itemID or spellName
                 local myStartTime, myDuration = cdFunc(cdID)
+                if (not (itemID > 0)) then
+                    local cdInfo = cdFunc(cdID)
+                    myStartTime, myDuration = cdInfo.startTime, cdInfo.duration
+                end
                 local myEndTime = (myDuration == 0) and 0 or (myStartTime + myDuration) * 1000
                 local enemyEndTime = castEnd or channelEnd
                 if (enemyEndTime < myEndTime) then
@@ -2396,6 +2404,13 @@ function ConditionerAddOn:CheckCondition(priorityButton)
         local spellName = GetSpellInfo(Conditions.cooldownRemainingID).name
         local finalID = (Conditions.cooldownRemainingIsItemID) and Conditions.cooldownRemainingID or spellName
         local trackedStart, trackedDuration = testFunc(finalID)
+        if (not Conditions.cooldownRemainingIsItemID) then
+            local cdInfo = testFunc(finalID)
+            trackedStart = cdInfo.startTime
+            trackedDuration = cdInfo.duration
+        else
+
+        end
         local rightValue = Conditions.cooldownRemainingAmount
         if (chargeInfo) then
             -- might use charges
@@ -2494,8 +2509,14 @@ function ConditionerAddOn:CheckCondition(priorityButton)
     local finalID = math.max(itemID, spellID)
     local spellName = GetSpellInfo(finalID).name
     finalID = (itemID > 0) and itemID or spellName
-    local finalData = finalFunc(finalID)
-    local finalStartTime, finalDurationTime = finalData.startTime, finalData.duration
+    local finalStartTime, finalDurationTime = finalFunc(finalID)
+    if (not (itemID > 0)) then
+        local finalData = finalFunc(finalID)
+        if (not finalData) then
+            return false
+        end
+        finalStartTime, finalDurationTime = finalData.startTime, finalData.duration
+    end
     if (finalStartTime == nil) then
         return false
     end
@@ -5626,15 +5647,18 @@ function ConditionerAddOn.EventHandler:UNIT_SPELLCAST_SUCCEEDED(...)
     ConditionerAddOn:HandleSwingTimerRanged(...)
 end
 
---[[
-function ConditionerAddOn.EventHandler:ADDON_ACTION_FORBIDDEN(...)
+-- function ConditionerAddOn.EventHandler:ADDON_ACTION_FORBIDDEN(...)
+--     if ("Conditioner" == select(1, ...)) then
+--         print(...)
+--     end
+-- end
 
-end
+-- function ConditionerAddOn.EventHandler:ADDON_ACTION_BLOCKED(...)
+--     if ("Conditioner" == select(1, ...)) then
+--         print(...)
+--     end
+-- end
 
-function ConditionerAddOn.EventHandler:ADDON_ACTION_BLOCKED(...)
-
-end
-]]
 ConditionerAddOn:SetScript("OnEvent", function(self, event, ...)
     ConditionerAddOn.EventHandler[event](self, ...)
 end)
@@ -5644,28 +5668,15 @@ end
 local hookSuccessful = false
 ConditionerAddOn:SetScript("OnUpdate", function(self, elapsed)
     -- hook to the playerspellsframe
-    if (not hookSuccessful and UnitAffectingCombat("player") and _G.PlayerSpellsFrame and _G.PlayerSpellsFrame:IsShown()) then
-        _G.PlayerSpellsFrame:HookScript("OnShow", function()
+    if (not hookSuccessful and _G.PlayerSpellsFrame and _G.PlayerSpellsFrame.SpellBookFrame and _G.PlayerSpellsFrame.SpellBookFrame:IsShown()) then
+        _G.PlayerSpellsFrame.SpellBookFrame:HookScript("OnShow", function()
             ConditionerSpellsFrame:Show()
         end)
-        _G.PlayerSpellsFrame:HookScript("OnHide", function()
+        _G.PlayerSpellsFrame.SpellBookFrame:HookScript("OnHide", function()
             ConditionerSpellsFrame:Hide()
         end)
         hookSuccessful = true
         ConditionerSpellsFrame:Show()
-    end
-    if (not hookSuccessful and PlayerSpellsUtil.ToggleSpellBookFrame ~= nil and not UnitAffectingCombat("player")) then
-        PlayerSpellsUtil.ToggleSpellBookFrame() -- show
-        PlayerSpellsUtil.ToggleSpellBookFrame() -- hide
-        if (_G.PlayerSpellsFrame) then
-            _G.PlayerSpellsFrame:HookScript("OnShow", function()
-                ConditionerSpellsFrame:Show()
-            end)
-            _G.PlayerSpellsFrame:HookScript("OnHide", function()
-                ConditionerSpellsFrame:Hide()
-            end)
-            hookSuccessful = true
-        end
     end
     ConditionerAddOn:OnUpdate(elapsed)
     ConditionerAddOn:UpdateSwingTimers(elapsed)
