@@ -784,18 +784,24 @@ function ConditionerAddOn:UpdateCastBar(elapsed)
                     --     )
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Texture:SetColorTexture(1, 1, 0)
                 end
-                local mult = (timeLeft - GetTime() * 1000) / (timeLeft - startTime)
-                if (castSpellName) then
-                    mult = 1 - mult
+                local targetWidth = mainTrackedFrame:GetWidth()
+                local totalDuration = (type(timeLeft) == "number") and timeLeft or 0
+                local elapsedTime = (type(startTime) == "number") and startTime or 0
+                local mult = 0
+                if (totalDuration > 0 and elapsedTime >= 0 and (totalDuration > elapsedTime)) then
+                    mult = (totalDuration - GetTime() * 1000) / (totalDuration - elapsedTime)
+                    if (castSpellName) then
+                        mult = 1 - mult
+                    end
+                    mult = math.max(0, math.min(1, mult))
                 end
-                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetWidth(math.min(mult * mainTrackedFrame:GetWidth(),
-                    mainTrackedFrame:GetWidth()))
-                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Background:SetWidth(mainTrackedFrame:GetWidth() -
-                    ConditionerAddOn.TrackedFrameDragAnchor
-                    .CastingBar:GetWidth())
+                local barWidth = math.min(mult * targetWidth, targetWidth)
+                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar:SetWidth(barWidth)
+                ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Background:SetWidth(math.max(0, targetWidth - barWidth))
 
                 if (ConditionerAddOn.ShowCastBar) then
-                    local convertedTime = ConditionerAddOn:ConvertTime(timeLeft / 1000 - GetTime())
+                    local remaining = (type(timeLeft) == "number") and (timeLeft / 1000 - GetTime()) or 0
+                    local convertedTime = ConditionerAddOn:ConvertTime(remaining)
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:ClearAllPoints()
                     ConditionerAddOn.TrackedFrameDragAnchor.CastingBar.Timer:SetPoint("CENTER", mainTrackedFrame,
                         "CENTER")
@@ -839,8 +845,8 @@ end
 
 function ConditionerAddOn:OnUpdate(elapsed)
     ConditionerAddOn:ClearTrackers()
-    if (ConditionerAddOn_SavedVariables.Options.OnlyDisplayInCombat) and (not ConditionerSpellsFrame:IsShown()) and
-        (not UnitAffectingCombat("player")) or (UnitHasVehicleUI("player")) then
+    if (UnitHasVehicleUI("player")) or ((ConditionerAddOn_SavedVariables.Options.OnlyDisplayInCombat) and
+            (not ConditionerSpellsFrame:IsShown()) and (not UnitAffectingCombat("player"))) then
         ConditionerAddOn:HideTrackerPool(ConditionerAddOn.MouseIconTracker.Pool)
         ConditionerAddOn:HideTrackerPool(ConditionerAddOn.AoeRotation.Pool)
         return
@@ -1007,8 +1013,9 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                 textureId = textureId or GetInventoryItemTexture("player", INVSLOT_MAINHAND or 16)
                 local progress = w * elapsed / MH
                 local newWidth = ConditionerAddOn.TrackedFrameDragAnchor.MainHand:GetWidth() + progress
-                ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetSize((newWidth >= w) and w or newWidth, h)
-                ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Background:SetWidth(w - newWidth)
+                newWidth = math.max(0, math.min(w, newWidth))
+                ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetSize(newWidth, h)
+                ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Background:SetWidth(math.max(0, w - newWidth))
                 ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Slot:SetWidth(
                     ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Slot.Icon:GetHeight())
                 ConditionerAddOn.TrackedFrameDragAnchor.MainHand.Slot.Icon:SetTexture(textureId)
@@ -1025,8 +1032,9 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                 textureIdOH = textureIdOH or GetInventoryItemTexture("player", INVSLOT_OFFHAND or 17)
                 local progressOH = w * elapsed / OH
                 local newWidthOH = ConditionerAddOn.TrackedFrameDragAnchor.OffHand:GetWidth() + progressOH
-                ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetSize((newWidthOH >= w) and w or newWidthOH, h)
-                ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Background:SetWidth(w - newWidthOH)
+                newWidthOH = math.max(0, math.min(w, newWidthOH))
+                ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetSize(newWidthOH, h)
+                ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Background:SetWidth(math.max(0, w - newWidthOH))
                 ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Slot:SetWidth(
                     ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Slot.Icon:GetHeight())
                 ConditionerAddOn.TrackedFrameDragAnchor.OffHand.Slot.Icon:SetTexture(textureIdOH)
@@ -1043,20 +1051,22 @@ function ConditionerAddOn:UpdateSwingTimers(elapsed)
                         Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
                     local _, _, _, _, _, _, _, textureIdRH = ConditionerTransmog.GetSlotInfo(transmogSlotRH)
                     textureIdRH = textureIdRH or GetInventoryItemTexture("player", INVSLOT_RANGED or 18)
-                    local progressRH = w * elapsed / (RH - shotTimer)
+                    local safeBrake = (shotTimer and shotTimer > 0) and shotTimer or 0.5
+                    local progressRH = w * elapsed / math.max((RH - safeBrake), 0.01)
                     local newWidthRH = ConditionerAddOn.TrackedFrameDragAnchor.Ranged:GetWidth() + progressRH
+                    newWidthRH = math.max(0, math.min(w, newWidthRH))
 
                     if ((IsCurrentSpell(75) or IsCurrentSpell(7918) or IsCurrentSpell(7919) or IsCurrentSpell(5019)) and newWidthRH >= w) then
                         -- add to the shot timer
-                        local shotProgress = w * elapsed / shotTimer
+                        local shotProgress = w * elapsed / math.max(safeBrake, 0.01)
                         local newShotWidth = ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:GetWidth() + shotProgress
-                        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth((newShotWidth >= w) and w or
-                            newShotWidth)
+                        ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(math.max(0.1,
+                            math.min(w, newShotWidth)))
                     else
                         ConditionerAddOn.TrackedFrameDragAnchor.RangedCast:SetWidth(0.1)
                     end
-                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetSize((newWidthRH >= w) and w or newWidthRH, h)
-                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Background:SetWidth(w - newWidthRH)
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged:SetSize(newWidthRH, h)
+                    ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Background:SetWidth(math.max(0, w - newWidthRH))
                     ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot:SetWidth(
                         ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:GetHeight())
                     ConditionerAddOn.TrackedFrameDragAnchor.Ranged.Slot.Icon:SetTexture(textureIdRH)
@@ -1096,13 +1106,15 @@ function ConditionerAddOn:HandleSwingTimerMelee(...)
         local attacker = eventArgs[5]
         if (attacker == UnitName("player")) then
             if (subEvent == "SWING_DAMAGE") then
-                if (eventArgs[21]) then
+                local isOffHand = type(eventArgs[21]) == "boolean" and eventArgs[21]
+                if (isOffHand) then
                     ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetWidth(0)
                 else
                     ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetWidth(0)
                 end
             elseif (subEvent == "SWING_MISSED") then
-                if (eventArgs[13]) then
+                local isOffHand = type(eventArgs[13]) == "boolean" and eventArgs[13]
+                if (isOffHand) then
                     ConditionerAddOn.TrackedFrameDragAnchor.OffHand:SetWidth(0)
                 else
                     ConditionerAddOn.TrackedFrameDragAnchor.MainHand:SetWidth(0)
@@ -1144,6 +1156,10 @@ function ConditionerAddOn:TooltipScrubber()
 end
 
 function ConditionerAddOn:SpellCacheInsert(word, i, node)
+    if (type(word) ~= "string") or (type(node) ~= "table") then
+        return
+    end
+    i = i or 1
     if (i <= #word) then
         local char = word:sub(i, i)
         local index = string.byte(char:lower())
